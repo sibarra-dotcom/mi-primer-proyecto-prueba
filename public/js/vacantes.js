@@ -1635,7 +1635,7 @@ function renderSolicitudesJefe() {
   grid.innerHTML = misSolicitudes.map(sol => {
     const estadoCalc = calcularEstadoSolicitud(sol);
     return `
-      <div class="vacante-card">
+      <div class="vacante-card" onclick="verDetalleSolicitud(${sol.id})" style="cursor:pointer">
         <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
           <h3 class="vacante-title">${escapeHtml(sol.titulo)}</h3>
           <span class="vacante-status status-${getBadgeClassSolicitud(estadoCalc)}">${getEstadoSolicitudLabel(estadoCalc)}</span>
@@ -1648,7 +1648,7 @@ function renderSolicitudesJefe() {
           <div class="vacante-info-item"><strong>Vacantes:</strong> ${sol.cantidadVacantes || 1}</div>
         </div>
         <p class="vacante-desc">${escapeHtml(sol.justificacion).substring(0, 120)}...</p>
-        <button class="btn btn-ghost btn-small" style="margin-top:auto;" onclick="verDetalleSolicitud(${sol.id})">Ver Detalle</button>
+        <button class="btn btn-ghost btn-small" style="margin-top:auto;" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button>
       </div>
     `;
   }).join('');
@@ -1677,7 +1677,7 @@ function renderSolicitudesAprobacion() {
     gridPendientes.innerHTML = '<p style="padding:20px;text-align:center;color:var(--muted);">No hay solicitudes pendientes de revisi\u00f3n</p>';
   } else {
     gridPendientes.innerHTML = pendientes.map(sol => `
-      <div class="vacante-card">
+      <div class="vacante-card" onclick="verDetalleSolicitud(${sol.id})" style="cursor:pointer">
         <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
           <h3 class="vacante-title">${escapeHtml(sol.titulo)}</h3>
           <span class="vacante-status status-solicitud-pendiente">${rolActual === 'gerente-finanzas' ? 'APROBADO POR D.O.' : 'PENDIENTE'}</span>
@@ -1692,7 +1692,7 @@ function renderSolicitudesAprobacion() {
         </div>
         <p class="vacante-desc">${escapeHtml(sol.justificacion).substring(0, 120)}...</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;">
-          <button class="btn btn-primary btn-small" onclick="verDetalleSolicitud(${sol.id})">Ver Detalle</button>
+          <button class="btn btn-primary btn-small" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button>
         </div>
       </div>
     `).join('');
@@ -1706,7 +1706,7 @@ function renderSolicitudesAprobacion() {
       const campoAprobacion = rolActual === 'gerente-finanzas' ? 'aprobacionFinanzas' : 'aprobacionDO';
       const miDecision = sol[campoAprobacion]?.estado || 'pendiente';
       return `
-        <div class="vacante-card">
+        <div class="vacante-card" onclick="verDetalleSolicitud(${sol.id})" style="cursor:pointer">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
             <h3 class="vacante-title">${escapeHtml(sol.titulo)}</h3>
             <span class="vacante-status status-${getBadgeClassSolicitud(estadoCalc)}">${getEstadoSolicitudLabel(estadoCalc)}</span>
@@ -1716,7 +1716,7 @@ function renderSolicitudesAprobacion() {
             <div class="vacante-info-item"><strong>Mi decisi\u00f3n:</strong> ${miDecision === 'aprobada' ? 'APROBADA' : 'RECHAZADA'}</div>
             ${sol[campoAprobacion]?.comentario ? `<div class="vacante-info-item"><strong>Comentario:</strong> ${escapeHtml(sol[campoAprobacion].comentario)}</div>` : ''}
           </div>
-          <button class="btn btn-ghost btn-small" style="margin-top:auto;" onclick="verDetalleSolicitud(${sol.id})">Ver Detalle</button>
+          <button class="btn btn-ghost btn-small" style="margin-top:auto;" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button>
         </div>
       `;
     }).join('');
@@ -1738,7 +1738,7 @@ function renderSolicitudesPreaprobadas() {
   seccion.style.display = '';
   const grid = document.getElementById('preaprobadasGrid');
   grid.innerHTML = preaprobadas.map(sol => `
-    <div class="vacante-card">
+    <div class="vacante-card" onclick="iniciarCompletarVacante(${sol.id})" style="cursor:pointer">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
         <h3 class="vacante-title">${escapeHtml(sol.titulo)}</h3>
         <span class="vacante-status status-solicitud-preaprobada">APROBADA</span>
@@ -1754,7 +1754,7 @@ function renderSolicitudesPreaprobadas() {
         <p style="margin:0 0 4px;"><strong>DO:</strong> ${sol.aprobacionDO?.comentario ? escapeHtml(sol.aprobacionDO.comentario) : 'APROBADA'} <span style="color:var(--muted);">(${formatFecha(sol.aprobacionDO?.fecha)})</span></p>
         <p style="margin:0;"><strong>Finanzas:</strong> ${sol.aprobacionFinanzas?.comentario ? escapeHtml(sol.aprobacionFinanzas.comentario) : 'APROBADA'} <span style="color:var(--muted);">(${formatFecha(sol.aprobacionFinanzas?.fecha)})</span></p>
       </div>
-      <button class="btn btn-primary btn-small" style="margin-top:auto;" onclick="iniciarCompletarVacante(${sol.id})">Ver Aprobaciones y Publicar</button>
+      <button class="btn btn-primary btn-small" style="margin-top:auto;" onclick="event.stopPropagation();iniciarCompletarVacante(${sol.id})">Ver Aprobaciones y Publicar</button>
     </div>
   `).join('');
 }
