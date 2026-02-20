@@ -110,9 +110,12 @@
           <div class="card-header">
             <h2>Administrar Vacantes</h2>
           </div>
-          <button class="btn btn-primary" onclick="openModal('nueva-vacante')">
-            + Crear Nueva Vacante
-          </button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="openModal('nueva-vacante')">
+              + Crear Nueva Vacante
+            </button>
+            <a href="<?= base_url('vacantes/portal') ?>" class="btn btn-ghost" style="text-decoration:none;display:flex;align-items:center;" target="_blank">Ver Portal Público</a>
+          </div>
         </div>
 
         <div class="card">
@@ -239,9 +242,12 @@
           <div class="card-header">
             <h2>Solicitudes Enviadas</h2>
           </div>
-          <button class="btn btn-primary" onclick="abrirNuevaSolicitud()">
-            + Crear Solicitud de Vacante
-          </button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="abrirNuevaSolicitud()">
+              + Crear Solicitud de Vacante
+            </button>
+            <a href="<?= base_url('vacantes/portal') ?>" class="btn btn-ghost" style="text-decoration:none;display:flex;align-items:center;" target="_blank">Ver Portal Público</a>
+          </div>
         </div>
 
         <div id="solicitudesJefeGrid" class="vacantes-grid"></div>
@@ -277,26 +283,6 @@
       </div>
     </main>
 
-    <!-- Info de usuario y rol -->
-    <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:8px 22px 0;">
-      <div class="user-info">
-        <span id="user-name" class="user-name"><?= esc($userName) ?></span>
-        <span id="user-role" class="user-role-badge"><?= esc($rolNombre) ?></span>
-        <?php if (!empty($allRoles)): ?>
-        <select id="select-rol-doble" class="rol-selector-mini" onchange="cambiarRol(this.value)">
-          <?php foreach ($rolNombres as $rolKey => $rolLabel): ?>
-          <option value="<?= esc($rolKey) ?>" <?= $rolKey === $vacantesRol ? 'selected' : '' ?>><?= esc($rolLabel) ?></option>
-          <?php endforeach; ?>
-        </select>
-        <?php elseif ($dobleRol): ?>
-        <select id="select-rol-doble" class="rol-selector-mini" onchange="cambiarRol(this.value)">
-          <option value="jefe-finanzas">Jefe - Finanzas</option>
-          <option value="gerente-finanzas">Gerente de Finanzas</option>
-        </select>
-        <?php endif; ?>
-      </div>
-      <a href="<?= base_url('vacantes/portal') ?>" class="btn btn-ghost btn-small" style="text-decoration:none;font-size:12px;" title="Portal Público">Ver Portal Público</a>
-    </div>
 
     <!-- Modal: Nueva Vacante -->
     <div id="modal-nueva-vacante" class="modal">
@@ -755,6 +741,7 @@
       rol: <?= json_encode($vacantesRol) ?>,
       dobleRol: <?= json_encode($dobleRol || !empty($allRoles)) ?>,
       allRoles: <?= json_encode(!empty($allRoles)) ?>,
+      rolNombres: <?= json_encode(!empty($allRoles) ? ($rolNombres ?? []) : ($dobleRol ? ['jefe-finanzas' => 'Jefe - Finanzas', 'gerente-finanzas' => 'Gerente de Finanzas'] : [])) ?>,
       userName: <?= json_encode($userName) ?>,
       rolNombre: <?= json_encode($rolNombre) ?>,
       portalUrl: <?= json_encode(base_url('vacantes/portal')) ?>,

@@ -74,19 +74,31 @@ async function verificarSesion() {
   sesionUsuario = cfg;
   rolActual = cfg.rol || 'rh';
 
+  // Inicializar user-info en el navbar del header
+  const wrapper = document.getElementById('vacantes-user-info');
   const nameEl = document.getElementById('user-name');
   const roleEl = document.getElementById('user-role');
   if (nameEl) nameEl.textContent = cfg.userName || '';
   if (roleEl) roleEl.textContent = cfg.rolNombre || '';
 
-  // Doble rol: mostrar mini-selector
-  if (cfg.dobleRol) {
+  // Poblar y mostrar selector de roles
+  if (cfg.dobleRol && cfg.rolNombres) {
     const selectDoble = document.getElementById('select-rol-doble');
     if (selectDoble) {
+      selectDoble.innerHTML = '';
+      for (const [key, label] of Object.entries(cfg.rolNombres)) {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = label;
+        if (key === rolActual) opt.selected = true;
+        selectDoble.appendChild(opt);
+      }
       selectDoble.style.display = '';
-      selectDoble.value = rolActual;
     }
   }
+
+  // Mostrar el bloque de user-info en el header
+  if (wrapper) wrapper.style.display = 'flex';
 
   return true;
 }

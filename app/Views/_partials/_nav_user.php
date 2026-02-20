@@ -1,4 +1,9 @@
 <div class="flex items-center space-x-8 ">
+  <div id="vacantes-user-info" class="flex items-center" style="display:none;gap:8px;margin-right:4px;">
+    <span id="user-name" style="font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;"></span>
+    <span id="user-role" style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:#dcfce7;color:#166534;white-space:nowrap;"></span>
+    <select id="select-rol-doble" style="display:none;font-size:12px;font-weight:600;padding:4px 8px;border:2px solid #007940;border-radius:6px;color:#007940;background:#fff;cursor:pointer;" onchange="if(typeof cambiarRol==='function')cambiarRol(this.value)"></select>
+  </div>
   <a href="<?= base_url('dashboard') ?>" class="flex gap-x-1" title="Inicio">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.4" stroke="currentColor" class="home h-8 w-8 stroke-title hover:stroke-title hover:fill-title transition duration-300 ">
       <path stroke-linecap="round" stroke-linejoin="round" d="M 12.3,2.38 C 12.01,2.38 11.72,2.49 11.5,2.71 L 2.55,11.67 H 4.8 V 19.56 C 4.8,20.17 5.3,20.67 5.92,20.67 L 14.55,20.67 V 20.67 H 16.8 18.67 C 19.29,20.67 19.8,20.17 19.8,19.56 V 11.67 H 22.05 L 13.09,2.71 C 12.87,2.49 12.59,2.38 12.3,2.38 Z M 11.17,14.76 H 13.42 C 14.04,14.76 14.55,15.25 14.55,15.86 V 20.37 L 10.05,20.37 V 20.22 20.07 19.47 18.27 17.07 15.86 C 10.05,15.25 10.55,14.76 11.17,14.76 Z" />
