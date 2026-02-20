@@ -1660,7 +1660,9 @@ function renderSolicitudesJefe() {
           <div class="vacante-info-item"><strong>Vacantes:</strong> ${sol.cantidadVacantes || 1}</div>
         </div>
         <p class="vacante-desc">${escapeHtml(sol.justificacion).substring(0, 120)}...</p>
-        <button class="btn btn-ghost btn-small" style="margin-top:auto;" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;">
+          <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button>
+        </div>
       </div>
     `;
   }).join('');
@@ -1704,7 +1706,7 @@ function renderSolicitudesAprobacion() {
         </div>
         <p class="vacante-desc">${escapeHtml(sol.justificacion).substring(0, 120)}...</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;">
-          <button class="btn btn-primary btn-small" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button>
+          <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button>
         </div>
       </div>
     `).join('');
@@ -1728,7 +1730,9 @@ function renderSolicitudesAprobacion() {
             <div class="vacante-info-item"><strong>Mi decisi\u00f3n:</strong> ${miDecision === 'aprobada' ? 'APROBADA' : 'RECHAZADA'}</div>
             ${sol[campoAprobacion]?.comentario ? `<div class="vacante-info-item"><strong>Comentario:</strong> ${escapeHtml(sol[campoAprobacion].comentario)}</div>` : ''}
           </div>
-          <button class="btn btn-ghost btn-small" style="margin-top:auto;" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;">
+            <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button>
+          </div>
         </div>
       `;
     }).join('');
@@ -1766,7 +1770,9 @@ function renderSolicitudesPreaprobadas() {
         <p style="margin:0 0 4px;"><strong>DO:</strong> ${sol.aprobacionDO?.comentario ? escapeHtml(sol.aprobacionDO.comentario) : 'APROBADA'} <span style="color:var(--muted);">(${formatFecha(sol.aprobacionDO?.fecha)})</span></p>
         <p style="margin:0;"><strong>Finanzas:</strong> ${sol.aprobacionFinanzas?.comentario ? escapeHtml(sol.aprobacionFinanzas.comentario) : 'APROBADA'} <span style="color:var(--muted);">(${formatFecha(sol.aprobacionFinanzas?.fecha)})</span></p>
       </div>
-      <button class="btn btn-primary btn-small" style="margin-top:auto;" onclick="event.stopPropagation();iniciarCompletarVacante(${sol.id})">Ver Aprobaciones y Publicar</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;">
+        <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();iniciarCompletarVacante(${sol.id})">Ver Aprobaciones y Publicar</button>
+      </div>
     </div>
   `).join('');
 }
