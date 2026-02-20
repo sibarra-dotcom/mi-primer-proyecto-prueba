@@ -42,33 +42,35 @@
 /* SVG: Tailwind forces display:block, breaking inline icons */
 .vacantes-module svg{ display: inline; vertical-align: middle; }
 
-/* Tables: main.css forces display:flex on table/tr/th/td, restore native table layout */
-.vacantes-module table{ display: table; border-collapse: collapse; }
-.vacantes-module thead{ display: table-header-group; }
-.vacantes-module tbody{ display: table-row-group; }
-.vacantes-module tr{ display: table-row; width: auto; margin-top: 0; background-color: transparent; }
+/* Tables: main.css forces display:flex and green bg on table/tr/th/td, restore native layout */
+.vacantes-module table{ display: table !important; border-collapse: collapse !important; flex-direction: initial !important; }
+.vacantes-module thead{ display: table-header-group !important; background: #f9fafb !important; border-bottom: 1px solid var(--border) !important; }
+.vacantes-module tbody{ display: table-row-group !important; }
+.vacantes-module tr{ display: table-row !important; width: auto !important; margin-top: 0 !important; background-color: transparent !important; }
 .vacantes-module th{
-  display: table-cell;
-  position: static;
-  background-color: transparent;
-  color: rgba(15,23,42,.60);
-  font-weight: 800;
-  font-size: 11px;
-  text-align: left;
-  justify-content: initial;
-  align-items: initial;
+  display: table-cell !important;
+  position: static !important;
+  background-color: transparent !important;
+  color: rgba(15,23,42,.60) !important;
+  font-weight: 800 !important;
+  font-size: 11px !important;
+  text-align: left !important;
+  padding: 12px 16px !important;
+  letter-spacing: .7px;
+  text-transform: uppercase;
 }
 .vacantes-module td{
-  display: table-cell;
-  color: var(--text);
-  font-size: 14px;
-  text-align: left;
-  justify-content: initial;
-  align-items: initial;
-  max-width: none;
+  display: table-cell !important;
+  color: var(--text) !important;
+  font-size: 14px !important;
+  text-align: left !important;
+  padding: 12px 16px !important;
+  max-width: none !important;
+  border-bottom: 1px solid var(--border);
 }
-.vacantes-module tbody > tr{ background-color: transparent; margin-top: 0; }
-.vacantes-module tbody tr:hover{ background: #f9fafb; }
+.vacantes-module tbody > tr{ background-color: transparent !important; margin-top: 0 !important; }
+.vacantes-module tbody tr:hover{ background: #f9fafb !important; }
+.vacantes-module tr:last-child td{ border-bottom: none; }
 
 /* Buttons: Tailwind strips background/padding on bare <button> */
 .vacantes-module button{ font-family: inherit; }
@@ -411,47 +413,13 @@
   cursor: pointer;
 }
 
-/* Candidatos Table */
+/* Candidatos Table Container */
 .vacantes-module .table-container{
   background: #ffffff;
   border: 1px solid rgba(15,23,42,.12);
   border-radius: 8px;
   overflow-x: auto;
   margin-top: 20px;
-}
-
-.vacantes-module table{
-  width:100%;
-  border-collapse: collapse;
-}
-
-.vacantes-module thead{
-  background: #f9fafb;
-  border-bottom: 1px solid var(--border);
-}
-
-.vacantes-module th{
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 11px;
-  letter-spacing: .7px;
-  text-transform: uppercase;
-  color: rgba(15,23,42,.60);
-  font-weight: 800;
-}
-
-.vacantes-module td{
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-}
-
-.vacantes-module tr:last-child td{
-  border-bottom: none;
-}
-
-.vacantes-module tbody tr:hover{
-  background: #f9fafb;
 }
 
 /* Badge Status */

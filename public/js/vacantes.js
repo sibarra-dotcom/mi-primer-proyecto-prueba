@@ -916,22 +916,22 @@ function verDetalleVacante(vacanteId) {
         <h2>Candidatos de esta Vacante</h2>
       </div>
       ${candidatosVacante.length > 0 ? `
-        <table style="width:100%;">
-          <thead>
-            <tr>
-              <th style="padding:12px;text-align:left;font-size:11px;text-transform:uppercase;color:var(--muted);">Nombre</th>
-              <th style="padding:12px;text-align:left;font-size:11px;text-transform:uppercase;color:var(--muted);">Etapa</th>
-              <th style="padding:12px;text-align:left;font-size:11px;text-transform:uppercase;color:var(--muted);">Fecha Aplicaci\u00f3n</th>
-              <th style="padding:12px;text-align:left;font-size:11px;text-transform:uppercase;color:var(--muted);">Acciones</th>
+        <table style="width:100%;border-collapse:collapse;display:table;">
+          <thead style="background:#f9fafb;border-bottom:1px solid var(--border);display:table-header-group;">
+            <tr style="display:table-row;">
+              <th style="display:table-cell;padding:12px 16px;text-align:left;font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:rgba(15,23,42,.60);font-weight:800;background:transparent;">Nombre</th>
+              <th style="display:table-cell;padding:12px 16px;text-align:left;font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:rgba(15,23,42,.60);font-weight:800;background:transparent;">Etapa</th>
+              <th style="display:table-cell;padding:12px 16px;text-align:left;font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:rgba(15,23,42,.60);font-weight:800;background:transparent;">Fecha Aplicaci\u00f3n</th>
+              <th style="display:table-cell;padding:12px 16px;text-align:left;font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:rgba(15,23,42,.60);font-weight:800;background:transparent;">Acciones</th>
             </tr>
           </thead>
           <tbody>
             ${candidatosVacante.map(c => `
-              <tr style="border-bottom:1px solid var(--border);">
-                <td style="padding:12px;"><strong>${escapeHtml(c.nombre)} ${escapeHtml(c.apellidos)}</strong></td>
-                <td style="padding:12px;"><span class="badge badge-${getBadgeClass(c.etapa)}">${getEtapaLabel(c.etapa)}</span></td>
-                <td style="padding:12px;">${formatFecha(c.fechaAplicacion)}</td>
-                <td style="padding:12px;">
+              <tr style="display:table-row;border-bottom:1px solid var(--border);background:transparent;">
+                <td style="display:table-cell;padding:12px 16px;font-size:14px;color:var(--text);"><strong>${escapeHtml(c.nombre)} ${escapeHtml(c.apellidos)}</strong></td>
+                <td style="display:table-cell;padding:12px 16px;font-size:14px;"><span class="badge badge-${getBadgeClass(c.etapa)}">${getEtapaLabel(c.etapa)}</span></td>
+                <td style="display:table-cell;padding:12px 16px;font-size:14px;color:var(--text);">${formatFecha(c.fechaAplicacion)}</td>
+                <td style="display:table-cell;padding:12px 16px;font-size:14px;">
                   <button class="btn btn-ghost btn-small" onclick="verDetalleCandidato(${c.id});closeModal('detalle-vacante')">Ver</button>
                 </td>
               </tr>
