@@ -1,0 +1,38 @@
+# Environment
+.env
+
+# Composer dependencies
+vendor/
+
+# CI4 writable (logs, cache, sessions, uploads)
+writable/
+
+# System tests
+tests/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Hosting/server artifacts
+.ftpquota
+.user.ini
+.well-known/
+.well-known.zip
+php.ini
+error_log
+public/error_log
+db.portalgibanibb.com/
+
+# htaccess backups
+.htaccess-*
+
+# Misc
+*.log
+nul

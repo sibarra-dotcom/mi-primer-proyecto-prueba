@@ -1,0 +1,323 @@
+table {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  font-weight: 300;
+  font-size: 13px;
+  position: sticky;
+  top: 0;
+  padding: 8px 4px;
+  background-color: hsl(151,81.4%,27.8%);
+  color: hsl(189,5.3%,91.7%);
+  vertical-align: middle;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+td {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+	justify-content: center;
+  max-width: auto;
+  padding: 5px;
+  text-align: left;
+  color: hsl(189,5.3%,31.7%);
+}
+
+tr {
+  display: flex;
+  width: 100%;
+}
+
+tr:hover {
+  background-color: color-mix(in hsl, hsl(189,5.3%,31.7%), white 80%);
+}
+
+
+
+
+tbody > tr {
+  width: 100%;
+  display: flex;
+	margin-top: 8px;
+  background-color: hsl(189,5.3%,91.7%);
+}
+
+tbody > tr > td input, tbody > tr > td input:read-only, tbody > tr > td select {
+  background-color: var(--white);
+}
+
+
+input, select {
+  width: 100%;
+  border: none;
+  background-color: hsl(189,5.3%,91.7%);
+}
+
+
+input:read-only {
+  background-color: hsl(189,5.3%,91.7%);
+}
+
+
+input[type="date"] {
+  padding: 2px 6px;
+}
+
+input[type="number"] {
+  padding: 3px 6px;
+  margin: auto;
+}
+
+input[type="text"] {
+  padding: 3px 6px;
+  margin: auto;
+}
+
+
+
+select {
+  padding: 2px 6px;
+}
+
+input:focus, select:focus {
+  outline-color: color-mix(in hsl, hsl(151,81.4%,27.8%), white 12%);
+}
+
+.row__empty {
+  display: none;
+  width: 100%;
+  padding: 1rem;
+  text-align: center;
+  font-size: 18px;
+  color: var(--text-gray);
+  background-color: color-mix(in hsl, var(--text-gray), white 80%);
+}
+
+#tabla-proveedores tr > :nth-child(1) {
+  width: 8%;
+}
+
+#tabla-proveedores tr > :nth-child(2) {
+  width: 32%;
+}
+
+#tabla-proveedores tr > :nth-child(3) {
+  width: 30%;
+}
+
+#tabla-proveedores tr > :nth-child(4) {
+  width: 22%;
+}
+
+#tabla-proveedores tr > :nth-child(5) {
+  width: 8%;
+}
+/* 
+#tabla-proveedores tr > :nth-child(6) {
+  width: 18%;
+}
+
+#tabla-proveedores tr > :nth-child(7) {
+  width: 12%;
+} */
+
+
+#tabla-proveedores-cont tr > :nth-child(1) {
+  width: 25%;
+}
+
+#tabla-proveedores-cont tr > :nth-child(2) {
+  width: 25%;
+}
+
+#tabla-proveedores-cont tr > :nth-child(3) {
+  width: 20%;
+}
+
+#tabla-proveedores-cont tr > :nth-child(4) {
+  width: 15%;
+}
+
+#tabla-proveedores-cont tr > :nth-child(5) {
+  width: 15%;
+}
+
+
+#tabla-contactos tr > :nth-child(1) {
+  width: 35%;
+}
+
+#tabla-contactos tr > :nth-child(2) {
+  width: 25%;
+}
+
+#tabla-contactos tr > :nth-child(3) {
+  width: 20%;
+}
+
+#tabla-contactos tr > :nth-child(4) {
+  width: 20%;
+}
+
+.input_alt {
+  border: none;
+  background-color: white;
+}
+
+
+#tabla-materias-linea tr > :nth-child(1) {
+  width: 4%;
+}
+
+#tabla-materias-linea tr > :nth-child(2) {
+  width: 9%;
+}
+
+#tabla-materias-linea tr > :nth-child(3) {
+  width: 36%;
+}
+
+#tabla-materias-linea tr > :nth-child(4) {
+  width: 10%;
+}
+
+#tabla-materias-linea tr > :nth-child(5) {
+  width: 8%;
+}
+
+#tabla-materias-linea tr > :nth-child(6) {
+  width: 8%;
+}
+
+#tabla-materias-linea tr > :nth-child(7) {
+  width: 10%;
+}
+
+#tabla-materias-linea tr > :nth-child(8) {
+  width: 11%;
+}
+
+#tabla-materias-linea tr > :nth-child(9) {
+  width: 4%;
+}
+
+
+#tabla-materias-nuevo tr > :nth-child(1) {
+  width: 4%;
+}
+
+#tabla-materias-nuevo tr > :nth-child(2) {
+  width: 9%;
+}
+
+#tabla-materias-nuevo tr > :nth-child(3) {
+  width: 36%;
+}
+
+#tabla-materias-nuevo tr > :nth-child(4) {
+  width: 10%;
+}
+
+#tabla-materias-nuevo tr > :nth-child(5) {
+  width: 8%;
+}
+
+#tabla-materias-nuevo tr > :nth-child(6) {
+  width: 8%;
+}
+
+#tabla-materias-nuevo tr > :nth-child(7) {
+  width: 10%;
+}
+
+#tabla-materias-nuevo tr > :nth-child(8) {
+  width: 11%;
+}
+
+#tabla-materias-nuevo tr > :nth-child(9) {
+  width: 4%;
+}
+
+
+
+#tabla-materiales-linea tr > :nth-child(1) {
+  width: 4%;
+}
+
+#tabla-materiales-linea tr > :nth-child(2) {
+  width: 9%;
+}
+
+#tabla-materiales-linea tr > :nth-child(3) {
+  width: 36%;
+}
+
+#tabla-materiales-linea tr > :nth-child(4) {
+  width: 10%;
+}
+
+#tabla-materiales-linea tr > :nth-child(5) {
+  width: 8%;
+}
+
+#tabla-materiales-linea tr > :nth-child(6) {
+  width: 8%;
+}
+
+#tabla-materiales-linea tr > :nth-child(7) {
+  width: 10%;
+}
+
+#tabla-materiales-linea tr > :nth-child(8) {
+  width: 11%;
+}
+
+#tabla-materiales-linea tr > :nth-child(9) {
+  width: 4%;
+}
+
+
+
+#tabla-materiales-nuevo tr > :nth-child(1) {
+  width: 4%;
+}
+
+#tabla-materiales-nuevo tr > :nth-child(2) {
+  width: 9%;
+}
+
+#tabla-materiales-nuevo tr > :nth-child(3) {
+  width: 36%;
+}
+
+#tabla-materiales-nuevo tr > :nth-child(4) {
+  width: 10%;
+}
+
+#tabla-materiales-nuevo tr > :nth-child(5) {
+  width: 8%;
+}
+
+#tabla-materiales-nuevo tr > :nth-child(6) {
+  width: 8%;
+}
+
+#tabla-materiales-nuevo tr > :nth-child(7) {
+  width: 10%;
+}
+
+#tabla-materiales-nuevo tr > :nth-child(8) {
+  width: 11%;
+}
+
+#tabla-materiales-nuevo tr > :nth-child(9) {
+  width: 4%;
+}
