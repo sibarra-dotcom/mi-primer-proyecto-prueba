@@ -55,6 +55,12 @@ function getDepartamentoJefe() {
 
 function cambiarRol(nuevoRol) {
   rolActual = nuevoRol;
+  const roleEl = document.getElementById('user-role');
+  const selectEl = document.getElementById('select-rol-doble');
+  if (roleEl && selectEl) {
+    const opt = selectEl.options[selectEl.selectedIndex];
+    if (opt) roleEl.textContent = opt.text;
+  }
   aplicarVistasPorRol();
 }
 

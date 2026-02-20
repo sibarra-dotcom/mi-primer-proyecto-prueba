@@ -282,10 +282,18 @@
       <div class="user-info">
         <span id="user-name" class="user-name"><?= esc($userName) ?></span>
         <span id="user-role" class="user-role-badge"><?= esc($rolNombre) ?></span>
-        <select id="select-rol-doble" class="rol-selector-mini" style="display:<?= $dobleRol ? '' : 'none' ?>;" onchange="cambiarRol(this.value)">
+        <?php if (!empty($allRoles)): ?>
+        <select id="select-rol-doble" class="rol-selector-mini" onchange="cambiarRol(this.value)">
+          <?php foreach ($rolNombres as $rolKey => $rolLabel): ?>
+          <option value="<?= esc($rolKey) ?>" <?= $rolKey === $vacantesRol ? 'selected' : '' ?>><?= esc($rolLabel) ?></option>
+          <?php endforeach; ?>
+        </select>
+        <?php elseif ($dobleRol): ?>
+        <select id="select-rol-doble" class="rol-selector-mini" onchange="cambiarRol(this.value)">
           <option value="jefe-finanzas">Jefe - Finanzas</option>
           <option value="gerente-finanzas">Gerente de Finanzas</option>
         </select>
+        <?php endif; ?>
       </div>
       <a href="<?= base_url('vacantes/portal') ?>" class="btn btn-ghost btn-small" style="text-decoration:none;font-size:12px;" title="Portal Público">Ver Portal Público</a>
     </div>
@@ -745,7 +753,8 @@
   <script>
     window.__VACANTES_CONFIG = {
       rol: <?= json_encode($vacantesRol) ?>,
-      dobleRol: <?= json_encode($dobleRol) ?>,
+      dobleRol: <?= json_encode($dobleRol || !empty($allRoles)) ?>,
+      allRoles: <?= json_encode(!empty($allRoles)) ?>,
       userName: <?= json_encode($userName) ?>,
       rolNombre: <?= json_encode($rolNombre) ?>,
       portalUrl: <?= json_encode(base_url('vacantes/portal')) ?>,
