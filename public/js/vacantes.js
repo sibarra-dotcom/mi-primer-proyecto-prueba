@@ -190,6 +190,7 @@ function crearCalendarioDropdown() {
   const dd = document.createElement('div');
   dd.className = 'calendario-dropdown';
   dd.id = 'calendario-dropdown';
+  dd.style.display = 'none';
   dd.innerHTML = `
     <div class="cal-header">
       <button type="button" class="cal-nav" id="cal-nav-prev" onclick="calNavPrev()">&lsaquo;</button>
@@ -205,7 +206,8 @@ function crearCalendarioDropdown() {
       <button type="button" class="cal-limpiar" onclick="calLimpiar()">Limpiar</button>
     </div>
   `;
-  document.body.appendChild(dd);
+  const vmContainer = document.querySelector('.vacantes-module') || document.body;
+  vmContainer.appendChild(dd);
   window.__calDropdown = dd;
   window.__calInputActivo = null;
   window.__calAnioActual = null;
@@ -261,12 +263,14 @@ function toggleCalendario(btn) {
   window.__calMesActual = mes;
 
   renderMesCalendario(anio, mes);
+  dd.style.display = 'block';
   dd.classList.add('show');
 }
 
 function cerrarCalendario() {
   if (window.__calDropdown) {
     window.__calDropdown.classList.remove('show');
+    window.__calDropdown.style.display = 'none';
   }
 }
 
@@ -3140,7 +3144,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const isSeguimiento = !!document.getElementById('input-codigo');
 
   configurarValidacionEspanol();
-  crearCalendarioDropdown();
+  if (!isSeguimiento) crearCalendarioDropdown();
 
   if (isSeguimiento) {
     const params = new URLSearchParams(window.location.search);
