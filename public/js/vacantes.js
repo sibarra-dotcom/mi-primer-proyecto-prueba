@@ -1700,6 +1700,13 @@ function isSlotOcupado(reclutadoraId, fecha, hora, minuto) {
 function seleccionarSlotMiniCal(fecha, hora) {
   document.getElementById('entrevista-fecha').value = fechaISOaDDMMAAAA(fecha);
   document.getElementById('entrevista-hora').value = hora;
+
+  // Quitar selección previa y marcar el slot clickeado
+  document.querySelectorAll('.mini-cal-slot.mini-cal-selected').forEach(function(el) {
+    el.classList.remove('mini-cal-selected');
+  });
+  var slot = document.querySelector('.mini-cal-slot[data-fecha="' + fecha + '"][data-hora="' + hora + '"]');
+  if (slot) slot.classList.add('mini-cal-selected');
 }
 
 // ==================== VALIDACI\u00d3N DE CONFLICTOS ====================
