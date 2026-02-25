@@ -52,8 +52,8 @@ class Vacantes extends BaseController
             return redirect()->to(base_url('apps'))->with('msg_error', 'No tienes acceso al módulo de vacantes.');
         }
 
-        // Admin y RRHH pueden probar todos los roles con un selector
-        $allRoles = in_array($rolBD, ['admin', 'rrhh']);
+        // Solo admin puede probar todos los roles con un selector
+        $allRoles = ($rolBD === 'admin');
 
         // Doble rol: gerente_administracion_y_finanzas tiene jefe-finanzas Y gerente-finanzas
         $dobleRol = ($rolBD === 'gerente_administracion_y_finanzas');

@@ -8,6 +8,33 @@ let notificaciones = JSON.parse(localStorage.getItem('notificaciones') || '[]');
 let rolActual = (window.__VACANTES_CONFIG && window.__VACANTES_CONFIG.rol) || 'rh';
 let sesionUsuario = window.__VACANTES_CONFIG || null;
 
+// ==================== RECLUTADORAS CONFIG ====================
+const RECLUTADORAS = [
+  { id: 'rec-jennifer', nombre: 'Jennifer De La Rosa', nombreCorto: 'Jennifer',
+    email: 'j.delarosa@gibanibb.com', color: '#007940', colorLight: '#e6f4ed' },
+  { id: 'rec-lizbeth', nombre: 'Lizbeth Mendez', nombreCorto: 'Lizbeth',
+    email: 'l.mendez@gibanibb.com', color: '#6366f1', colorLight: '#eef2ff' }
+];
+
+const CALENDARIO_CONFIG = {
+  horaInicio: 9, horaFin: 17, slotMinutos: 30,
+  diasSemana: ['Lunes','Martes','Mi\u00e9rcoles','Jueves','Viernes']
+};
+
+// ==================== DASHBOARD CHARTS ====================
+let rhFunnelChart = null;
+let rhBarChart = null;
+let rhGaugeChart = null;
+let rhLineChart = null;
+let rhRejectionChart = null;
+
+const RH_CHART_HEIGHTS = {
+  funnel: 380,
+  bar: 284,
+  gauge: 350,
+  line: 332
+};
+
 function saveData() {
   localStorage.setItem('vacantes', JSON.stringify(vacantes));
   localStorage.setItem('candidatos', JSON.stringify(candidatos));
@@ -97,8 +124,8 @@ async function verificarSesion() {
     }
   }
 
-  // Mostrar el bloque de user-info en el header
-  if (wrapper) wrapper.style.display = 'flex';
+  // Mostrar el bloque de user-info en el header solo para admin
+  if (wrapper && cfg.allRoles) wrapper.style.display = 'flex';
 
   return true;
 }
@@ -109,22 +136,22 @@ async function cerrarSesion() {
 }
 
 function aplicarVistasPorRol() {
-  const tabsRH = document.querySelectorAll('.tab-rh');
-  const tabJefe = document.querySelector('.tab-jefe');
-  const tabAprobacion = document.querySelector('.tab-aprobacion');
+  const navsRH = document.querySelectorAll('.nav-rh');
+  const navsJefe = document.querySelectorAll('.nav-jefe');
+  const navsAprobacion = document.querySelectorAll('.nav-aprobacion');
 
-  tabsRH.forEach(t => t.style.display = 'none');
-  if (tabJefe) tabJefe.style.display = 'none';
-  if (tabAprobacion) tabAprobacion.style.display = 'none';
+  navsRH.forEach(el => el.style.display = 'none');
+  navsJefe.forEach(el => el.style.display = 'none');
+  navsAprobacion.forEach(el => el.style.display = 'none');
 
   if (esRolJefe()) {
-    if (tabJefe) tabJefe.style.display = '';
+    navsJefe.forEach(el => el.style.display = '');
     showView('solicitudes-jefe');
   } else if (rolActual === 'gerente-finanzas' || rolActual === 'gerente-do') {
-    if (tabAprobacion) tabAprobacion.style.display = '';
+    navsAprobacion.forEach(el => el.style.display = '');
     showView('solicitudes-aprobacion');
   } else {
-    tabsRH.forEach(t => t.style.display = '');
+    navsRH.forEach(el => el.style.display = '');
     showView('gestion-dashboard');
   }
 
@@ -138,6 +165,25 @@ function showView(viewName) {
   if (!target) return;
   target.classList.add('active');
 
+  // Actualizar estado activo en navbar
+  document.querySelectorAll('.nav-link-vac').forEach(link => link.classList.remove('nav-active'));
+  const activeLink = document.querySelector(`.nav-link-vac[data-view="${viewName}"]`);
+  if (activeLink) activeLink.classList.add('nav-active');
+
+  // Dashboard usa ancho completo
+  const mainEl = document.querySelector('.vacantes-module main');
+  if (mainEl) {
+    if (viewName === 'gestion-dashboard') {
+      mainEl.classList.add('dashboard-active');
+    } else {
+      mainEl.classList.remove('dashboard-active');
+    }
+  }
+
+  // Cerrar menú móvil si está abierto
+  const mobileCheckbox = document.getElementById('mobile_checkbox');
+  if (mobileCheckbox) mobileCheckbox.checked = false;
+
   if (viewName === 'gestion-vacantes') {
     renderVacantesGestion();
     populateVacanteFilters();
@@ -147,6 +193,8 @@ function showView(viewName) {
     populateCandidatoFilters();
   } else if (viewName === 'gestion-dashboard') {
     renderDashboard();
+  } else if (viewName === 'calendario-reclutadoras') {
+    renderCalendarioReclutadoras();
   } else if (viewName === 'solicitudes-jefe') {
     renderSolicitudesJefe();
   } else if (viewName === 'solicitudes-aprobacion') {
@@ -157,6 +205,21 @@ function showView(viewName) {
 // ==================== MODALS ====================
 function openModal(modalName) {
   document.getElementById(`modal-${modalName}`).classList.add('show');
+  if (modalName === 'nueva-vacante') {
+    poblarSelectorReclutadoraVacante();
+  }
+}
+
+function poblarSelectorReclutadoraVacante() {
+  var sel = document.getElementById('vac-reclutadora');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Sin asignar</option>';
+  RECLUTADORAS.forEach(function(r) {
+    var opt = document.createElement('option');
+    opt.value = r.id;
+    opt.textContent = r.nombre;
+    sel.appendChild(opt);
+  });
 }
 
 function closeModal(modalName) {
@@ -198,6 +261,17 @@ function generarCodigoSeguimiento() {
     codigo = String(Math.floor(100000 + Math.random() * 900000));
   } while (existentes.has(codigo));
   return codigo;
+}
+
+function generarCodigoVacante() {
+  var maxNum = 0;
+  vacantes.forEach(function(v) {
+    if (v.codigo) {
+      var num = parseInt(v.codigo.replace('VAC-', ''), 10);
+      if (num > maxNum) maxNum = num;
+    }
+  });
+  return 'VAC-' + String(maxNum + 1).padStart(4, '0');
 }
 
 // ==================== CALENDARIO EN ESPAÑOL ====================
@@ -693,6 +767,7 @@ function renderVacantesPortal() {
 
   grid.innerHTML = vacantesAbiertas.map(v => `
     <div class="vacante-card" onclick="verDetalleVacantePublica(${v.id})" style="cursor:pointer">
+      ${v.codigo ? `<span style="font-size:11px;font-weight:700;color:var(--primary);letter-spacing:.5px;">${escapeHtml(v.codigo)}</span>` : ''}
       <h3 class="vacante-title">${escapeHtml(v.titulo)}</h3>
       <div class="vacante-info">
         <div class="vacante-info-item"><strong>Departamento:</strong> ${escapeHtml(v.departamento)}</div>
@@ -718,6 +793,7 @@ function verDetalleVacantePublica(vacanteId) {
       </div>
       <div class="grid">
         <div class="col-6">
+          ${vacante.codigo ? `<p><strong>Clave de Vacante:</strong> <span style="color:var(--primary);font-weight:700;letter-spacing:.5px;">${escapeHtml(vacante.codigo)}</span></p>` : ''}
           <p><strong>T\u00edtulo:</strong> ${escapeHtml(vacante.titulo)}</p>
           <p><strong>Departamento:</strong> ${escapeHtml(vacante.departamento)}</p>
           <p><strong>Ubicaci\u00f3n:</strong> ${escapeHtml(vacante.ubicacionClave ? (UBICACION_NOMBRES[vacante.ubicacionClave] || vacante.ubicacion) : vacante.ubicacion)}</p>
@@ -760,16 +836,18 @@ function renderVacantesGestion() {
 }
 
 function filtrarVacantes() {
+  const searchCodigo = document.getElementById('vac-search-codigo')?.value.toUpperCase() || '';
   const searchTerm = document.getElementById('vac-search')?.value.toLowerCase() || '';
   const filterDepartamento = document.getElementById('vac-filter-departamento')?.value || '';
   const filterEstado = document.getElementById('vac-filter-estado')?.value || '';
 
   let vacantesFiltradas = vacantes.filter(v => {
+    const matchCodigo = !searchCodigo || (v.codigo && v.codigo.toUpperCase().includes(searchCodigo));
     const matchSearch = v.titulo.toLowerCase().includes(searchTerm);
     const matchDepartamento = !filterDepartamento || v.departamento === filterDepartamento;
     const matchEstado = !filterEstado || v.estado === filterEstado;
 
-    return matchSearch && matchDepartamento && matchEstado;
+    return matchCodigo && matchSearch && matchDepartamento && matchEstado;
   });
 
   const grid = document.getElementById('vacantesGestionGrid');
@@ -791,14 +869,18 @@ function filtrarVacantes() {
     return `
       <div class="vacante-card" onclick="verDetalleVacante(${v.id})" style="cursor:pointer">
         <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
-          <h3 class="vacante-title">${escapeHtml(v.titulo)}</h3>
+          <div>
+            <span style="font-size:11px;font-weight:700;color:var(--primary);letter-spacing:.5px;">${escapeHtml(v.codigo || '')}</span>
+            <h3 class="vacante-title">${escapeHtml(v.titulo)}</h3>
+          </div>
           <span class="vacante-status status-${v.estado}">${v.estado === 'abierta' ? 'ABIERTA' : 'CERRADA'}</span>
         </div>
         <div class="vacante-info">
           <div class="vacante-info-item"><strong>Departamento:</strong> ${escapeHtml(v.departamento)}</div>
           <div class="vacante-info-item"><strong>Candidatos:</strong> ${candidatosCount}</div>
-          <div class="vacante-info-item"><strong>D\u00edas publicada:</strong> ${diasPublicada} d\u00edas</div>
+          <div class="vacante-info-item"><strong>Días publicada:</strong> ${diasPublicada} días</div>
           <div class="vacante-info-item"><strong>Publicada:</strong> ${formatFecha(v.fechaCreacion)}</div>
+          ${(() => { var rec = v.reclutadoraId ? RECLUTADORAS.find(r => r.id === v.reclutadoraId) : null; return rec ? '<div class="vacante-info-item"><strong>Reclutadora:</strong> <span style="color:' + rec.color + ';font-weight:600;">' + escapeHtml(rec.nombreCorto) + '</span></div>' : ''; })()}
         </div>
         <p class="vacante-desc">${escapeHtml(v.descripcion).substring(0, 100)}...</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;">
@@ -860,6 +942,7 @@ function verDetalleVacante(vacanteId) {
       </div>
       <div class="grid">
         <div class="col-6">
+          ${vacante.codigo ? `<p><strong>Clave de Vacante:</strong> <span style="color:var(--primary);font-weight:700;letter-spacing:.5px;">${escapeHtml(vacante.codigo)}</span></p>` : ''}
           <p><strong>T\u00edtulo:</strong> ${escapeHtml(vacante.titulo)}</p>
           <p><strong>Departamento:</strong> ${escapeHtml(vacante.departamento)}</p>
           <p><strong>Ubicaci\u00f3n:</strong> ${escapeHtml(vacante.ubicacionClave ? (UBICACION_NOMBRES[vacante.ubicacionClave] || vacante.ubicacionClave) : vacante.ubicacion)}</p>
@@ -896,7 +979,7 @@ function verDetalleVacante(vacanteId) {
           <div style="font-size:28px;font-weight:900;color:var(--primary);">${candidatosVacante.length}</div>
         </div>
         <div class="mini-card">
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Aplicados</div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Postulados</div>
           <div style="font-size:28px;font-weight:900;color:#3b82f6;">${porEtapa.aplicado}</div>
         </div>
         <div class="mini-card">
@@ -979,7 +1062,14 @@ function filtrarCandidatos() {
     const nombreCompleto = `${c.nombre} ${c.apellidos}`.toLowerCase();
     const matchSearch = nombreCompleto.includes(searchTerm);
     const matchVacante = !filterVacante || c.vacanteId === parseInt(filterVacante);
-    const matchEtapa = !filterEtapa || c.etapa === filterEtapa;
+    let matchEtapa;
+    if (!filterEtapa) {
+      matchEtapa = true;
+    } else if (filterEtapa === 'en-proceso') {
+      matchEtapa = !['contratado', 'rechazado'].includes(c.etapa);
+    } else {
+      matchEtapa = c.etapa === filterEtapa;
+    }
 
     return matchSearch && matchVacante && matchEtapa;
   });
@@ -1051,13 +1141,13 @@ function getBadgeClass(etapa) {
 
 function getEtapaLabel(etapa) {
   const labels = {
-    'aplicado': 'Aplicado', 'entrevista-rh': 'Entrevista RH',
+    'aplicado': 'Postulado', 'entrevista-rh': 'Entrevista RH',
     'primer-filtro': 'Primer Filtro', 'entrevista-jefe': 'Entrevista Jefe',
     'revision-medica': 'Revisi\u00f3n M\u00e9dica', 'psicometrico': 'Psicom\u00e9trico',
     'referencias': 'Referencias', 'documentos': 'Documentos',
     'contratado': 'Contratado', 'rechazado': 'Rechazado'
   };
-  return labels[etapa] || 'Aplicado';
+  return labels[etapa] || 'Postulado';
 }
 
 function getEtapaNumero(etapa) {
@@ -1367,7 +1457,7 @@ function agregarComentarioInterno(candidatoId) {
 
 function renderProcesoSteps(etapaActual, candidato) {
   const steps = [
-    { num: 1, label: 'Aplicar en l\u00ednea' },
+    { num: 1, label: 'Postulaci\u00f3n' },
     { num: 2, label: 'Entrevista RH' },
     { num: 3, label: 'Primer Filtro' },
     { num: 4, label: 'Entrevista Jefe' },
@@ -1444,6 +1534,16 @@ function confirmarRechazo() {
 function agendarEntrevistaRH(candidatoId) {
   document.getElementById('entrevista-candidato-id').value = candidatoId;
   document.getElementById('entrevista-tipo').value = 'rh';
+  document.getElementById('entrevista-reclutadora-wrapper').style.display = '';
+  document.getElementById('entrevista-reclutadora').required = true;
+  var entInput = document.getElementById('entrevista-entrevistador');
+  entInput.readOnly = true;
+  entInput.style.background = '#f3f4f6';
+  entInput.style.cursor = 'not-allowed';
+  entInput.value = '';
+  document.getElementById('entrevista-disponibilidad-wrapper').style.display = 'none';
+  poblarSelectorReclutadora();
+  miniCalSemanaOffset = 0;
   closeModal('detalle-candidato');
   openModal('agendar-entrevista');
 }
@@ -1451,8 +1551,411 @@ function agendarEntrevistaRH(candidatoId) {
 function agendarEntrevistaJefe(candidatoId) {
   document.getElementById('entrevista-candidato-id').value = candidatoId;
   document.getElementById('entrevista-tipo').value = 'jefe';
+  document.getElementById('entrevista-reclutadora-wrapper').style.display = 'none';
+  document.getElementById('entrevista-reclutadora').required = false;
+  document.getElementById('entrevista-reclutadora').value = '';
+  var entInput = document.getElementById('entrevista-entrevistador');
+  entInput.readOnly = false;
+  entInput.style.background = '';
+  entInput.style.cursor = '';
+  entInput.value = '';
+  document.getElementById('entrevista-disponibilidad-wrapper').style.display = 'none';
   closeModal('detalle-candidato');
   openModal('agendar-entrevista');
+}
+
+function cancelarAgendarEntrevista() {
+  var candidatoId = parseInt(document.getElementById('entrevista-candidato-id').value);
+  closeModal('agendar-entrevista');
+  document.getElementById('form-agendar-entrevista').reset();
+  document.getElementById('entrevista-disponibilidad-wrapper').style.display = 'none';
+  if (candidatoId) {
+    verDetalleCandidato(candidatoId);
+  }
+}
+
+// ==================== RECLUTADORAS EN MODAL ENTREVISTA ====================
+
+function poblarSelectorReclutadora() {
+  var select = document.getElementById('entrevista-reclutadora');
+  if (!select) return;
+  select.innerHTML = '<option value="">Seleccionar reclutadora...</option>';
+  RECLUTADORAS.forEach(function(r) {
+    var opt = document.createElement('option');
+    opt.value = r.id;
+    opt.textContent = r.nombre;
+    select.appendChild(opt);
+  });
+}
+
+function onReclutadoraSeleccionada() {
+  var recId = document.getElementById('entrevista-reclutadora').value;
+  var rec = RECLUTADORAS.find(function(r) { return r.id === recId; });
+  var entInput = document.getElementById('entrevista-entrevistador');
+  var wrapper = document.getElementById('entrevista-disponibilidad-wrapper');
+  if (rec) {
+    entInput.value = rec.nombre;
+    wrapper.style.display = '';
+    renderMiniCalendarioDisponibilidad(recId);
+  } else {
+    entInput.value = '';
+    wrapper.style.display = 'none';
+  }
+}
+
+let miniCalSemanaOffset = 0;
+
+function getMonday(date) {
+  var d = new Date(date);
+  var day = d.getDay();
+  var diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function miniCalNavSemana(dir) {
+  miniCalSemanaOffset += dir;
+  var recId = document.getElementById('entrevista-reclutadora').value;
+  if (recId) renderMiniCalendarioDisponibilidad(recId);
+}
+
+function renderMiniCalendarioDisponibilidad(reclutadoraId) {
+  var container = document.getElementById('entrevista-mini-calendario');
+  if (!container) return;
+
+  var hoy = new Date();
+  var lunes = getMonday(hoy);
+  lunes.setDate(lunes.getDate() + (miniCalSemanaOffset * 7));
+
+  var viernes = new Date(lunes);
+  viernes.setDate(lunes.getDate() + 4);
+
+  var rec = RECLUTADORAS.find(function(r) { return r.id === reclutadoraId; });
+
+  var html = '<div class="mini-cal-header">';
+  html += '<button type="button" class="btn btn-ghost btn-small" onclick="miniCalNavSemana(-1)">&lsaquo;</button>';
+  html += '<span class="mini-cal-titulo">' + lunes.getDate() + ' ' + MESES_ES[lunes.getMonth()] + ' - ' + viernes.getDate() + ' ' + MESES_ES[viernes.getMonth()] + ' ' + viernes.getFullYear() + '</span>';
+  html += '<button type="button" class="btn btn-ghost btn-small" onclick="miniCalNavSemana(1)">&rsaquo;</button>';
+  html += '</div>';
+
+  html += '<div class="mini-cal-grid">';
+  html += '<div class="mini-cal-hora-col"></div>';
+  for (var d = 0; d < 5; d++) {
+    var dia = new Date(lunes);
+    dia.setDate(lunes.getDate() + d);
+    html += '<div class="mini-cal-dia-header">' + CALENDARIO_CONFIG.diasSemana[d].substring(0, 3) + ' ' + dia.getDate() + '</div>';
+  }
+
+  for (var h = CALENDARIO_CONFIG.horaInicio; h < CALENDARIO_CONFIG.horaFin; h++) {
+    for (var m = 0; m < 60; m += CALENDARIO_CONFIG.slotMinutos) {
+      var horaStr = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+      html += '<div class="mini-cal-hora-label">' + (m === 0 ? horaStr : '') + '</div>';
+
+      for (var d2 = 0; d2 < 5; d2++) {
+        var dia2 = new Date(lunes);
+        dia2.setDate(lunes.getDate() + d2);
+        var fechaISO = dia2.toISOString().split('T')[0];
+        var ocupado = isSlotOcupado(reclutadoraId, fechaISO, h, m);
+        var claseSlot = ocupado ? 'mini-cal-ocupado' : 'mini-cal-libre';
+        var titulo = ocupado ? 'Ocupado: ' + ocupado.candidatoNombre : 'Disponible - Click para seleccionar';
+
+        html += '<div class="mini-cal-slot ' + claseSlot + '" data-fecha="' + fechaISO + '" data-hora="' + horaStr + '" onclick="' + (ocupado ? '' : "seleccionarSlotMiniCal('" + fechaISO + "','" + horaStr + "')") + '" title="' + escapeHtml(titulo) + '">';
+        if (ocupado) {
+          html += '<span class="mini-cal-bloque" style="background:' + (rec ? rec.color : '#94a3b8') + ';color:#fff;">' + escapeHtml(ocupado.horaCorta) + '</span>';
+        }
+        html += '</div>';
+      }
+    }
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function isSlotOcupado(reclutadoraId, fecha, hora, minuto) {
+  var slotInicio = hora * 60 + minuto;
+  var slotFin = slotInicio + CALENDARIO_CONFIG.slotMinutos;
+  for (var i = 0; i < entrevistas.length; i++) {
+    var ent = entrevistas[i];
+    if (ent.reclutadoraId !== reclutadoraId) continue;
+    if (ent.fecha !== fecha) continue;
+    var partes = ent.hora.split(':');
+    var entInicio = parseInt(partes[0]) * 60 + parseInt(partes[1]);
+    var entFin = entInicio + parseInt(ent.duracion || 60);
+    if (slotInicio < entFin && slotFin > entInicio) {
+      var candidato = candidatos.find(function(c) { return c.id === ent.candidatoId; });
+      return {
+        horaCorta: ent.hora,
+        candidatoNombre: candidato ? (candidato.nombre + ' ' + candidato.apellidos) : 'Entrevista'
+      };
+    }
+  }
+  return null;
+}
+
+function seleccionarSlotMiniCal(fecha, hora) {
+  document.getElementById('entrevista-fecha').value = fechaISOaDDMMAAAA(fecha);
+  document.getElementById('entrevista-hora').value = hora;
+}
+
+// ==================== VALIDACI\u00d3N DE CONFLICTOS ====================
+
+function detectarConflictoHorario(reclutadoraId, fecha, hora, duracionMin, excluirId) {
+  var partes = hora.split(':');
+  var nuevaInicio = parseInt(partes[0]) * 60 + parseInt(partes[1]);
+  var nuevaFin = nuevaInicio + (duracionMin || 60);
+  for (var i = 0; i < entrevistas.length; i++) {
+    var ent = entrevistas[i];
+    if (excluirId && ent.id === excluirId) continue;
+    if (ent.reclutadoraId !== reclutadoraId) continue;
+    if (ent.fecha !== fecha) continue;
+    var ep = ent.hora.split(':');
+    var entInicio = parseInt(ep[0]) * 60 + parseInt(ep[1]);
+    var entFin = entInicio + parseInt(ent.duracion || 60);
+    if (nuevaInicio < entFin && nuevaFin > entInicio) {
+      var rec = RECLUTADORAS.find(function(r) { return r.id === reclutadoraId; });
+      return {
+        reclutadoraNombre: rec ? rec.nombre : 'Reclutadora',
+        horaInicio: ent.hora,
+        horaFin: minutosAHora(entFin)
+      };
+    }
+  }
+  return null;
+}
+
+function minutosAHora(totalMinutos) {
+  var h = Math.floor(totalMinutos / 60);
+  var m = totalMinutos % 60;
+  return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+}
+
+// ==================== CALENDARIO DE RECLUTADORAS ====================
+
+let calRecSemanaOffset = 0;
+let calRecFiltroReclutadora = 'todas';
+
+function calRecNavSemana(dir) {
+  calRecSemanaOffset += dir;
+  renderCalendarioReclutadoras();
+}
+
+function calRecHoy() {
+  calRecSemanaOffset = 0;
+  renderCalendarioReclutadoras();
+}
+
+function renderCalendarioReclutadoras() {
+  var lunes = getMonday(new Date());
+  lunes.setDate(lunes.getDate() + (calRecSemanaOffset * 7));
+  var viernes = new Date(lunes);
+  viernes.setDate(lunes.getDate() + 4);
+
+  // Titulo de semana
+  var tituloEl = document.getElementById('cal-rec-semana-titulo');
+  if (tituloEl) {
+    tituloEl.textContent = lunes.getDate() + ' ' + MESES_ES[lunes.getMonth()] + ' - ' + viernes.getDate() + ' ' + MESES_ES[viernes.getMonth()] + ' ' + viernes.getFullYear();
+  }
+
+  renderCalRecTabs();
+  renderCalRecGrid(lunes);
+  renderVacantesAsignadasPorReclutadora();
+}
+
+function renderCalRecTabs() {
+  var container = document.getElementById('cal-rec-tabs');
+  if (!container) return;
+  var html = '';
+  html += '<button class="cal-rec-tab' + (calRecFiltroReclutadora === 'todas' ? ' active' : '') + '" onclick="calRecFiltrar(\'todas\')">';
+  html += '<span class="cal-rec-dot" style="background:#94a3b8;"></span> Todas</button>';
+  RECLUTADORAS.forEach(function(r) {
+    var activa = calRecFiltroReclutadora === r.id;
+    html += '<button class="cal-rec-tab' + (activa ? ' active' : '') + '" onclick="calRecFiltrar(\'' + r.id + '\')">';
+    html += '<span class="cal-rec-dot" style="background:' + r.color + ';"></span> ' + escapeHtml(r.nombreCorto) + '</button>';
+  });
+  container.innerHTML = html;
+}
+
+function calRecFiltrar(filtro) {
+  calRecFiltroReclutadora = filtro;
+  renderCalendarioReclutadoras();
+}
+
+function renderCalRecGrid(lunes) {
+  var container = document.getElementById('cal-rec-grid-container');
+  if (!container) return;
+
+  var hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  var hoyISO = hoy.toISOString().split('T')[0];
+
+  var dias = [];
+  for (var d = 0; d < 5; d++) {
+    var dia = new Date(lunes);
+    dia.setDate(lunes.getDate() + d);
+    dias.push({ date: dia, iso: dia.toISOString().split('T')[0] });
+  }
+
+  var totalSlots = (CALENDARIO_CONFIG.horaFin - CALENDARIO_CONFIG.horaInicio) * (60 / CALENDARIO_CONFIG.slotMinutos);
+  var slotHeight = 40;
+  var headerHeight = 42;
+  var horaColWidth = 60;
+
+  var html = '<div class="cal-rec-grid" style="grid-template-rows: auto repeat(' + totalSlots + ', ' + slotHeight + 'px);">';
+
+  // Header row
+  html += '<div class="cal-rec-header cal-rec-hora-col">Hora</div>';
+  for (var d = 0; d < 5; d++) {
+    var esHoy = dias[d].iso === hoyISO;
+    html += '<div class="cal-rec-header cal-rec-dia-header' + (esHoy ? ' cal-rec-hoy' : '') + '">';
+    html += CALENDARIO_CONFIG.diasSemana[d] + ' <span style="font-weight:400;">' + dias[d].date.getDate() + '</span>';
+    html += '</div>';
+  }
+
+  // Time rows
+  for (var slot = 0; slot < totalSlots; slot++) {
+    var totalMin = CALENDARIO_CONFIG.horaInicio * 60 + slot * CALENDARIO_CONFIG.slotMinutos;
+    var h = Math.floor(totalMin / 60);
+    var m = totalMin % 60;
+    var horaLabel = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+    html += '<div class="cal-rec-hora-label">' + (m === 0 ? horaLabel : '') + '</div>';
+    for (var d2 = 0; d2 < 5; d2++) {
+      var esHoy2 = dias[d2].iso === hoyISO;
+      html += '<div class="cal-rec-celda' + (esHoy2 ? ' cal-rec-hoy-bg' : '') + (slot % 2 === 0 ? ' cal-rec-celda-par' : '') + '"></div>';
+    }
+  }
+  html += '</div>';
+
+  // Overlay de bloques de entrevistas (position absolute via CSS)
+  html += '<div class="cal-rec-bloques-overlay">';
+
+  var entrevistasSemana = entrevistas.filter(function(e) {
+    var enSemana = dias.some(function(dia) { return dia.iso === e.fecha; });
+    if (!enSemana) return false;
+    if (calRecFiltroReclutadora !== 'todas' && e.reclutadoraId !== calRecFiltroReclutadora) return false;
+    return true;
+  });
+
+  entrevistasSemana.forEach(function(ent) {
+    var diaIdx = dias.findIndex(function(dia) { return dia.iso === ent.fecha; });
+    if (diaIdx === -1) return;
+
+    var partes = ent.hora.split(':');
+    var entInicioMin = parseInt(partes[0]) * 60 + parseInt(partes[1]);
+    var entFinMin = entInicioMin + parseInt(ent.duracion || 60);
+    var inicioOffset = entInicioMin - CALENDARIO_CONFIG.horaInicio * 60;
+    var duracion = entFinMin - entInicioMin;
+
+    if (inicioOffset < 0) return;
+
+    var top = headerHeight + (inicioOffset / CALENDARIO_CONFIG.slotMinutos) * slotHeight;
+    var height = (duracion / CALENDARIO_CONFIG.slotMinutos) * slotHeight;
+
+    var rec = RECLUTADORAS.find(function(r) { return r.id === ent.reclutadoraId; });
+    var color = rec ? rec.color : '#94a3b8';
+    var colorLight = rec ? rec.colorLight : '#f1f5f9';
+    var recNombre = rec ? rec.nombreCorto : '';
+
+    var candidato = candidatos.find(function(c) { return c.id === ent.candidatoId; });
+    var candNombre = candidato ? (candidato.nombre + ' ' + candidato.apellidos) : 'Entrevista';
+    var vacante = candidato ? vacantes.find(function(v) { return v.id === candidato.vacanteId; }) : null;
+    var vacTitulo = vacante ? vacante.titulo : '';
+
+    // Position: skip hora column (60px), then each day is 1/5 of remaining
+    var leftCalc = 'calc(' + horaColWidth + 'px + ' + diaIdx + ' * (100% - ' + horaColWidth + 'px) / 5 + 2px)';
+    var widthCalc = 'calc((100% - ' + horaColWidth + 'px) / 5 - 4px)';
+
+    html += '<div class="cal-rec-bloque" style="';
+    html += 'position:absolute;';
+    html += 'top:' + top + 'px;';
+    html += 'left:' + leftCalc + ';';
+    html += 'width:' + widthCalc + ';';
+    html += 'height:' + (height - 2) + 'px;';
+    html += 'background:' + colorLight + ';';
+    html += 'border-left:3px solid ' + color + ';';
+    html += '" onclick="verDetalleCandidato(' + (candidato ? candidato.id : 'null') + ')" title="' + escapeHtml(candNombre + ' - ' + vacTitulo) + '">';
+    html += '<div class="cal-rec-bloque-hora" style="color:' + color + ';">' + ent.hora + ' - ' + minutosAHora(entFinMin) + '</div>';
+    html += '<div class="cal-rec-bloque-nombre">' + escapeHtml(candNombre) + '</div>';
+    if (height > 45) {
+      html += '<div class="cal-rec-bloque-info">' + escapeHtml(recNombre) + (vacTitulo ? ' &middot; ' + escapeHtml(vacTitulo) : '') + '</div>';
+    }
+    html += '</div>';
+  });
+
+  html += '</div>';
+
+  container.innerHTML = html;
+}
+
+function renderVacantesAsignadasPorReclutadora() {
+  var container = document.getElementById('cal-rec-vacantes-asignadas');
+  if (!container) return;
+
+  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;">';
+
+  RECLUTADORAS.forEach(function(rec) {
+    var vacRec = vacantes.filter(function(v) { return v.reclutadoraId === rec.id && v.estado === 'abierta'; });
+    html += '<div style="border:1px solid var(--border);border-radius:var(--radius);padding:16px;border-left:4px solid ' + rec.color + ';">';
+    html += '<h4 style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">';
+    html += '<span class="cal-rec-dot" style="background:' + rec.color + ';"></span> ' + escapeHtml(rec.nombre);
+    html += ' <span style="font-weight:400;color:var(--muted);font-size:13px;">(' + vacRec.length + ' vacantes)</span></h4>';
+
+    if (vacRec.length === 0) {
+      html += '<p style="color:var(--muted);font-size:13px;">Sin vacantes asignadas</p>';
+    } else {
+      vacRec.forEach(function(v) {
+        var candsVac = candidatos.filter(function(c) { return c.vacanteId === v.id && c.etapa !== 'rechazado'; });
+        var entsVac = entrevistas.filter(function(e) { return e.reclutadoraId === rec.id && candsVac.some(function(c) { return c.id === e.candidatoId; }); });
+        html += '<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">';
+        html += '<div>';
+        html += '<span style="font-weight:600;font-size:13px;">' + escapeHtml(v.titulo) + '</span>';
+        if (v.codigo) html += ' <span style="color:var(--primary);font-size:11px;font-weight:600;">' + escapeHtml(v.codigo) + '</span>';
+        html += '<br><span style="font-size:12px;color:var(--muted);">' + escapeHtml(v.departamento) + '</span>';
+        html += '</div>';
+        html += '<div style="text-align:right;font-size:12px;">';
+        html += '<span style="font-weight:600;">' + candsVac.length + '</span> candidatos<br>';
+        html += '<span style="font-weight:600;">' + entsVac.length + '</span> entrevistas';
+        html += '</div></div>';
+      });
+    }
+    html += '</div>';
+  });
+
+  // Vacantes sin asignar
+  var sinAsignar = vacantes.filter(function(v) { return !v.reclutadoraId && v.estado === 'abierta'; });
+  if (sinAsignar.length > 0) {
+    html += '<div style="border:1px solid var(--border);border-radius:var(--radius);padding:16px;border-left:4px solid #94a3b8;">';
+    html += '<h4 style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">';
+    html += '<span class="cal-rec-dot" style="background:#94a3b8;"></span> Sin Asignar';
+    html += ' <span style="font-weight:400;color:var(--muted);font-size:13px;">(' + sinAsignar.length + ' vacantes)</span></h4>';
+    sinAsignar.forEach(function(v) {
+      html += '<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">';
+      html += '<div>';
+      html += '<span style="font-weight:600;font-size:13px;">' + escapeHtml(v.titulo) + '</span>';
+      if (v.codigo) html += ' <span style="color:var(--primary);font-size:11px;font-weight:600;">' + escapeHtml(v.codigo) + '</span>';
+      html += '<br><span style="font-size:12px;color:var(--muted);">' + escapeHtml(v.departamento) + '</span>';
+      html += '</div>';
+      html += '<div style="display:flex;gap:4px;">';
+      RECLUTADORAS.forEach(function(r) {
+        html += '<button class="btn btn-ghost btn-small" style="font-size:11px;border-color:' + r.color + ';color:' + r.color + ';" onclick="asignarReclutadoraVacante(\'' + v.id + '\',\'' + r.id + '\')">' + escapeHtml(r.nombreCorto) + '</button>';
+      });
+      html += '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function asignarReclutadoraVacante(vacId, recId) {
+  var vac = vacantes.find(function(v) { return v.id == vacId; });
+  if (!vac) return;
+  vac.reclutadoraId = recId;
+  var rec = RECLUTADORAS.find(function(r) { return r.id === recId; });
+  saveData();
+  showToast('Vacante asignada', vac.titulo + ' asignada a ' + (rec ? rec.nombre : 'reclutadora'));
+  renderCalendarioReclutadoras();
 }
 
 function iniciarAltaEmpleado(candidatoId) {
@@ -1481,114 +1984,589 @@ function verCandidatosVacante(vacanteId) {
 
 // ==================== DASHBOARD ====================
 function renderDashboard() {
-  filtrarDashboard();
+  poblarFiltroVacantes();
+  var data = computeDashboardData();
+  renderDashboardKPIs(data);
+  renderDashboardCharts(data);
 }
 
 function filtrarDashboard() {
-  const fechaInicioRaw = document.getElementById('dash-fecha-inicio')?.value || '';
-  const fechaFinRaw = document.getElementById('dash-fecha-fin')?.value || '';
-  const fechaInicio = fechaDDMMAAAAaISO(fechaInicioRaw) || fechaInicioRaw;
-  const fechaFin = fechaDDMMAAAAaISO(fechaFinRaw) || fechaFinRaw;
+  // Auto-rellenar Departamento y Vacante cuando la clave coincide exactamente
+  var codigoInput = (document.getElementById('dash-codigo')?.value || '').trim().toUpperCase();
+  if (codigoInput) {
+    var match = vacantes.find(function(v) { return v.codigo && v.codigo.toUpperCase() === codigoInput; });
+    if (match) {
+      var deptoSelect = document.getElementById('dash-departamento');
+      var vacanteSelect = document.getElementById('dash-vacante');
+      if (deptoSelect) deptoSelect.value = match.departamento;
+      // Primero poblar dropdown de vacantes con el depto seleccionado
+      poblarFiltroVacantes();
+      if (vacanteSelect) vacanteSelect.value = String(match.id);
+    } else {
+      poblarFiltroVacantes();
+    }
+  } else {
+    poblarFiltroVacantes();
+  }
+  var data = computeDashboardData();
+  renderDashboardKPIs(data);
+  renderDashboardCharts(data);
+}
 
-  let candidatosFiltrados = candidatos;
-  let vacantesFiltradas = vacantes;
+function limpiarFiltrosDashboard() {
+  document.getElementById('dash-codigo').value = '';
+  document.getElementById('dash-departamento').value = '';
+  document.getElementById('dash-vacante').value = '';
+  document.getElementById('dash-estado').value = '';
+  document.getElementById('dash-etapa').value = '';
+  document.getElementById('dash-fecha-inicio').value = '';
+  document.getElementById('dash-fecha-fin').value = '';
+  filtrarDashboard();
+}
 
+function poblarFiltroVacantes() {
+  var select = document.getElementById('dash-vacante');
+  if (!select) return;
+  var deptoFilter = document.getElementById('dash-departamento')?.value || '';
+  var estadoFilter = document.getElementById('dash-estado')?.value || '';
+  var currentVal = select.value;
+
+  var opts = vacantes.filter(function(v) {
+    if (deptoFilter && v.departamento !== deptoFilter) return false;
+    if (estadoFilter && v.estado !== estadoFilter) return false;
+    return true;
+  });
+
+  select.innerHTML = '<option value="">Todas</option>';
+  opts.forEach(function(v) {
+    var opt = document.createElement('option');
+    opt.value = v.id;
+    opt.textContent = (v.codigo ? v.codigo + ' - ' : '') + v.titulo + ' (' + v.departamento + ')';
+    if (String(v.id) === currentVal) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+function computeDashboardData() {
+  var fechaInicioRaw = document.getElementById('dash-fecha-inicio')?.value || '';
+  var fechaFinRaw = document.getElementById('dash-fecha-fin')?.value || '';
+  var fechaInicio = fechaDDMMAAAAaISO(fechaInicioRaw) || fechaInicioRaw;
+  var fechaFin = fechaDDMMAAAAaISO(fechaFinRaw) || fechaFinRaw;
+  var deptoFilter = document.getElementById('dash-departamento')?.value || '';
+  var vacanteFilter = document.getElementById('dash-vacante')?.value || '';
+  var estadoFilter = document.getElementById('dash-estado')?.value || '';
+  var etapaFilter = document.getElementById('dash-etapa')?.value || '';
+  var codigoFilter = (document.getElementById('dash-codigo')?.value || '').toUpperCase().trim();
+
+  // 1. Filter vacantes
+  var vacantesFiltradas = vacantes;
+
+  if (codigoFilter) {
+    vacantesFiltradas = vacantesFiltradas.filter(function(v) { return v.codigo && v.codigo.toUpperCase().includes(codigoFilter); });
+  }
+  if (deptoFilter) {
+    vacantesFiltradas = vacantesFiltradas.filter(function(v) { return v.departamento === deptoFilter; });
+  }
+  if (estadoFilter) {
+    vacantesFiltradas = vacantesFiltradas.filter(function(v) { return v.estado === estadoFilter; });
+  }
+  if (vacanteFilter) {
+    vacantesFiltradas = vacantesFiltradas.filter(function(v) { return v.id === parseInt(vacanteFilter); });
+  }
   if (fechaInicio || fechaFin) {
-    const inicio = fechaInicio ? new Date(fechaInicio) : new Date('2000-01-01');
-    const fin = fechaFin ? new Date(fechaFin) : new Date('2099-12-31');
-
-    candidatosFiltrados = candidatos.filter(c => {
-      const fecha = new Date(c.fechaAplicacion);
-      return fecha >= inicio && fecha <= fin;
-    });
-
-    vacantesFiltradas = vacantes.filter(v => {
-      const fecha = new Date(v.fechaCreacion);
-      return fecha >= inicio && fecha <= fin;
+    var inicioV = fechaInicio ? new Date(fechaInicio) : new Date('2000-01-01');
+    var finV = fechaFin ? new Date(fechaFin) : new Date('2099-12-31');
+    vacantesFiltradas = vacantesFiltradas.filter(function(v) {
+      var fecha = new Date(v.fechaCreacion);
+      return fecha >= inicioV && fecha <= finV;
     });
   }
 
-  const totalVacantesActivas = vacantesFiltradas.filter(v => v.estado === 'abierta').length;
-  const totalCandidatos = candidatosFiltrados.length;
-  const enProceso = candidatosFiltrados.filter(c =>
-    !['contratado', 'rechazado'].includes(c.etapa)
-  ).length;
-  const contratados = candidatosFiltrados.filter(c => c.etapa === 'contratado').length;
+  // 2. Filter candidatos (only those belonging to filtered vacantes)
+  var vacanteIds = {};
+  vacantesFiltradas.forEach(function(v) { vacanteIds[v.id] = true; });
 
-  document.getElementById('dash-total-vacantes').textContent = totalVacantesActivas;
-  document.getElementById('dash-total-candidatos').textContent = totalCandidatos;
-  document.getElementById('dash-en-proceso').textContent = enProceso;
-  document.getElementById('dash-contratados').textContent = contratados;
+  var candidatosFiltrados = candidatos.filter(function(c) {
+    return vacanteIds[c.vacanteId];
+  });
 
-  renderDashboardPorVacante(candidatosFiltrados, vacantesFiltradas);
+  if (fechaInicio || fechaFin) {
+    var inicioC = fechaInicio ? new Date(fechaInicio) : new Date('2000-01-01');
+    var finC = fechaFin ? new Date(fechaFin) : new Date('2099-12-31');
+    candidatosFiltrados = candidatosFiltrados.filter(function(c) {
+      var fecha = new Date(c.fechaAplicacion);
+      return fecha >= inicioC && fecha <= finC;
+    });
+  }
+
+  if (etapaFilter) {
+    candidatosFiltrados = candidatosFiltrados.filter(function(c) { return c.etapa === etapaFilter; });
+  }
+
+  // 3. Compute KPIs
+  var totalVacantesActivas = vacantesFiltradas.filter(function(v) { return v.estado === 'abierta'; }).length;
+  var vacantesCerradas = vacantesFiltradas.filter(function(v) { return v.estado === 'cerrada'; }).length;
+  var totalCandidatos = candidatosFiltrados.length;
+  var enProceso = candidatosFiltrados.filter(function(c) { return !['contratado', 'rechazado'].includes(c.etapa); }).length;
+  var contratados = candidatosFiltrados.filter(function(c) { return c.etapa === 'contratado'; }).length;
+  var rechazados = candidatosFiltrados.filter(function(c) { return c.etapa === 'rechazado'; }).length;
+
+  var tasaContratacion = totalCandidatos > 0 ? Math.round((contratados / totalCandidatos) * 100) : 0;
+
+  var diasPromedio = 0;
+  var contratadosList = candidatosFiltrados.filter(function(c) { return c.etapa === 'contratado'; });
+  if (contratadosList.length > 0) {
+    var totalDias = contratadosList.reduce(function(sum, c) {
+      return sum + Math.floor((new Date() - new Date(c.fechaAplicacion)) / (1000 * 60 * 60 * 24));
+    }, 0);
+    diasPromedio = Math.round(totalDias / contratadosList.length);
+  }
+
+  // Entrevistas agendadas (filtered by vacante scope + dates)
+  var candidatoIds = {};
+  candidatosFiltrados.forEach(function(c) { candidatoIds[c.id] = true; });
+
+  var entrevistasAgendadas = entrevistas.filter(function(e) {
+    if (!candidatoIds[e.candidatoId]) return false;
+    if (fechaInicio || fechaFin) {
+      var fecha = new Date(e.fecha);
+      var ini = fechaInicio ? new Date(fechaInicio) : new Date('2000-01-01');
+      var fin = fechaFin ? new Date(fechaFin) : new Date('2099-12-31');
+      return fecha >= ini && fecha <= fin;
+    }
+    return true;
+  }).length;
+
+  var now = new Date();
+  var startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+  // Candidatos esta semana (within the filtered scope)
+  var candidatosSemana = candidatosFiltrados.filter(function(c) { return new Date(c.fechaAplicacion) >= startOfWeek; }).length;
+
+  // Pipeline distribution for donut
+  var pipelineStages = [
+    'aplicado', 'entrevista-rh', 'primer-filtro', 'entrevista-jefe',
+    'revision-medica', 'psicometrico', 'referencias', 'documentos',
+    'contratado', 'rechazado'
+  ];
+  var pipelineDistribution = {};
+  pipelineStages.forEach(function(stage) {
+    var count = candidatosFiltrados.filter(function(c) { return c.etapa === stage; }).length;
+    if (count > 0) pipelineDistribution[stage] = count;
+  });
+
+  // Candidates per vacancy for bar chart
+  var candidatosPorVacante = vacantesFiltradas.map(function(v) {
+    return {
+      titulo: v.titulo,
+      count: candidatosFiltrados.filter(function(c) { return c.vacanteId === v.id; }).length
+    };
+  }).filter(function(item) { return item.count > 0; }).sort(function(a, b) { return b.count - a.count; }).slice(0, 10);
+
+  var hiringTrend = computeHiringTrend(candidatosFiltrados);
+
+  // Rejection distribution by stage (for donut chart)
+  var rechazadosList = candidatosFiltrados.filter(function(c) { return c.etapa === 'rechazado'; });
+  var rejectionByStage = {};
+  rechazadosList.forEach(function(c) {
+    var stageNum = c.etapaRechazo || 1;
+    var stageName = getEtapaNombre(stageNum);
+    if (!rejectionByStage[stageName]) rejectionByStage[stageName] = 0;
+    rejectionByStage[stageName]++;
+  });
+
+  return {
+    totalVacantesActivas: totalVacantesActivas, vacantesCerradas: vacantesCerradas,
+    totalCandidatos: totalCandidatos, enProceso: enProceso,
+    contratados: contratados, rechazados: rechazados,
+    tasaContratacion: tasaContratacion, diasPromedio: diasPromedio,
+    entrevistasAgendadas: entrevistasAgendadas, candidatosSemana: candidatosSemana,
+    pipelineDistribution: pipelineDistribution, rejectionByStage: rejectionByStage,
+    candidatosPorVacante: candidatosPorVacante, hiringTrend: hiringTrend
+  };
 }
 
-function renderDashboardPorVacante(candidatosFiltrados, vacantesFiltradas) {
-  const container = document.getElementById('dashboard-por-vacante');
+function renderDashboardKPIs(data) {
+  document.getElementById('rh-total-vacantes').textContent = data.totalVacantesActivas;
+  document.getElementById('rh-total-candidatos').textContent = data.totalCandidatos;
+  document.getElementById('rh-en-proceso').textContent = data.enProceso;
+  document.getElementById('rh-contratados').textContent = data.contratados;
+  document.getElementById('rh-rechazados').textContent = data.rechazados;
+  document.getElementById('rh-dias-promedio').textContent = data.diasPromedio;
+  document.getElementById('rh-tasa-contratacion').textContent = data.tasaContratacion + '%';
+  document.getElementById('rh-vacantes-cerradas').textContent = data.vacantesCerradas;
+  document.getElementById('rh-entrevistas-agendadas').textContent = data.entrevistasAgendadas;
+  document.getElementById('rh-candidatos-semana').textContent = data.candidatosSemana;
+}
 
-  if (vacantesFiltradas.length === 0) {
-    container.innerHTML = '<p style="padding:20px;text-align:center;color:var(--muted);">No hay datos para mostrar en el rango de fechas seleccionado</p>';
+function navegarDesdeKPI(tipo) {
+  // Leer filtros actuales del dashboard
+  var dashVacante = document.getElementById('dash-vacante')?.value || '';
+  var dashDepto = document.getElementById('dash-departamento')?.value || '';
+  var dashEstado = document.getElementById('dash-estado')?.value || '';
+
+  // KPIs que navegan a Vacantes RH
+  if (tipo === 'total-vacantes' || tipo === 'vacantes-cerradas') {
+    showView('gestion-vacantes');
+    var estadoSelect = document.getElementById('vac-filter-estado');
+    if (estadoSelect) {
+      estadoSelect.value = tipo === 'total-vacantes' ? 'abierta' : 'cerrada';
+    }
+    if (dashDepto) {
+      var deptoSelect = document.getElementById('vac-filter-departamento');
+      if (deptoSelect) deptoSelect.value = dashDepto;
+    }
+    filtrarVacantes();
     return;
   }
 
-  const estadisticas = vacantesFiltradas.map(v => {
-    const candidatosVacante = candidatosFiltrados.filter(c => c.vacanteId === v.id);
-    const diasPublicada = Math.floor((new Date() - new Date(v.fechaCreacion)) / (1000 * 60 * 60 * 24));
+  // KPIs que navegan a Candidatos
+  showView('gestion-candidatos');
 
-    const enProceso = candidatosVacante.filter(c =>
-      !['contratado', 'rechazado'].includes(c.etapa)
-    ).length;
+  // Setear filtro de vacante si hay una seleccionada en el dashboard
+  var candVacanteSelect = document.getElementById('cand-filter-vacante');
+  if (candVacanteSelect && dashVacante) {
+    candVacanteSelect.value = dashVacante;
+  }
 
-    const contratados = candidatosVacante.filter(c => c.etapa === 'contratado').length;
-    const rechazados = candidatosVacante.filter(c => c.etapa === 'rechazado').length;
+  // Setear filtro de etapa según el KPI clickeado
+  var candEtapaSelect = document.getElementById('cand-filter-etapa');
+  if (candEtapaSelect) {
+    var etapaMap = {
+      'total-candidatos': '',
+      'en-proceso': 'en-proceso',
+      'contratados': 'contratado',
+      'rechazados': 'rechazado',
+      'entrevistas': '',
+      'candidatos-semana': ''
+    };
+    candEtapaSelect.value = etapaMap[tipo] || '';
+  }
 
-    return { vacante: v, totalCandidatos: candidatosVacante.length, diasPublicada, enProceso, contratados, rechazados };
+  filtrarCandidatos();
+}
+
+function computeHiringTrend(candidatosFiltrados) {
+  const months = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      label: d.toLocaleString('es-MX', { month: 'short', year: '2-digit' }),
+      year: d.getFullYear(),
+      month: d.getMonth()
+    });
+  }
+
+  const aplicados = months.map(m => {
+    return candidatosFiltrados.filter(c => {
+      const d = new Date(c.fechaAplicacion);
+      return d.getFullYear() === m.year && d.getMonth() === m.month;
+    }).length;
   });
 
-  container.innerHTML = `
-    <div style="display:grid;gap:16px;">
-      ${estadisticas.map(stat => `
-        <div class="vacante-card" onclick="verDetalleVacante(${stat.vacante.id})" style="cursor:pointer">
-          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
-            <div>
-              <h3 style="margin:0 0 4px 0;font-size:18px;font-weight:800;">${escapeHtml(stat.vacante.titulo)}</h3>
-              <p style="margin:0;font-size:13px;color:var(--muted);">${escapeHtml(stat.vacante.departamento)} \u2022 ${escapeHtml(stat.vacante.ubicacion)}</p>
-            </div>
-            <span class="vacante-status status-${stat.vacante.estado}">${stat.vacante.estado === 'abierta' ? 'ABIERTA' : 'CERRADA'}</span>
-          </div>
+  const contratados = months.map(m => {
+    return candidatosFiltrados.filter(c => {
+      if (c.etapa !== 'contratado') return false;
+      const d = new Date(c.fechaAplicacion);
+      return d.getFullYear() === m.year && d.getMonth() === m.month;
+    }).length;
+  });
 
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:16px;">
-            <div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px;">
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">D\u00edas Publicada</div>
-              <div style="font-size:24px;font-weight:900;color:var(--primary);">${stat.diasPublicada}</div>
-            </div>
-            <div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px;">
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Total Candidatos</div>
-              <div style="font-size:24px;font-weight:900;color:#3b82f6;">${stat.totalCandidatos}</div>
-            </div>
-            <div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px;">
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">En Proceso</div>
-              <div style="font-size:24px;font-weight:900;color:#f59e0b;">${stat.enProceso}</div>
-            </div>
-            <div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px;">
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Contratados</div>
-              <div style="font-size:24px;font-weight:900;color:#10b981;">${stat.contratados}</div>
-            </div>
-            <div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px;">
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Rechazados</div>
-              <div style="font-size:24px;font-weight:900;color:#dc2626;">${stat.rechazados}</div>
-            </div>
-          </div>
-
-          <div style="display:flex;gap:8px;margin-top:auto;">
-            <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verDetalleVacante(${stat.vacante.id})">Ver Detalle</button>
-            <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verCandidatosVacante(${stat.vacante.id})">Ver Candidatos</button>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `;
+  return { categories: months.map(m => m.label), aplicados, contratados };
 }
+
+// ---- ApexCharts config functions (same pattern as reporte_dashboard) ----
+
+function renderRhFunnel(pipelineDistribution) {
+  // Etapas secuenciales del pipeline (excluye 'rechazado' que no es secuencial)
+  const stageOrder = [
+    'contratado', 'documentos', 'referencias', 'psicometrico',
+    'revision-medica', 'entrevista-jefe', 'primer-filtro', 'entrevista-rh', 'aplicado'
+  ];
+
+  const labels = [];
+  const series = [];
+  const colors = [];
+
+  const activeColors = [
+    '#22c55e', '#10b981', '#06b6d4', '#8b5cf6',
+    '#f97316', '#ec4899', '#6366f1', '#f59e0b', '#3b82f6'
+  ];
+  const emptyColor = '#d1d5db';
+
+  stageOrder.forEach(function(stage, i) {
+    labels.push(getEtapaLabel(stage));
+    var count = pipelineDistribution[stage] || 0;
+    series.push(count > 0 ? count : 0.3);
+    colors.push(count > 0 ? activeColors[i] : emptyColor);
+  });
+
+  return {
+    chart: { type: 'bar', height: RH_CHART_HEIGHTS.funnel, toolbar: { show: true } },
+    series: [{ name: 'Candidatos', data: series }],
+    xaxis: { categories: labels },
+    colors: colors,
+    plotOptions: {
+      bar: {
+        borderRadius: 0,
+        horizontal: true,
+        barHeight: '80%',
+        isFunnel: true,
+        distributed: true
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function(val, opts) {
+        var realVal = val < 1 ? 0 : val;
+        return labels[opts.dataPointIndex] + ': ' + realVal;
+      },
+      dropShadow: { enabled: false },
+      style: { fontSize: '12px', colors: ['#fff'] }
+    },
+    legend: { show: false },
+    tooltip: {
+      enabled: true,
+      y: { formatter: function(val) { return (val < 1 ? 0 : val) + ' candidatos'; } }
+    }
+  };
+}
+
+function renderRhRejectionDonut(rejectionByStage) {
+  const stageOrder = [
+    'aplicado', 'entrevista-rh', 'primer-filtro', 'entrevista-jefe',
+    'revision-medica', 'psicometrico', 'referencias', 'documentos'
+  ];
+
+  const labels = [];
+  const series = [];
+
+  stageOrder.forEach(function(stage) {
+    if (rejectionByStage[stage]) {
+      labels.push(getEtapaLabel(stage));
+      series.push(rejectionByStage[stage]);
+    }
+  });
+
+  const total = series.reduce(function(a, b) { return a + b; }, 0);
+
+  const colors = [
+    '#ef4444', '#f97316', '#f59e0b', '#eab308',
+    '#84cc16', '#22c55e', '#06b6d4', '#6366f1'
+  ];
+
+  return {
+    chart: { type: 'donut', height: 280, toolbar: { show: true } },
+    series: series,
+    labels: labels,
+    colors: colors.slice(0, labels.length),
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '55%',
+          labels: {
+            show: true,
+            name: { fontSize: '13px', offsetY: -10 },
+            value: { show: true, fontSize: '14px', offsetY: -4 },
+            total: {
+              show: true,
+              label: 'Total Rechazos',
+              fontSize: '11px',
+              formatter: function(w) {
+                return w.globals.seriesTotals.reduce(function(a, b) { return a + b; }, 0);
+              }
+            }
+          }
+        }
+      }
+    },
+    dataLabels: {
+      formatter: function(val) { return val.toFixed(1) + '%'; }
+    },
+    tooltip: {
+      y: {
+        formatter: function(val) {
+          var pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+          return val + ' rechazos (' + pct + '%)';
+        }
+      }
+    },
+    legend: {
+      position: 'bottom',
+      fontSize: '12px'
+    }
+  };
+}
+
+function renderRhLine(hiringTrend) {
+  return {
+    series: [
+      { name: 'Postulaciones', data: hiringTrend.aplicados },
+      { name: 'Contrataciones', data: hiringTrend.contratados }
+    ],
+    chart: { height: RH_CHART_HEIGHTS.line, type: 'line', zoom: { enabled: false } },
+    xaxis: { categories: hiringTrend.categories },
+    yaxis: {
+      min: 0,
+      labels: { formatter: function(val) { return Math.round(val); } }
+    },
+    stroke: { width: 2, curve: 'smooth' },
+    markers: { size: 4, colors: ['hsl(230,86%,63%)', 'hsl(151,81%,28%)'] },
+    tooltip: { shared: true, intersect: false },
+    colors: ['hsl(230,86%,63%)', 'hsl(151,81%,28%)'],
+    legend: { show: true, position: 'top', horizontalAlign: 'center', fontSize: '14px' }
+  };
+}
+
+function renderRhGauge(tasaContratacion) {
+  return {
+    series: [tasaContratacion],
+    chart: {
+      height: RH_CHART_HEIGHTS.gauge,
+      type: 'radialBar',
+      offsetY: -20,
+      sparkline: { enabled: true },
+      animations: {
+        enabled: true,
+        easing: 'easeout',
+        speed: 1200,
+        dynamicAnimation: { enabled: true, speed: 1000 }
+      }
+    },
+    plotOptions: {
+      radialBar: {
+        startAngle: -90,
+        endAngle: 90,
+        track: {
+          background: '#e7e7e7',
+          strokeWidth: '97%',
+          margin: 10,
+          dropShadow: { enabled: true, top: 2, left: 0, color: '#555', opacity: 1 }
+        },
+        dataLabels: {
+          name: { show: false },
+          value: { offsetY: -2, fontSize: '22px' }
+        }
+      }
+    },
+    grid: { padding: { top: -10 } },
+    fill: { colors: ['hsl(151,81.4%,34.5%)'] }
+  };
+}
+
+function renderRhBar(candidatosPorVacante) {
+  const labels = candidatosPorVacante.map(function(item) {
+    return item.titulo.length > 25 ? item.titulo.substring(0, 25) + '...' : item.titulo;
+  });
+  const values = candidatosPorVacante.map(function(item) { return item.count; });
+  const maxVal = Math.max.apply(null, values.concat([5]));
+
+  return {
+    series: [{ data: values }],
+    chart: { type: 'bar', height: RH_CHART_HEIGHTS.bar, toolbar: { show: true } },
+    plotOptions: {
+      bar: {
+        borderRadius: 4,
+        borderRadiusApplication: 'end',
+        horizontal: true,
+        distributed: true
+      }
+    },
+    dataLabels: { enabled: true, style: { fontSize: '14px' } },
+    xaxis: {
+      categories: labels,
+      min: 0,
+      max: maxVal + 1,
+      tickAmount: Math.min(5, maxVal)
+    },
+    tooltip: { enabled: false },
+    colors: ['#003F2A', '#054C3A', '#0A664D', '#138C66', '#1DA97D', '#26B588', '#2DC496', '#36D3A4', '#40E2B2', '#4BF1C1'],
+    grid: { borderColor: '#eee' },
+    legend: { show: false }
+  };
+}
+
+// ---- Chart lifecycle management ----
+
+function renderDashboardCharts(data) {
+  var funnelEl = document.getElementById('rhFunnelChart');
+  var lineEl = document.getElementById('rhLineChart');
+  var gaugeEl = document.getElementById('rhGaugeChart');
+  var barEl = document.getElementById('rhBarChart');
+  var rejectionEl = document.getElementById('rhRejectionChart');
+  if (!funnelEl || !lineEl || !gaugeEl || !barEl) return;
+
+  // Destroy existing charts
+  if (rhFunnelChart) { rhFunnelChart.destroy(); rhFunnelChart = null; }
+  if (rhLineChart) { rhLineChart.destroy(); rhLineChart = null; }
+  if (rhGaugeChart) { rhGaugeChart.destroy(); rhGaugeChart = null; }
+  if (rhBarChart) { rhBarChart.destroy(); rhBarChart = null; }
+  if (rhRejectionChart) { rhRejectionChart.destroy(); rhRejectionChart = null; }
+
+  // Clear containers
+  funnelEl.innerHTML = '';
+  lineEl.innerHTML = '';
+  gaugeEl.innerHTML = '';
+  barEl.innerHTML = '';
+  if (rejectionEl) rejectionEl.innerHTML = '';
+
+  // Funnel
+  if (Object.keys(data.pipelineDistribution).length > 0) {
+    rhFunnelChart = new ApexCharts(funnelEl, renderRhFunnel(data.pipelineDistribution));
+    rhFunnelChart.render();
+  } else {
+    funnelEl.innerHTML = '<p style="text-align:center;color:#9ca3af;padding:40px 0;">Sin datos de candidatos</p>';
+  }
+
+  // Line
+  rhLineChart = new ApexCharts(lineEl, renderRhLine(data.hiringTrend));
+  rhLineChart.render();
+
+  // Gauge
+  rhGaugeChart = new ApexCharts(gaugeEl, renderRhGauge(data.tasaContratacion));
+  rhGaugeChart.render();
+
+  // Bar
+  if (data.candidatosPorVacante.length > 0) {
+    rhBarChart = new ApexCharts(barEl, renderRhBar(data.candidatosPorVacante));
+    rhBarChart.render();
+  } else {
+    barEl.innerHTML = '<p style="text-align:center;color:#9ca3af;padding:40px 0;">Sin datos de vacantes</p>';
+  }
+
+  // Rejection Donut
+  if (rejectionEl) {
+    if (Object.keys(data.rejectionByStage).length > 0) {
+      rhRejectionChart = new ApexCharts(rejectionEl, renderRhRejectionDonut(data.rejectionByStage));
+      rhRejectionChart.render();
+    } else {
+      rejectionEl.innerHTML = '<p style="text-align:center;color:#9ca3af;padding:40px 0;">Sin rechazos registrados</p>';
+    }
+  }
+
+}
+
+// ---- Fullscreen toggle for RH dashboard ----
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var fsBtn = document.getElementById('rh-fullscreen-btn');
+    if (!fsBtn) return;
+    fsBtn.addEventListener('click', function() {
+      var icon = fsBtn.querySelector('i');
+      var isExpanded = icon.classList.contains('fa-expand');
+      var menu = document.getElementById('menu');
+      if (isExpanded) {
+        icon.className = 'fas fa-compress';
+        if (menu) menu.classList.add('hidden');
+      } else {
+        icon.className = 'fas fa-expand';
+        if (menu) menu.classList.remove('hidden');
+      }
+    });
+  });
+})()
 
 // ==================== SOLICITUDES DE VACANTES ====================
 
@@ -1817,7 +2795,7 @@ function verDetalleSolicitud(id) {
           <div style="font-size:24px;font-weight:900;color:var(--primary);">${candidatosVacante.length}</div>
         </div>
         <div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px;">
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Aplicados</div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">Postulados</div>
           <div style="font-size:24px;font-weight:900;color:#3b82f6;">${aplicados}</div>
         </div>
         <div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px;">
@@ -2513,8 +3491,12 @@ function setupFormListeners() {
     formNuevaVacante.addEventListener('submit', (e) => {
       e.preventDefault();
 
+      var recSel = document.getElementById('vac-reclutadora');
+      var reclutadoraId = recSel ? recSel.value : '';
+
       const vacante = {
         id: Date.now(),
+        codigo: generarCodigoVacante(),
         titulo: document.getElementById('vac-titulo').value,
         departamento: document.getElementById('vac-departamento').value,
         ubicacion: document.getElementById('vac-ubicacion').value,
@@ -2522,6 +3504,7 @@ function setupFormListeners() {
         salario: document.getElementById('vac-salario').value,
         descripcion: document.getElementById('vac-descripcion').value,
         requisitos: document.getElementById('vac-requisitos').value,
+        reclutadoraId: reclutadoraId || null,
         estado: 'abierta',
         fechaCreacion: new Date().toISOString().split('T')[0]
       };
@@ -2699,7 +3682,7 @@ function setupFormAplicar() {
       const celTitle = document.querySelector('.celebration-title');
       const celSub = document.querySelector('.celebration-sub');
       if (celTitle) celTitle.textContent = '\u00a1Felicidades!';
-      if (celSub) celSub.textContent = `Has aplicado con \u00e9xito a la vacante ${nombreVacante}, nos pondremos en contacto contigo muy pronto.`;
+      if (celSub) celSub.textContent = `Te has postulado con \u00e9xito a la vacante ${nombreVacante}, nos pondremos en contacto contigo muy pronto.`;
       celebrate();
 
       renderCandidatosTable();
@@ -2716,15 +3699,29 @@ function setupFormEntrevista() {
 
       const candidatoId = parseInt(document.getElementById('entrevista-candidato-id').value);
       const tipo = document.getElementById('entrevista-tipo').value;
+      const reclutadoraId = document.getElementById('entrevista-reclutadora').value || null;
+      const fechaISO = fechaDDMMAAAAaISO(document.getElementById('entrevista-fecha').value) || document.getElementById('entrevista-fecha').value;
+      const hora = document.getElementById('entrevista-hora').value;
+      const duracion = document.getElementById('entrevista-duracion').value;
+
+      // Validar conflicto de horario para entrevistas RH
+      if (tipo === 'rh' && reclutadoraId) {
+        const conflicto = detectarConflictoHorario(reclutadoraId, fechaISO, hora, parseInt(duracion));
+        if (conflicto) {
+          showToast('Conflicto de horario', conflicto.reclutadoraNombre + ' ya tiene entrevista de ' + conflicto.horaInicio + ' a ' + conflicto.horaFin);
+          return;
+        }
+      }
 
       const entrevista = {
         id: Date.now(),
         candidatoId: candidatoId,
         tipo: tipo,
-        fecha: fechaDDMMAAAAaISO(document.getElementById('entrevista-fecha').value) || document.getElementById('entrevista-fecha').value,
-        hora: document.getElementById('entrevista-hora').value,
-        duracion: document.getElementById('entrevista-duracion').value,
+        fecha: fechaISO,
+        hora: hora,
+        duracion: duracion,
         entrevistador: document.getElementById('entrevista-entrevistador').value,
+        reclutadoraId: reclutadoraId,
         lugar: document.getElementById('entrevista-lugar').value,
         notas: document.getElementById('entrevista-notas').value
       };
@@ -2744,6 +3741,7 @@ function setupFormEntrevista() {
 
       showToast('Entrevista agendada', 'La entrevista ha sido programada exitosamente');
       closeModal('agendar-entrevista');
+      document.getElementById('entrevista-disponibilidad-wrapper').style.display = 'none';
       e.target.reset();
       renderCandidatosTable();
     });
@@ -2884,7 +3882,7 @@ function renderSeguimientoPublico(candidato) {
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
         <div>
           <p style="margin:0;font-size:20px;font-weight:900;color:var(--primary);">${escapeHtml(candidato.nombre)} ${escapeHtml(candidato.apellidos)}</p>
-          <p style="margin:4px 0 0;font-size:14px;color:var(--muted);">${vacante ? escapeHtml(vacante.titulo) : 'Vacante'} &middot; Aplicado el ${formatFecha(candidato.fechaAplicacion)}</p>
+          <p style="margin:4px 0 0;font-size:14px;color:var(--muted);">${vacante ? escapeHtml(vacante.titulo) : 'Vacante'} &middot; Postulado el ${formatFecha(candidato.fechaAplicacion)}</p>
         </div>
         <span class="badge badge-${getBadgeClass(candidato.etapa)}" style="white-space:nowrap;">${getEtapaLabel(candidato.etapa).toUpperCase()}</span>
       </div>
@@ -2933,38 +3931,160 @@ document.addEventListener('DOMContentLoaded', () => {
   setupFormsSolicitud();
   setupFormCompletarVacante();
 
-  // Demo vacantes
+  // Demo vacantes (20 vacantes repartidas en areas + candidatos en distintas etapas)
+  // Force re-seed if old demo data or missing etapaRechazo
+  // Asignar codigo automaticamente a vacantes existentes que no tengan
+  var vacSinCodigo = vacantes.filter(function(v) { return !v.codigo; });
+  if (vacSinCodigo.length > 0) {
+    var maxNum = 0;
+    vacantes.forEach(function(v) {
+      if (v.codigo) {
+        var n = parseInt(v.codigo.replace('VAC-', ''), 10);
+        if (n > maxNum) maxNum = n;
+      }
+    });
+    vacSinCodigo.forEach(function(v) {
+      maxNum++;
+      v.codigo = 'VAC-' + String(maxNum).padStart(4, '0');
+    });
+    localStorage.setItem('vacantes', JSON.stringify(vacantes));
+  }
+
+  // Migración: asignar reclutadoraId a entrevistas RH sin asignar
+  var entSinRec = entrevistas.filter(function(e) { return e.tipo === 'rh' && !e.reclutadoraId; });
+  if (entSinRec.length > 0) {
+    entSinRec.forEach(function(e, i) {
+      e.reclutadoraId = RECLUTADORAS[i % RECLUTADORAS.length].id;
+    });
+    localStorage.setItem('entrevistas', JSON.stringify(entrevistas));
+  }
+
+  // Migración: asignar reclutadoraId a vacantes abiertas sin asignar
+  var vacSinRec = vacantes.filter(function(v) { return v.estado === 'abierta' && !v.reclutadoraId; });
+  if (vacSinRec.length > 0) {
+    vacSinRec.forEach(function(v, i) {
+      v.reclutadoraId = RECLUTADORAS[i % RECLUTADORAS.length].id;
+    });
+    localStorage.setItem('vacantes', JSON.stringify(vacantes));
+  }
+
+  var needsReseed = vacantes.length < 3 || candidatos.some(function(c) { return c.etapa === 'rechazado' && !c.etapaRechazo; });
+  if (needsReseed) {
+    vacantes = [];
+    candidatos = [];
+    entrevistas = [];
+    localStorage.removeItem('vacantes');
+    localStorage.removeItem('candidatos');
+    localStorage.removeItem('entrevistas');
+  }
   if (vacantes.length === 0) {
     vacantes = [
-      {
-        id: 1,
-        titulo: 'Desarrollador Full Stack',
-        departamento: 'IT',
-        ubicacion: 'Corporativo Vallarta',
-        ubicacionClave: 'corporativo',
-        direccion: 'Av. Ignacio L Vallarta 2025, Col Americana, Lafayette, 44130 Guadalajara, Jal.',
-        tipo: 'Tiempo Completo',
-        salario: '$25,000 - $35,000',
-        descripcion: 'Buscamos un desarrollador con experiencia en React, Node.js y bases de datos SQL/NoSQL.',
-        requisitos: 'M\u00ednimo 3 a\u00f1os de experiencia, conocimientos en Git, metodolog\u00edas \u00e1giles',
-        estado: 'abierta',
-        fechaCreacion: '2026-02-01'
-      },
-      {
-        id: 2,
-        titulo: 'Gerente de Ventas',
-        departamento: 'Ventas',
-        ubicacion: 'Planta 2 Artes',
-        ubicacionClave: 'planta2',
-        direccion: 'C. Artes 2767, San Rafael, 44810 Guadalajara, Jal.',
-        tipo: 'Tiempo Completo',
-        salario: '$30,000 - $45,000',
-        descripcion: 'Gerente de ventas con experiencia en manejo de equipos y cumplimiento de objetivos.',
-        requisitos: '5 a\u00f1os de experiencia, liderazgo de equipos, orientaci\u00f3n a resultados',
-        estado: 'abierta',
-        fechaCreacion: '2026-02-05'
-      }
+      { id: 1, codigo: 'VAC-0001', titulo: 'Desarrollador Full Stack', departamento: 'IT', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025, Col Americana, Lafayette, 44130 Guadalajara, Jal.', tipo: 'Tiempo Completo', salario: '$25,000 - $35,000', descripcion: 'Desarrollo web con React y Node.js.', requisitos: '3 anios de experiencia, Git, agiles', estado: 'abierta', fechaCreacion: '2025-10-15' },
+      { id: 2, codigo: 'VAC-0002', titulo: 'Gerente de Ventas', departamento: 'Ventas', ubicacion: 'Planta 2 Artes', ubicacionClave: 'planta2', direccion: 'C. Artes 2767, San Rafael, 44810 Guadalajara, Jal.', tipo: 'Tiempo Completo', salario: '$30,000 - $45,000', descripcion: 'Manejo de equipos de ventas y cumplimiento de objetivos.', requisitos: '5 anios, liderazgo', estado: 'abierta', fechaCreacion: '2025-11-01' },
+      { id: 3, codigo: 'VAC-0003', titulo: 'Analista de Datos', departamento: 'IT', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$22,000 - $30,000', descripcion: 'Analisis de datos con Python y SQL.', requisitos: '2 anios en analisis de datos', estado: 'abierta', fechaCreacion: '2025-11-10' },
+      { id: 4, codigo: 'VAC-0004', titulo: 'Ejecutivo de Ventas', departamento: 'Ventas', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$15,000 - $22,000', descripcion: 'Prospeccion y cierre de ventas B2B.', requisitos: '2 anios en ventas', estado: 'abierta', fechaCreacion: '2025-11-20' },
+      { id: 5, codigo: 'VAC-0005', titulo: 'Disenador Grafico', departamento: 'Marketing', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$18,000 - $25,000', descripcion: 'Diseno de material grafico para campanas.', requisitos: 'Adobe Creative Suite', estado: 'abierta', fechaCreacion: '2025-12-01' },
+      { id: 6, codigo: 'VAC-0006', titulo: 'Supervisor de Produccion', departamento: 'Operaciones', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$20,000 - $28,000', descripcion: 'Supervision de lineas de produccion.', requisitos: '3 anios en manufactura', estado: 'abierta', fechaCreacion: '2025-12-05' },
+      { id: 7, codigo: 'VAC-0007', titulo: 'Contador General', departamento: 'Finanzas', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$22,000 - $30,000', descripcion: 'Contabilidad general y estados financieros.', requisitos: 'Lic. Contaduria, 3 anios', estado: 'abierta', fechaCreacion: '2025-12-10' },
+      { id: 8, codigo: 'VAC-0008', titulo: 'Coordinador de RRHH', departamento: 'RRHH', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$20,000 - $28,000', descripcion: 'Coordinacion de procesos de reclutamiento y capacitacion.', requisitos: 'Lic. Psicologia o afin', estado: 'abierta', fechaCreacion: '2025-12-15' },
+      { id: 9, codigo: 'VAC-0009', titulo: 'Community Manager', departamento: 'Marketing', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$15,000 - $20,000', descripcion: 'Gestion de redes sociales y contenido digital.', requisitos: '1 anio en redes sociales', estado: 'abierta', fechaCreacion: '2026-01-05' },
+      { id: 10, codigo: 'VAC-0010', titulo: 'Ingeniero de Calidad', departamento: 'Operaciones', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$18,000 - $25,000', descripcion: 'Control de calidad en lineas de produccion.', requisitos: 'ISO 9001, Six Sigma', estado: 'abierta', fechaCreacion: '2026-01-10' },
+      { id: 11, codigo: 'VAC-0011', titulo: 'Soporte Tecnico', departamento: 'IT', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$14,000 - $18,000', descripcion: 'Soporte a usuarios y mantenimiento de equipos.', requisitos: 'Tecnico en sistemas', estado: 'abierta', fechaCreacion: '2026-01-15' },
+      { id: 12, codigo: 'VAC-0012', titulo: 'Auxiliar Contable', departamento: 'Finanzas', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Medio Tiempo', salario: '$10,000 - $14,000', descripcion: 'Apoyo en registro contable y conciliaciones.', requisitos: 'Estudiante de Contaduria', estado: 'abierta', fechaCreacion: '2026-01-20' },
+      { id: 13, codigo: 'VAC-0013', titulo: 'Jefe de Almacen', departamento: 'Operaciones', ubicacion: 'CEDIS Tonala', ubicacionClave: 'cedis', direccion: 'Av. Tonala #5678', tipo: 'Tiempo Completo', salario: '$18,000 - $24,000', descripcion: 'Gestion de inventarios y despacho de mercancia.', requisitos: 'Ing. Industrial, 2 anios', estado: 'abierta', fechaCreacion: '2026-01-25' },
+      { id: 14, codigo: 'VAC-0014', titulo: 'Asistente de Direccion', departamento: 'Administracion', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$16,000 - $22,000', descripcion: 'Asistencia ejecutiva a la direccion general.', requisitos: 'Lic. Administracion, ingles avanzado', estado: 'abierta', fechaCreacion: '2026-02-01' },
+      { id: 15, codigo: 'VAC-0015', titulo: 'Analista de Nominas', departamento: 'RRHH', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$17,000 - $23,000', descripcion: 'Calculo de nominas y prestaciones.', requisitos: 'Experiencia con IMSS, Infonavit', estado: 'abierta', fechaCreacion: '2026-02-05' },
+      { id: 16, codigo: 'VAC-0016', titulo: 'Operador de Produccion', departamento: 'Operaciones', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$9,000 - $12,000', descripcion: 'Operacion de maquinaria en lineas de produccion.', requisitos: 'Secundaria terminada', estado: 'cerrada', fechaCreacion: '2025-09-15' },
+      { id: 17, codigo: 'VAC-0017', titulo: 'Ejecutivo de Cobranza', departamento: 'Finanzas', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$14,000 - $18,000', descripcion: 'Gestion de cartera de cobranza.', requisitos: '1 anio en cobranza', estado: 'cerrada', fechaCreacion: '2025-10-01' },
+      { id: 18, codigo: 'VAC-0018', titulo: 'Recepcionista', departamento: 'Administracion', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$10,000 - $13,000', descripcion: 'Atencion al publico y manejo de conmutador.', requisitos: 'Preparatoria terminada', estado: 'cerrada', fechaCreacion: '2025-09-01' },
+      { id: 19, codigo: 'VAC-0019', titulo: 'Coordinador de Logistica', departamento: 'Operaciones', ubicacion: 'CEDIS Tonala', ubicacionClave: 'cedis', direccion: 'Av. Tonala #5678', tipo: 'Tiempo Completo', salario: '$22,000 - $30,000', descripcion: 'Coordinacion de rutas de distribucion.', requisitos: 'Ing. Industrial, 3 anios', estado: 'abierta', fechaCreacion: '2026-02-10' },
+      { id: 20, codigo: 'VAC-0020', titulo: 'Especialista SEO/SEM', departamento: 'Marketing', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$20,000 - $28,000', descripcion: 'Optimizacion de campanas en buscadores.', requisitos: 'Google Ads, Analytics, 2 anios', estado: 'abierta', fechaCreacion: '2026-02-15' }
     ];
+
+    // Seed candidatos (60 candidatos repartidos en distintas etapas y vacantes)
+    var etapas = ['aplicado','entrevista-rh','primer-filtro','entrevista-jefe','revision-medica','psicometrico','referencias','documentos','contratado','rechazado'];
+    var nombres = ['Juan','Maria','Pedro','Ana','Carlos','Laura','Miguel','Sofia','Diego','Carmen','Fernando','Patricia','Ricardo','Gabriela','Andres','Monica','Luis','Elena','Jorge','Valeria','Oscar','Daniela','Roberto','Paola','Eduardo','Fernanda','Raul','Alejandra','Manuel','Isabella'];
+    var apellidos = ['Garcia','Martinez','Lopez','Hernandez','Gonzalez','Rodriguez','Perez','Sanchez','Ramirez','Torres','Flores','Rivera','Gomez','Diaz','Cruz','Morales','Reyes','Ortiz','Gutierrez','Ruiz','Mendoza','Aguilar','Castillo','Vargas','Rojas'];
+
+    var seedCandidatos = [];
+    var candId = 1000;
+    var meses = ['2025-10','2025-11','2025-12','2026-01','2026-02'];
+
+    for (var vi = 0; vi < vacantes.length; vi++) {
+      var v = vacantes[vi];
+      var numCands = vi < 6 ? 5 : (vi < 12 ? 3 : 2);
+      for (var ci = 0; ci < numCands; ci++) {
+        candId++;
+        var etapaIdx = (vi + ci) % etapas.length;
+        var mesIdx = (vi + ci) % meses.length;
+        var dia = String(((vi * 3 + ci * 7) % 28) + 1).padStart(2, '0');
+        var nomIdx = (candId) % nombres.length;
+        var apIdx = (candId + 7) % apellidos.length;
+
+        var candidatoSeed = {
+          id: candId,
+          vacanteId: v.id,
+          nombre: nombres[nomIdx],
+          apellidos: apellidos[apIdx],
+          email: nombres[nomIdx].toLowerCase() + '.' + apellidos[apIdx].toLowerCase() + '@email.com',
+          telefono: '33' + String(10000000 + candId).slice(-8),
+          fechaNacimiento: '199' + (candId % 9) + '-0' + ((candId % 9) + 1) + '-15',
+          ciudad: 'Guadalajara',
+          experiencia: String((candId % 5) + 1) + ' anios',
+          ultimaEmpresa: 'Empresa ' + String.fromCharCode(65 + (candId % 26)),
+          ultimoPuesto: 'Puesto anterior',
+          habilidades: 'Habilidad A, Habilidad B',
+          escolaridad: ci % 2 === 0 ? 'Licenciatura' : 'Ingenieria',
+          carrera: 'Carrera profesional',
+          curriculum: null,
+          etapa: etapas[etapaIdx],
+          fechaAplicacion: meses[mesIdx] + '-' + dia,
+          codigoSeguimiento: String(100000 + candId),
+          comentariosPublicos: [],
+          comentariosInternos: []
+        };
+        if (etapas[etapaIdx] === 'rechazado') {
+          candidatoSeed.etapaRechazo = (candId % 8) + 1;
+          candidatoSeed.motivoRechazo = 'No cumple con los requisitos del puesto';
+        }
+        seedCandidatos.push(candidatoSeed);
+      }
+    }
+    candidatos = seedCandidatos;
+
+    // Seed entrevistas (para candidatos en etapas de entrevista)
+    var seedEntrevistas = [];
+    var entId = 5000;
+    var horasVariadas = ['09:00','09:30','10:00','10:30','11:00','11:30','13:00','14:00','14:30','15:00','15:30','16:00'];
+    var horaIdx = 0;
+    var hoy = new Date();
+    var lunesSemana = getMonday(hoy);
+    candidatos.forEach(function(c) {
+      if (c.etapa === 'entrevista-rh' || c.etapa === 'entrevista-jefe') {
+        entId++;
+        var esRH = c.etapa === 'entrevista-rh';
+        var recIdx = horaIdx % RECLUTADORAS.length;
+        var diaOffset = horaIdx % 5;
+        var fechaEnt = new Date(lunesSemana);
+        fechaEnt.setDate(lunesSemana.getDate() + diaOffset);
+        var fechaISO = fechaEnt.toISOString().split('T')[0];
+        seedEntrevistas.push({
+          id: entId,
+          candidatoId: c.id,
+          tipo: esRH ? 'rh' : 'jefe',
+          fecha: fechaISO,
+          hora: horasVariadas[horaIdx % horasVariadas.length],
+          duracion: '60',
+          reclutadoraId: esRH ? RECLUTADORAS[recIdx].id : null,
+          entrevistador: esRH ? RECLUTADORAS[recIdx].nombre : 'Jefe de Área',
+          lugar: 'Sala de juntas',
+          notas: ''
+        });
+        horaIdx++;
+      }
+    });
+    entrevistas = seedEntrevistas;
+
     saveData();
   }
 

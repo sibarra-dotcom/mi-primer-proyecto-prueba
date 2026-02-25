@@ -4,6 +4,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="<?= base_url('_partials/vacantes.css') ?>">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
   <title><?= esc($title) ?></title>
 </head>
@@ -11,85 +12,219 @@
 <body class="relative min-h-screen">
 <div class="relative flex flex-col font-titil">
 
-  <?php echo view('dashboard/_partials/navbar'); ?>
+  <?php echo view('vacantes/_partials/navbar'); ?>
 
   <div class="vacantes-module">
 
     <main>
-      <!-- Panel RH -->
+      <!-- Dashboard RH -->
       <div id="view-gestion-dashboard" class="view active">
-        <div class="page-title">
-          <h1>Panel de Reclutamiento</h1>
-        </div>
 
-        <div class="tabs">
-          <button class="tab active tab-rh" onclick="showView('gestion-dashboard')">Panel RH</button>
-          <button class="tab tab-rh" onclick="showView('gestion-vacantes')">Vacantes RH</button>
-          <button class="tab tab-rh" onclick="showView('gestion-candidatos')">Candidatos</button>
-          <button class="tab tab-jefe" onclick="showView('solicitudes-jefe')" style="display:none;">Mis Solicitudes</button>
-          <button class="tab tab-aprobacion" onclick="showView('solicitudes-aprobacion')" style="display:none;">Aprobar Solicitudes</button>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h2>Filtrar por Fecha</h2>
+        <!-- Sticky: Titulo + Filtros -->
+        <div id="rh-sticky-header" class="rh-sticky-header font-titil">
+          <div class="flex items-center text-sm">
+            <button id="rh-fullscreen-btn" class="text-lg focus:outline-none active:outline-none px-2 border border-icon hover:text-white hover:bg-title">
+              <i class="fas fa-expand"></i>
+            </button>
+            <span class="text-2xl font-semibold text-title leading-none flex-1 text-center">Dashboard de Reclutamiento</span>
           </div>
-          <div class="grid">
-            <div class="col-4">
-              <label for="dash-fecha-inicio">Fecha Inicio</label>
-              <div class="fecha-input-wrapper">
-                <input id="dash-fecha-inicio" type="text" placeholder="dd/mm/aaaa" maxlength="10" oninput="mascaraFecha(this)">
-                <button type="button" class="fecha-cal-btn" onclick="toggleCalendario(this)">
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                  </svg>
-                </button>
+
+          <div class="w-full bg-white shadow-bottom-right px-5 py-4 text-sm">
+            <div class="flex flex-wrap gap-x-6 gap-y-4 items-end">
+              <div class="flex flex-col" style="min-width:0;">
+                <label class="text-xs text-gray-500 mb-1">Clave de Vacante</label>
+                <input id="dash-codigo" type="text" placeholder="VAC-0001" class="h-8 bg-grayLight focus:outline-none border border-icon text-sm px-2" style="min-width:120px;max-width:140px;" oninput="filtrarDashboard()">
               </div>
-            </div>
-            <div class="col-4">
-              <label for="dash-fecha-fin">Fecha Fin</label>
-              <div class="fecha-input-wrapper">
-                <input id="dash-fecha-fin" type="text" placeholder="dd/mm/aaaa" maxlength="10" oninput="mascaraFecha(this)">
-                <button type="button" class="fecha-cal-btn" onclick="toggleCalendario(this)">
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                  </svg>
-                </button>
+              <div class="flex flex-col" style="min-width:0;">
+                <label class="text-xs text-gray-500 mb-1">Departamento</label>
+                <select id="dash-departamento" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:150px;" class="h-8 bg-grayLight focus:outline-none border border-icon text-sm px-2" onchange="filtrarDashboard()">
+                  <option value="">Todos</option>
+                  <option>Administración</option>
+                  <option>Ventas</option>
+                  <option>Marketing</option>
+                  <option>IT</option>
+                  <option>RRHH</option>
+                  <option>Operaciones</option>
+                  <option>Finanzas</option>
+                </select>
               </div>
-            </div>
-            <div class="col-4" style="display:flex;align-items:flex-end;">
-              <button class="btn btn-primary" onclick="filtrarDashboard()" style="width:100%;">Aplicar Filtros</button>
+              <div class="flex flex-col" style="min-width:0;">
+                <label class="text-xs text-gray-500 mb-1">Vacante</label>
+                <select id="dash-vacante" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:200px;max-width:240px;" class="h-8 bg-grayLight focus:outline-none border border-icon text-sm px-2" onchange="filtrarDashboard()">
+                  <option value="">Todas</option>
+                </select>
+              </div>
+              <div class="flex flex-col" style="min-width:0;">
+                <label class="text-xs text-gray-500 mb-1">Estado</label>
+                <select id="dash-estado" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:120px;" class="h-8 bg-grayLight focus:outline-none border border-icon text-sm px-2" onchange="filtrarDashboard()">
+                  <option value="">Todos</option>
+                  <option value="abierta">Abiertas</option>
+                  <option value="cerrada">Cerradas</option>
+                </select>
+              </div>
+              <div class="flex flex-col" style="min-width:0;">
+                <label class="text-xs text-gray-500 mb-1">Etapa</label>
+                <select id="dash-etapa" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:160px;" class="h-8 bg-grayLight focus:outline-none border border-icon text-sm px-2" onchange="filtrarDashboard()">
+                  <option value="">Todas</option>
+                  <option value="aplicado">Postulado</option>
+                  <option value="entrevista-rh">Entrevista RH</option>
+                  <option value="primer-filtro">Primer Filtro</option>
+                  <option value="entrevista-jefe">Entrevista Jefe</option>
+                  <option value="revision-medica">Revisión Médica</option>
+                  <option value="psicometrico">Psicométrico</option>
+                  <option value="referencias">Referencias</option>
+                  <option value="documentos">Documentos</option>
+                  <option value="contratado">Contratado</option>
+                  <option value="rechazado">Rechazado</option>
+                </select>
+              </div>
+              <div class="flex flex-col" style="min-width:0;">
+                <label class="text-xs text-gray-500 mb-1">Desde</label>
+                <div class="fecha-input-wrapper">
+                  <input id="dash-fecha-inicio" type="text" placeholder="dd/mm/aaaa" maxlength="10" oninput="mascaraFecha(this)" class="h-8 w-36 text-center bg-grayLight focus:outline-none border border-icon text-sm">
+                  <button type="button" class="fecha-cal-btn" onclick="toggleCalendario(this)">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="flex flex-col" style="min-width:0;">
+                <label class="text-xs text-gray-500 mb-1">Hasta</label>
+                <div class="fecha-input-wrapper">
+                  <input id="dash-fecha-fin" type="text" placeholder="dd/mm/aaaa" maxlength="10" oninput="mascaraFecha(this)" class="h-8 w-36 text-center bg-grayLight focus:outline-none border border-icon text-sm">
+                  <button type="button" class="fecha-cal-btn" onclick="toggleCalendario(this)">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div style="flex:1;"></div>
+              <button class="btn btn-primary" type="button" onclick="filtrarDashboard()" style="padding:8px 16px;font-size:13px;">FILTRAR</button>
             </div>
           </div>
         </div>
 
-        <!-- Métricas Generales -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:24px;">
-          <div class="vacante-card">
-            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Total Vacantes Activas</div>
-            <div style="font-size:36px;font-weight:900;color:var(--primary);" id="dash-total-vacantes">0</div>
-          </div>
-          <div class="vacante-card">
-            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Total Candidatos</div>
-            <div style="font-size:36px;font-weight:900;color:var(--primary);" id="dash-total-candidatos">0</div>
-          </div>
-          <div class="vacante-card">
-            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">En Proceso</div>
-            <div style="font-size:36px;font-weight:900;color:#f59e0b;" id="dash-en-proceso">0</div>
-          </div>
-          <div class="vacante-card">
-            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Contratados</div>
-            <div style="font-size:36px;font-weight:900;color:#10b981;" id="dash-contratados">0</div>
-          </div>
-        </div>
+        <section class="w-full pt-4 pb-6 flex flex-col gap-y-4 font-titil">
+          <!-- Layout principal 2 columnas -->
+          <div class="relative w-full flex gap-4">
 
-        <!-- Vista por Vacante -->
-        <div class="card">
-          <div class="card-header">
-            <h2>Desempeño por Vacante</h2>
+            <!-- COLUMNA IZQUIERDA: Graficos -->
+            <div class="w-1/2 flex flex-col gap-4">
+
+              <!-- Donut Chart: Candidatos por Etapa -->
+              <div class="relative w-full flex flex-col px-4 pt-4 pb-12 bg-white shadow-bottom-right">
+                <div id="rhFunnelChart"></div>
+                <h1 class="absolute bottom-2 left-1/2 -translate-x-1/2 w-full text-xl text-center text-title">Pipeline de Reclutamiento</h1>
+              </div>
+
+              <!-- Line Chart: Tendencia de Contratación -->
+              <div class="relative w-full flex flex-col px-2 pt-2 pb-4 bg-white shadow-bottom-right">
+                <div id="rhLineChart"></div>
+                <h1 class="absolute bottom-2 left-1/2 -translate-x-1/2 w-full text-xl text-center text-title">Tendencia de Contratación Mensual</h1>
+              </div>
+
+              <!-- Donut Chart: Rechazos por Etapa -->
+              <div class="relative w-full flex flex-col px-4 pt-4 pb-12 bg-white shadow-bottom-right">
+                <div id="rhRejectionChart"></div>
+                <h1 class="absolute bottom-2 left-1/2 -translate-x-1/2 w-full text-xl text-center text-title">Rechazos por Etapa del Proceso</h1>
+              </div>
+
+            </div>
+
+            <!-- COLUMNA DERECHA: Gauge + Bar + KPI Cards -->
+            <div class="w-1/2 flex gap-4">
+
+              <!-- Sub-columna: Gauge + Bar -->
+              <div class="flex-1 flex flex-col gap-4">
+
+                <!-- Gauge Chart: Tasa de Contratación -->
+                <div class="w-full flex flex-col pt-8 px-4 pb-2 bg-white shadow-bottom-right">
+                  <div id="rhGaugeChart" class="w-[350px] mx-auto"></div>
+                  <h1 class="pt-8 text-xl text-center text-title">Tasa de Contratación</h1>
+                </div>
+
+                <!-- Bar Chart: Candidatos por Vacante -->
+                <div class="relative w-full flex flex-col pt-8 pb-10 px-4 bg-white shadow-bottom-right">
+                  <div id="rhBarChart"></div>
+                  <h1 class="absolute bottom-2 left-1/2 -translate-x-1/2 w-full text-xl text-center text-title">Candidatos por Vacante</h1>
+                </div>
+
+              </div>
+
+              <!-- Sub-columna: 10 KPI Cards (5 filas x 2 cols) -->
+              <div class="w-1/3 flex">
+                <div class="w-full flex flex-col gap-4">
+
+                  <!-- Fila 1 -->
+                  <div class="w-full flex gap-4">
+                    <div class="w-1/2 h-28 flex flex-col p-2 gap-2 justify-center items-center bg-title text-white shadow-bottom-right kpi-card" onclick="navegarDesdeKPI('total-vacantes')">
+                      <p class="text-xl font-bold" id="rh-total-vacantes">0</p>
+                      <p class="text-sm text-center">Vacantes<br>Activas</p>
+                    </div>
+                    <div class="w-1/2 h-28 flex flex-col p-2 gap-2 justify-center items-center bg-primaryLight text-white shadow-bottom-right kpi-card" onclick="navegarDesdeKPI('total-candidatos')">
+                      <p class="text-2xl font-bold" id="rh-total-candidatos">0</p>
+                      <p class="text-sm text-center">Total Candidatos</p>
+                    </div>
+                  </div>
+
+                  <!-- Fila 2 -->
+                  <div class="w-full flex gap-4">
+                    <div class="w-1/2 h-28 flex flex-col p-2 gap-2 justify-center items-center bg-gray text-white shadow-bottom-right kpi-card" onclick="navegarDesdeKPI('en-proceso')">
+                      <p class="text-xl font-bold" id="rh-en-proceso">0</p>
+                      <p class="text-sm text-center">En Proceso</p>
+                    </div>
+                    <div class="w-1/2 h-28 flex flex-col p-2 gap-2 justify-center items-center bg-warning text-white shadow-bottom-right kpi-card" onclick="navegarDesdeKPI('contratados')">
+                      <p class="text-xl font-bold" id="rh-contratados">0</p>
+                      <p class="text-sm text-center">Contratados</p>
+                    </div>
+                  </div>
+
+                  <!-- Fila 3 -->
+                  <div class="w-full flex gap-4">
+                    <div class="w-1/2 h-28 flex flex-col p-2 gap-2 justify-center items-center bg-error bg-opacity-80 text-white shadow-bottom-right kpi-card" onclick="navegarDesdeKPI('rechazados')">
+                      <p class="text-xl font-bold" id="rh-rechazados">0</p>
+                      <p class="text-sm text-center">Rechazados</p>
+                    </div>
+                    <div class="w-1/2 h-28 flex flex-col p-2 gap-2 justify-center items-center bg-success text-white shadow-bottom-right">
+                      <p class="text-xl font-bold" id="rh-dias-promedio">0</p>
+                      <p class="text-sm text-center">Días Prom. Contratación</p>
+                    </div>
+                  </div>
+
+                  <!-- Fila 4 -->
+                  <div class="w-full flex gap-4">
+                    <div class="w-1/2 h-28 flex flex-col p-2 gap-2 justify-center items-center bg-itg bg-opacity-80 text-white shadow-bottom-right">
+                      <p class="text-xl font-bold" id="rh-tasa-contratacion">0%</p>
+                      <p class="text-sm text-center">Tasa de Contratación</p>
+                    </div>
+                    <div class="w-1/2 h-28 flex flex-col p-2 gap-2 justify-center items-center bg-twt text-white shadow-bottom-right kpi-card" onclick="navegarDesdeKPI('vacantes-cerradas')">
+                      <p class="text-xl font-bold" id="rh-vacantes-cerradas">0</p>
+                      <p class="text-sm text-center">Vacantes Cerradas</p>
+                    </div>
+                  </div>
+
+                  <!-- Fila 5 -->
+                  <div class="w-full flex gap-4">
+                    <div class="w-1/2 h-28 flex flex-col p-2 gap-2 justify-center items-center bg-dark text-white shadow-bottom-right kpi-card" onclick="navegarDesdeKPI('entrevistas')">
+                      <p class="text-xl font-bold" id="rh-entrevistas-agendadas">0</p>
+                      <p class="text-sm text-center">Entrevistas Agendadas</p>
+                    </div>
+                    <div class="w-1/2 h-28 flex flex-col p-2 gap-2 justify-center items-center bg-gray bg-opacity-80 text-white shadow-bottom-right kpi-card" onclick="navegarDesdeKPI('candidatos-semana')">
+                      <p class="text-xl font-bold" id="rh-candidatos-semana">0</p>
+                      <p class="text-sm text-center">Candidatos Esta Semana</p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
           </div>
-          <div id="dashboard-por-vacante"></div>
-        </div>
+
+
+        </section>
       </div>
 
       <!-- Gestión de Vacantes RH -->
@@ -98,13 +233,6 @@
           <h1>Gestión de Vacantes</h1>
         </div>
 
-        <div class="tabs">
-          <button class="tab tab-rh" onclick="showView('gestion-dashboard')">Panel RH</button>
-          <button class="tab active tab-rh" onclick="showView('gestion-vacantes')">Vacantes RH</button>
-          <button class="tab tab-rh" onclick="showView('gestion-candidatos')">Candidatos</button>
-          <button class="tab tab-jefe" onclick="showView('solicitudes-jefe')" style="display:none;">Mis Solicitudes</button>
-          <button class="tab tab-aprobacion" onclick="showView('solicitudes-aprobacion')" style="display:none;">Aprobar Solicitudes</button>
-        </div>
 
         <div class="card">
           <div class="card-header">
@@ -123,6 +251,10 @@
             <h2>Buscar y Filtrar</h2>
           </div>
           <div class="grid">
+            <div class="col-3">
+              <label for="vac-search-codigo">Clave de Vacante</label>
+              <input id="vac-search-codigo" type="text" placeholder="Ej. VAC-0001" oninput="filtrarVacantes()">
+            </div>
             <div class="col-6">
               <label for="vac-search">Buscar por título</label>
               <input id="vac-search" type="text" placeholder="Escribe para buscar..." oninput="filtrarVacantes()">
@@ -174,13 +306,6 @@
           <h1>Gestión de Candidatos</h1>
         </div>
 
-        <div class="tabs">
-          <button class="tab tab-rh" onclick="showView('gestion-dashboard')">Panel RH</button>
-          <button class="tab tab-rh" onclick="showView('gestion-vacantes')">Vacantes RH</button>
-          <button class="tab active tab-rh" onclick="showView('gestion-candidatos')">Candidatos</button>
-          <button class="tab tab-jefe" onclick="showView('solicitudes-jefe')" style="display:none;">Mis Solicitudes</button>
-          <button class="tab tab-aprobacion" onclick="showView('solicitudes-aprobacion')" style="display:none;">Aprobar Solicitudes</button>
-        </div>
 
         <div class="card">
           <div class="card-header">
@@ -201,7 +326,8 @@
               <label for="cand-filter-etapa">Etapa</label>
               <select id="cand-filter-etapa" onchange="filtrarCandidatos()">
                 <option value="">Todas las etapas</option>
-                <option value="aplicado">Aplicado</option>
+                <option value="en-proceso">En Proceso (sin contratados/rechazados)</option>
+                <option value="aplicado">Postulado</option>
                 <option value="entrevista-rh">Entrevista RH</option>
                 <option value="primer-filtro">Primer Filtro</option>
                 <option value="entrevista-jefe">Entrevista Jefe</option>
@@ -230,13 +356,6 @@
           <h1>Mis Solicitudes de Vacante</h1>
         </div>
 
-        <div class="tabs">
-          <button class="tab tab-rh" onclick="showView('gestion-dashboard')" style="display:none;">Panel RH</button>
-          <button class="tab tab-rh" onclick="showView('gestion-vacantes')" style="display:none;">Vacantes RH</button>
-          <button class="tab tab-rh" onclick="showView('gestion-candidatos')" style="display:none;">Candidatos</button>
-          <button class="tab active tab-jefe" onclick="showView('solicitudes-jefe')">Mis Solicitudes</button>
-          <button class="tab tab-aprobacion" onclick="showView('solicitudes-aprobacion')" style="display:none;">Aprobar Solicitudes</button>
-        </div>
 
         <div class="card">
           <div class="card-header">
@@ -253,19 +372,42 @@
         <div id="solicitudesJefeGrid" class="vacantes-grid"></div>
       </div>
 
+      <!-- Vista: Calendario de Reclutadoras -->
+      <div id="view-calendario-reclutadoras" class="view">
+        <div class="page-title">
+          <h1>Calendario de Reclutadoras</h1>
+        </div>
+
+        <div class="card">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <button class="btn btn-ghost btn-small" onclick="calRecNavSemana(-1)" title="Semana anterior">&lsaquo;</button>
+              <span id="cal-rec-semana-titulo" style="font-size:16px;font-weight:700;min-width:240px;text-align:center;"></span>
+              <button class="btn btn-ghost btn-small" onclick="calRecNavSemana(1)" title="Semana siguiente">&rsaquo;</button>
+              <button class="btn btn-ghost btn-small" onclick="calRecHoy()">Hoy</button>
+            </div>
+            <div id="cal-rec-tabs" class="cal-rec-tabs"></div>
+          </div>
+        </div>
+
+        <div class="card" style="overflow-x:auto;">
+          <div id="cal-rec-grid-container"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Vacantes Asignadas por Reclutadora</h2>
+          </div>
+          <div id="cal-rec-vacantes-asignadas"></div>
+        </div>
+      </div>
+
       <!-- Vista: Aprobar Solicitudes (Gerentes) -->
       <div id="view-solicitudes-aprobacion" class="view">
         <div class="page-title">
           <h1>Aprobar Solicitudes de Vacante</h1>
         </div>
 
-        <div class="tabs">
-          <button class="tab tab-rh" onclick="showView('gestion-dashboard')" style="display:none;">Panel RH</button>
-          <button class="tab tab-rh" onclick="showView('gestion-vacantes')" style="display:none;">Vacantes RH</button>
-          <button class="tab tab-rh" onclick="showView('gestion-candidatos')" style="display:none;">Candidatos</button>
-          <button class="tab tab-jefe" onclick="showView('solicitudes-jefe')" style="display:none;">Mis Solicitudes</button>
-          <button class="tab active tab-aprobacion" onclick="showView('solicitudes-aprobacion')">Aprobar Solicitudes</button>
-        </div>
 
         <div class="card">
           <div class="card-header">
@@ -338,6 +480,12 @@
                 <label for="vac-requisitos">Requisitos</label>
                 <textarea id="vac-requisitos" placeholder="Experiencia requerida, habilidades, certificaciones..."></textarea>
               </div>
+              <div class="col-6">
+                <label for="vac-reclutadora">Reclutadora Asignada</label>
+                <select id="vac-reclutadora">
+                  <option value="">Sin asignar</option>
+                </select>
+              </div>
             </div>
             <div class="actions">
               <button type="button" class="btn btn-ghost" onclick="closeModal('nueva-vacante')">Cancelar</button>
@@ -404,7 +552,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 class="modal-title">Agendar Entrevista</h3>
-          <button class="close-modal" onclick="closeModal('agendar-entrevista')">
+          <button class="close-modal" onclick="cancelarAgendarEntrevista()">
             <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
@@ -413,6 +561,16 @@
             <input type="hidden" id="entrevista-candidato-id">
             <input type="hidden" id="entrevista-tipo">
             <div class="grid">
+              <div class="col-12" id="entrevista-reclutadora-wrapper">
+                <label for="entrevista-reclutadora">Reclutadora Asignada *</label>
+                <select id="entrevista-reclutadora" required onchange="onReclutadoraSeleccionada()">
+                  <option value="">Seleccionar reclutadora...</option>
+                </select>
+              </div>
+              <div class="col-12" id="entrevista-disponibilidad-wrapper" style="display:none;">
+                <label>Disponibilidad de la Semana</label>
+                <div id="entrevista-mini-calendario" class="mini-calendario-semanal"></div>
+              </div>
               <div class="col-12">
                 <label for="entrevista-fecha">Fecha *</label>
                 <div class="fecha-input-wrapper">
@@ -432,7 +590,7 @@
                 <label for="entrevista-duracion">Duración (min)</label>
                 <input id="entrevista-duracion" type="number" value="60" required>
               </div>
-              <div class="col-12">
+              <div class="col-12" id="entrevista-entrevistador-wrapper">
                 <label for="entrevista-entrevistador">Entrevistador *</label>
                 <input id="entrevista-entrevistador" type="text" required placeholder="Nombre del entrevistador">
               </div>
@@ -446,7 +604,7 @@
               </div>
             </div>
             <div class="actions">
-              <button type="button" class="btn btn-ghost" onclick="closeModal('agendar-entrevista')">Cancelar</button>
+              <button type="button" class="btn btn-ghost" onclick="cancelarAgendarEntrevista()">Cancelar</button>
               <button type="submit" class="btn btn-primary">Agendar</button>
             </div>
           </form>

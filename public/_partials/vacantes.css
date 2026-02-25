@@ -94,6 +94,63 @@
   padding: 0 18px;
 }
 
+/* Sticky header for dashboard */
+.vacantes-module .rh-sticky-header{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #ffffff;
+  padding: 12px 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* KPI cards clickables */
+.vacantes-module .kpi-card{
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.vacantes-module .kpi-card:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+  filter: brightness(1.1);
+}
+.vacantes-module .kpi-card:active{
+  transform: translateY(0);
+}
+
+/* Fix: inputs/selects del dashboard cortaban descenders (g, p, q, y) */
+.vacantes-module #view-gestion-dashboard select,
+.vacantes-module #view-gestion-dashboard input[type="text"]{
+  height: auto;
+  min-height: 2rem;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  line-height: 1.4;
+  overflow: visible;
+}
+
+/* Chart titles inside dashboard: match production dashboard style */
+.vacantes-module #view-gestion-dashboard h1.text-xl{
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.vacantes-module main.dashboard-active{
+  max-width: 100%;
+  padding: 0;
+}
+
+.vacantes-module #view-gestion-dashboard{
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  padding: 0 24px;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
 .vacantes-module .page-title{
   position:relative;
   display:flex;
@@ -450,8 +507,8 @@
 /* Proceso Steps */
 .vacantes-module .proceso-steps{
   display:flex;
-  align-items:center;
-  gap:8px;
+  align-items:flex-start;
+  gap:4px;
   overflow-x: auto;
   padding: 20px 0;
 }
@@ -460,13 +517,14 @@
   display:flex;
   flex-direction: column;
   align-items: center;
-  min-width: 120px;
+  min-width: 70px;
+  flex-shrink: 0;
   position: relative;
 }
 
 .vacantes-module .step-number{
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: #e5e7eb;
   color: #6b7280;
@@ -474,8 +532,8 @@
   align-items:center;
   justify-content:center;
   font-weight: 800;
-  font-size: 16px;
-  margin-bottom: 8px;
+  font-size: 13px;
+  margin-bottom: 6px;
   transition: all .2s ease;
 }
 
@@ -491,11 +549,11 @@
 }
 
 .vacantes-module .step-label{
-  font-size: 11px;
+  font-size: 10px;
   text-align: center;
   color: var(--muted);
-  max-width: 100px;
-  line-height: 1.3;
+  max-width: 72px;
+  line-height: 1.2;
 }
 
 .vacantes-module .step.active .step-label{
@@ -505,9 +563,10 @@
 
 .vacantes-module .step-connector{
   flex: 1;
+  min-width: 12px;
   height: 2px;
   background: #e5e7eb;
-  margin-bottom: 30px;
+  margin-top: 15px;
 }
 
 .vacantes-module .step-connector.completed{
@@ -587,10 +646,21 @@
 .vacantes-module .toast.show{ opacity: 1; transform: translateY(0); pointer-events: auto; }
 .vacantes-module .toast small{ color: rgba(255,255,255,.75); display:block; margin-top:2px; }
 
-/* Modal */
+/* Modal — override main.css global .modal */
 .vacantes-module .modal{
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  transform: none;
+  opacity: 1;
+  max-height: 100%;
+  overflow: visible;
+  border: none;
+  box-shadow: none;
   background: rgba(2,6,23,.45);
   backdrop-filter: blur(2px);
   display: none;
@@ -598,6 +668,8 @@
   justify-content: center;
   z-index: 9999;
   padding: 20px;
+  transition: none;
+  color: inherit;
 }
 
 .vacantes-module .modal.show{
@@ -605,12 +677,14 @@
 }
 
 .vacantes-module .modal-content{
+  position: relative;
   background: #ffffff;
   border-radius: 14px;
   max-width: 800px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 0 20px 60px rgba(2,6,23,.28);
 }
 
@@ -634,20 +708,24 @@
 }
 
 .vacantes-module .close-modal{
+  position: absolute;
+  top: 12px;
+  right: 12px;
   width: 32px;
   height: 32px;
   border-radius: 8px;
   border: none;
-  background: transparent;
+  background: rgba(15,23,42,.06);
   cursor: pointer;
   display:flex;
   align-items:center;
   justify-content:center;
   transition: background .12s ease;
+  z-index: 1;
 }
 
 .vacantes-module .close-modal:hover{
-  background: rgba(15,23,42,.08);
+  background: rgba(15,23,42,.15);
 }
 
 /* Celebration */
@@ -1209,4 +1287,237 @@
 
 @media (max-width: 768px){
   .vacantes-module .user-name{ display: none; }
+}
+
+/* ==================== DASHBOARD OVERRIDES ==================== */
+/* ApexCharts SVGs - override the generic svg{display:inline} rule */
+.vacantes-module .apexcharts-canvas svg { display: block; }
+
+/* shadow-bottom-right for dashboard cards */
+.vacantes-module .shadow-bottom-right {
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+/* Ensure fecha-input-wrapper works inside dashboard filter bar */
+.vacantes-module .flex .fecha-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* ==================== NAVBAR NAV LINKS ==================== */
+.nav-link-vac {
+  cursor: pointer;
+  transition: color 0.2s, border-bottom 0.2s;
+  border-bottom: 2px solid transparent;
+}
+.nav-link-vac:hover {
+  color: var(--primary);
+}
+.nav-link-vac.nav-active {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+  font-weight: 600;
+}
+
+/* ==================== CALENDARIO DE RECLUTADORAS ==================== */
+
+/* Tabs */
+.vacantes-module .cal-rec-tabs{
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.vacantes-module .cal-rec-tab{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.vacantes-module .cal-rec-tab:hover{
+  background: #f1f5f9;
+}
+.vacantes-module .cal-rec-tab.active{
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+}
+.vacantes-module .cal-rec-dot{
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Grid */
+.vacantes-module .cal-rec-grid{
+  display: grid;
+  grid-template-columns: 60px repeat(5, 1fr);
+  position: relative;
+}
+.vacantes-module .cal-rec-header{
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  padding: 10px 4px;
+  background: #f9fafb;
+  border-bottom: 2px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+}
+.vacantes-module .cal-rec-header.cal-rec-hoy{
+  color: var(--primary);
+  background: rgba(0,121,64,.06);
+  border-bottom-color: var(--primary);
+}
+.vacantes-module .cal-rec-hora-col{
+  text-align: right;
+  padding-right: 8px;
+}
+.vacantes-module .cal-rec-hora-label{
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+  padding: 0 8px 0 0;
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  line-height: 1;
+  padding-top: 2px;
+}
+.vacantes-module .cal-rec-celda{
+  border-bottom: 1px solid #f1f5f9;
+  border-right: 1px solid #f1f5f9;
+}
+.vacantes-module .cal-rec-celda-par{
+  border-bottom-color: var(--border);
+}
+.vacantes-module .cal-rec-hoy-bg{
+  background: rgba(0,121,64,.02);
+}
+
+/* Bloques overlay */
+.vacantes-module .cal-rec-bloques-overlay{
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+.vacantes-module .cal-rec-bloque{
+  pointer-events: auto;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: filter .15s, box-shadow .15s;
+  z-index: 2;
+}
+.vacantes-module .cal-rec-bloque:hover{
+  filter: brightness(.95);
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.vacantes-module .cal-rec-bloque-hora{
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.vacantes-module .cal-rec-bloque-nombre{
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vacantes-module .cal-rec-bloque-info{
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Cal-rec container needs relative positioning */
+.vacantes-module #cal-rec-grid-container{
+  position: relative;
+}
+
+/* ==================== MINI-CALENDARIO (Modal Entrevista) ==================== */
+
+.vacantes-module .mini-calendario-semanal{
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+}
+.vacantes-module .mini-cal-header{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.vacantes-module .mini-cal-titulo{
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 180px;
+  text-align: center;
+}
+.vacantes-module .mini-cal-grid{
+  display: grid;
+  grid-template-columns: 50px repeat(5, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+.vacantes-module .mini-cal-hora-col,
+.vacantes-module .mini-cal-dia-header{
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  padding: 4px 2px;
+  background: #f9fafb;
+  color: var(--muted);
+}
+.vacantes-module .mini-cal-hora-label{
+  font-size: 10px;
+  color: var(--muted);
+  text-align: right;
+  padding: 2px 4px 2px 0;
+  background: #fff;
+}
+.vacantes-module .mini-cal-slot{
+  min-height: 24px;
+  background: #fff;
+  padding: 1px 2px;
+  font-size: 10px;
+}
+.vacantes-module .mini-cal-libre{
+  cursor: pointer;
+}
+.vacantes-module .mini-cal-libre:hover{
+  background: rgba(0,121,64,.08);
+}
+.vacantes-module .mini-cal-ocupado{
+  cursor: not-allowed;
+}
+.vacantes-module .mini-cal-bloque{
+  display: block;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
