@@ -1734,6 +1734,8 @@ function minutosAHora(totalMinutos) {
 
 let calRecSemanaOffset = 0;
 let calRecFiltroReclutadora = 'todas';
+let calRecDragState = null;
+let calRecDias = [];
 
 function calRecNavSemana(dir) {
   calRecSemanaOffset += dir;
@@ -1795,6 +1797,7 @@ function renderCalRecGrid(lunes) {
     dia.setDate(lunes.getDate() + d);
     dias.push({ date: dia, iso: dia.toISOString().split('T')[0] });
   }
+  calRecDias = dias;
 
   var totalSlots = (CALENDARIO_CONFIG.horaFin - CALENDARIO_CONFIG.horaInicio) * (60 / CALENDARIO_CONFIG.slotMinutos);
   var slotHeight = 40;
@@ -1836,17 +1839,76 @@ function renderCalRecGrid(lunes) {
     return true;
   });
 
+  // Pre-procesar bloques con datos de posición y detectar solapamientos
+  var bloquesPorDia = {};
   entrevistasSemana.forEach(function(ent) {
     var diaIdx = dias.findIndex(function(dia) { return dia.iso === ent.fecha; });
     if (diaIdx === -1) return;
-
     var partes = ent.hora.split(':');
-    var entInicioMin = parseInt(partes[0]) * 60 + parseInt(partes[1]);
-    var entFinMin = entInicioMin + parseInt(ent.duracion || 60);
-    var inicioOffset = entInicioMin - CALENDARIO_CONFIG.horaInicio * 60;
-    var duracion = entFinMin - entInicioMin;
+    var inicioMin = parseInt(partes[0]) * 60 + parseInt(partes[1]);
+    var finMin = inicioMin + parseInt(ent.duracion || 60);
+    if (inicioMin - CALENDARIO_CONFIG.horaInicio * 60 < 0) return;
+    if (!bloquesPorDia[diaIdx]) bloquesPorDia[diaIdx] = [];
+    bloquesPorDia[diaIdx].push({ ent: ent, diaIdx: diaIdx, inicioMin: inicioMin, finMin: finMin, col: 0, totalCols: 1 });
+  });
 
-    if (inicioOffset < 0) return;
+  // Para cada día, asignar columnas a bloques solapados
+  Object.keys(bloquesPorDia).forEach(function(diaKey) {
+    var bloques = bloquesPorDia[diaKey];
+    bloques.sort(function(a, b) { return a.inicioMin - b.inicioMin || a.finMin - b.finMin; });
+
+    // Agrupar bloques que se solapan entre sí (clusters)
+    var clusters = [];
+    bloques.forEach(function(blk) {
+      var added = false;
+      for (var ci = 0; ci < clusters.length; ci++) {
+        var cluster = clusters[ci];
+        var overlaps = cluster.some(function(cb) {
+          return blk.inicioMin < cb.finMin && blk.finMin > cb.inicioMin;
+        });
+        if (overlaps) {
+          cluster.push(blk);
+          added = true;
+          break;
+        }
+      }
+      if (!added) clusters.push([blk]);
+    });
+
+    // Dentro de cada cluster, asignar columnas con algoritmo greedy
+    clusters.forEach(function(cluster) {
+      var columns = []; // columns[i] = finMin del último bloque en esa columna
+      cluster.forEach(function(blk) {
+        var placed = false;
+        for (var c = 0; c < columns.length; c++) {
+          if (blk.inicioMin >= columns[c]) {
+            blk.col = c;
+            columns[c] = blk.finMin;
+            placed = true;
+            break;
+          }
+        }
+        if (!placed) {
+          blk.col = columns.length;
+          columns.push(blk.finMin);
+        }
+      });
+      var totalCols = columns.length;
+      cluster.forEach(function(blk) { blk.totalCols = totalCols; });
+    });
+  });
+
+  // Renderizar todos los bloques con posición ajustada
+  var allBloques = [];
+  Object.keys(bloquesPorDia).forEach(function(k) {
+    allBloques = allBloques.concat(bloquesPorDia[k]);
+  });
+
+  allBloques.forEach(function(blk) {
+    var ent = blk.ent;
+    var diaIdx = blk.diaIdx;
+    var inicioOffset = blk.inicioMin - CALENDARIO_CONFIG.horaInicio * 60;
+    var duracion = blk.finMin - blk.inicioMin;
 
     var top = headerHeight + (inicioOffset / CALENDARIO_CONFIG.slotMinutos) * slotHeight;
     var height = (duracion / CALENDARIO_CONFIG.slotMinutos) * slotHeight;
@@ -1861,11 +1923,12 @@ function renderCalRecGrid(lunes) {
     var vacante = candidato ? vacantes.find(function(v) { return v.id === candidato.vacanteId; }) : null;
     var vacTitulo = vacante ? vacante.titulo : '';
 
-    // Position: skip hora column (60px), then each day is 1/5 of remaining
-    var leftCalc = 'calc(' + horaColWidth + 'px + ' + diaIdx + ' * (100% - ' + horaColWidth + 'px) / 5 + 2px)';
-    var widthCalc = 'calc((100% - ' + horaColWidth + 'px) / 5 - 4px)';
+    // Position: subdividir la columna del día según solapamientos
+    var colFraction = blk.col + ' * (100% - ' + horaColWidth + 'px) / 5 / ' + blk.totalCols;
+    var leftCalc = 'calc(' + horaColWidth + 'px + ' + diaIdx + ' * (100% - ' + horaColWidth + 'px) / 5 + ' + colFraction + ' + 2px)';
+    var widthCalc = 'calc((100% - ' + horaColWidth + 'px) / 5 / ' + blk.totalCols + ' - 4px)';
 
-    html += '<div class="cal-rec-bloque" style="';
+    html += '<div class="cal-rec-bloque" data-entrevista-id="' + ent.id + '" data-candidato-id="' + (candidato ? candidato.id : '') + '" style="';
     html += 'position:absolute;';
     html += 'top:' + top + 'px;';
     html += 'left:' + leftCalc + ';';
@@ -1873,8 +1936,8 @@ function renderCalRecGrid(lunes) {
     html += 'height:' + (height - 2) + 'px;';
     html += 'background:' + colorLight + ';';
     html += 'border-left:3px solid ' + color + ';';
-    html += '" onclick="verDetalleCandidato(' + (candidato ? candidato.id : 'null') + ')" title="' + escapeHtml(candNombre + ' - ' + vacTitulo) + '">';
-    html += '<div class="cal-rec-bloque-hora" style="color:' + color + ';">' + ent.hora + ' - ' + minutosAHora(entFinMin) + '</div>';
+    html += '" title="' + escapeHtml(candNombre + ' - ' + vacTitulo) + '">';
+    html += '<div class="cal-rec-bloque-hora" style="color:' + color + ';">' + ent.hora + ' - ' + minutosAHora(blk.finMin) + '</div>';
     html += '<div class="cal-rec-bloque-nombre">' + escapeHtml(candNombre) + '</div>';
     if (height > 45) {
       html += '<div class="cal-rec-bloque-info">' + escapeHtml(recNombre) + (vacTitulo ? ' &middot; ' + escapeHtml(vacTitulo) : '') + '</div>';
@@ -1885,6 +1948,189 @@ function renderCalRecGrid(lunes) {
   html += '</div>';
 
   container.innerHTML = html;
+}
+
+// ==================== DRAG & DROP CALENDARIO RECLUTADORAS ====================
+
+function calRecPixelToSlot(clientX, clientY) {
+  var container = document.getElementById('cal-rec-grid-container');
+  if (!container) return null;
+  var grid = container.querySelector('.cal-rec-grid');
+  if (!grid) return null;
+
+  var rect = grid.getBoundingClientRect();
+  var horaColWidth = 60;
+  var headerHeight = 42;
+  var slotHeight = 40;
+
+  var relX = clientX - rect.left - horaColWidth;
+  var relY = clientY - rect.top - headerHeight;
+
+  if (relX < 0 || relY < 0) return null;
+
+  var dayWidth = (rect.width - horaColWidth) / 5;
+  var dayIndex = Math.floor(relX / dayWidth);
+  if (dayIndex < 0 || dayIndex > 4) return null;
+
+  var totalSlots = (CALENDARIO_CONFIG.horaFin - CALENDARIO_CONFIG.horaInicio) * (60 / CALENDARIO_CONFIG.slotMinutos);
+  var slotIndex = Math.floor(relY / slotHeight);
+  if (slotIndex < 0 || slotIndex >= totalSlots) return null;
+
+  // Snap a slots de 30 min
+  var totalMinutes = CALENDARIO_CONFIG.horaInicio * 60 + slotIndex * CALENDARIO_CONFIG.slotMinutos;
+
+  return { dayIndex: dayIndex, totalMinutes: totalMinutes };
+}
+
+function initCalRecDragAndDrop() {
+  var container = document.getElementById('cal-rec-grid-container');
+  if (!container) return;
+
+  container.addEventListener('mousedown', function(e) {
+    var bloque = e.target.closest('.cal-rec-bloque');
+    if (!bloque) return;
+
+    var entrevistaIdRaw = bloque.getAttribute('data-entrevista-id');
+    var candidatoId = bloque.getAttribute('data-candidato-id');
+    if (!entrevistaIdRaw) return;
+
+    // Convertir a número para comparación === con los IDs numéricos
+    var entrevistaId = isNaN(Number(entrevistaIdRaw)) ? entrevistaIdRaw : Number(entrevistaIdRaw);
+    var candidatoIdNum = (candidatoId && !isNaN(Number(candidatoId))) ? Number(candidatoId) : candidatoId;
+    var ent = entrevistas.find(function(en) { return en.id === entrevistaId; });
+    if (!ent) return;
+
+    e.preventDefault();
+
+    calRecDragState = {
+      entrevistaId: entrevistaId,
+      candidatoId: candidatoIdNum,
+      bloqueEl: bloque,
+      startX: e.clientX,
+      startY: e.clientY,
+      origFecha: ent.fecha,
+      origHora: ent.hora,
+      isDragging: false,
+      ghostEl: null
+    };
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!calRecDragState) return;
+
+    var dx = e.clientX - calRecDragState.startX;
+    var dy = e.clientY - calRecDragState.startY;
+
+    // Umbral de 5px para distinguir click de drag
+    if (!calRecDragState.isDragging) {
+      if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+      calRecDragState.isDragging = true;
+      calRecDragState.bloqueEl.classList.add('cal-rec-bloque-dragging');
+      document.body.style.userSelect = 'none';
+
+      // Crear ghost con ancho completo de columna del día
+      var ghost = document.createElement('div');
+      ghost.className = 'cal-rec-bloque-ghost';
+      var overlay = calRecDragState.bloqueEl.parentElement;
+      ghost.style.height = calRecDragState.bloqueEl.style.height;
+      ghost.style.width = 'calc((100% - 60px) / 5 - 4px)';
+      ghost.style.top = calRecDragState.bloqueEl.style.top;
+      ghost.style.left = calRecDragState.bloqueEl.style.left;
+      overlay.appendChild(ghost);
+      calRecDragState.ghostEl = ghost;
+    }
+
+    e.preventDefault();
+
+    // Actualizar posición del ghost
+    var slot = calRecPixelToSlot(e.clientX, e.clientY);
+    if (!slot) {
+      if (calRecDragState.ghostEl) calRecDragState.ghostEl.style.display = 'none';
+      return;
+    }
+
+    // Clampear: la cita no debe exceder las 17:00
+    var ent = entrevistas.find(function(en) { return en.id === calRecDragState.entrevistaId; });
+    var duracion = ent ? parseInt(ent.duracion || 60) : 60;
+    var maxInicio = CALENDARIO_CONFIG.horaFin * 60 - duracion;
+    if (slot.totalMinutes > maxInicio) {
+      slot.totalMinutes = maxInicio;
+    }
+
+    // Calcular posición visual del ghost
+    var horaColWidth = 60;
+    var headerHeight = 42;
+    var slotHeight = 40;
+    var inicioOffset = slot.totalMinutes - CALENDARIO_CONFIG.horaInicio * 60;
+    var top = headerHeight + (inicioOffset / CALENDARIO_CONFIG.slotMinutos) * slotHeight;
+    var leftCalc = 'calc(' + horaColWidth + 'px + ' + slot.dayIndex + ' * (100% - ' + horaColWidth + 'px) / 5 + 2px)';
+
+    calRecDragState.ghostEl.style.display = '';
+    calRecDragState.ghostEl.style.top = top + 'px';
+    calRecDragState.ghostEl.style.left = leftCalc;
+    calRecDragState.lastSlot = slot;
+  });
+
+  document.addEventListener('mouseup', function(e) {
+    if (!calRecDragState) return;
+
+    var state = calRecDragState;
+    calRecDragState = null;
+
+    // Restaurar selección de texto
+    document.body.style.userSelect = '';
+
+    // Limpiar ghost
+    if (state.ghostEl) {
+      state.ghostEl.remove();
+    }
+
+    // Si no fue drag (< 5px), ejecutar click original
+    if (!state.isDragging) {
+      if (state.candidatoId) {
+        verDetalleCandidato(state.candidatoId);
+      }
+      return;
+    }
+
+    // Limpiar clase de dragging
+    state.bloqueEl.classList.remove('cal-rec-bloque-dragging');
+
+    // Sin target válido
+    if (!state.lastSlot) return;
+
+    // Calcular nueva fecha y hora
+    var newDayIndex = state.lastSlot.dayIndex;
+    var newTotalMin = state.lastSlot.totalMinutes;
+
+    if (newDayIndex < 0 || newDayIndex > 4 || !calRecDias[newDayIndex]) return;
+
+    var newFecha = calRecDias[newDayIndex].iso;
+    var newHora = minutosAHora(newTotalMin);
+
+    // Misma posición → no-op
+    if (newFecha === state.origFecha && newHora === state.origHora) return;
+
+    // Buscar la entrevista
+    var ent = entrevistas.find(function(en) { return en.id === state.entrevistaId; });
+    if (!ent) return;
+
+    // Detectar conflicto
+    var duracion = parseInt(ent.duracion || 60);
+    var conflicto = detectarConflictoHorario(ent.reclutadoraId, newFecha, newHora, duracion, ent.id);
+    if (conflicto) {
+      showToast('Conflicto de horario', conflicto.reclutadoraNombre + ' ya tiene cita de ' + conflicto.horaInicio + ' a ' + conflicto.horaFin);
+      renderCalendarioReclutadoras();
+      return;
+    }
+
+    // Actualizar y guardar
+    ent.fecha = newFecha;
+    ent.hora = newHora;
+    saveData();
+    renderCalendarioReclutadoras();
+    showToast('Entrevista reprogramada', newFecha + ' a las ' + newHora);
+  });
 }
 
 function renderVacantesAsignadasPorReclutadora() {
@@ -3930,6 +4176,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupFormAltaEmpleado();
   setupFormsSolicitud();
   setupFormCompletarVacante();
+  initCalRecDragAndDrop();
 
   // Demo vacantes (20 vacantes repartidas en areas + candidatos en distintas etapas)
   // Force re-seed if old demo data or missing etapaRechazo

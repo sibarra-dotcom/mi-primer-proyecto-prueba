@@ -1417,11 +1417,12 @@
   pointer-events: auto;
   border-radius: 6px;
   padding: 4px 8px;
-  cursor: pointer;
+  cursor: grab;
   overflow: hidden;
   transition: filter .15s, box-shadow .15s;
   z-index: 2;
 }
+.vacantes-module .cal-rec-bloque:active{ cursor: grabbing; }
 .vacantes-module .cal-rec-bloque:hover{
   filter: brightness(.95);
   box-shadow: 0 2px 8px rgba(0,0,0,.15);
@@ -1520,4 +1521,24 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Drag & Drop: bloque siendo arrastrado */
+.vacantes-module .cal-rec-bloque.cal-rec-bloque-dragging{
+  opacity: 0.45;
+  cursor: grabbing;
+  z-index: 5;
+  pointer-events: none;
+  transition: none;
+}
+
+/* Drag & Drop: ghost muestra dónde aterrizará el bloque */
+.vacantes-module .cal-rec-bloque-ghost{
+  position: absolute;
+  border-radius: 6px;
+  background: rgba(0, 121, 64, 0.12);
+  border: 2px dashed rgba(0, 121, 64, 0.5);
+  z-index: 4;
+  pointer-events: none;
+  transition: top 0.08s ease-out, left 0.08s ease-out;
 }
