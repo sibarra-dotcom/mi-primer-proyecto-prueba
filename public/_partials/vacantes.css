@@ -1498,10 +1498,13 @@
   background: #fff;
 }
 .vacantes-module .mini-cal-slot{
-  min-height: 24px;
+  height: 24px;
+  box-sizing: border-box;
   background: #fff;
   padding: 1px 2px;
   font-size: 10px;
+  position: relative;
+  overflow: visible;
 }
 .vacantes-module .mini-cal-libre{
   cursor: pointer;
@@ -1513,7 +1516,6 @@
   cursor: not-allowed;
 }
 .vacantes-module .mini-cal-bloque{
-  display: block;
   padding: 1px 4px;
   border-radius: 3px;
   font-size: 9px;

@@ -1661,8 +1661,10 @@ function renderMiniCalendarioDisponibilidad(reclutadoraId) {
         var titulo = ocupado ? 'Ocupado: ' + ocupado.candidatoNombre : 'Disponible - Click para seleccionar';
 
         html += '<div class="mini-cal-slot ' + claseSlot + '" data-fecha="' + fechaISO + '" data-hora="' + horaStr + '" onclick="' + (ocupado ? '' : "seleccionarSlotMiniCal('" + fechaISO + "','" + horaStr + "')") + '" title="' + escapeHtml(titulo) + '">';
-        if (ocupado) {
-          html += '<span class="mini-cal-bloque" style="background:' + (rec ? rec.color : '#94a3b8') + ';color:#fff;">' + escapeHtml(ocupado.horaCorta) + '</span>';
+        if (ocupado && ocupado.isStart) {
+          var spanSlots = ocupado.duracion / CALENDARIO_CONFIG.slotMinutos;
+          var spanPx = spanSlots * 25 - 1;
+          html += '<span class="mini-cal-bloque" style="background:' + (rec ? rec.color : '#94a3b8') + ';color:#fff;position:absolute;top:0;left:1px;right:1px;height:' + spanPx + 'px;z-index:1;display:flex;align-items:center;">' + escapeHtml(ocupado.horaCorta) + '</span>';
         }
         html += '</div>';
       }
@@ -1686,7 +1688,9 @@ function isSlotOcupado(reclutadoraId, fecha, hora, minuto) {
       var candidato = candidatos.find(function(c) { return c.id === ent.candidatoId; });
       return {
         horaCorta: ent.hora,
-        candidatoNombre: candidato ? (candidato.nombre + ' ' + candidato.apellidos) : 'Entrevista'
+        candidatoNombre: candidato ? (candidato.nombre + ' ' + candidato.apellidos) : 'Entrevista',
+        isStart: slotInicio === entInicio,
+        duracion: entFin - entInicio
       };
     }
   }
