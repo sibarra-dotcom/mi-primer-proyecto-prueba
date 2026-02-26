@@ -280,21 +280,35 @@
                 <option value="cerrada">Cerradas</option>
               </select>
             </div>
+            <div class="col-3">
+              <label for="vac-filter-reclutadora">Reclutadora</label>
+              <select id="vac-filter-reclutadora" onchange="filtrarVacantes()">
+                <option value="">Todas</option>
+              </select>
+            </div>
           </div>
         </div>
 
         <div id="seccion-preaprobadas" style="display:none;">
           <div class="card">
-            <div class="card-header">
-              <h2>Vacantes Aprobadas</h2>
+            <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
+              <h2>Vacantes Preaprobadas</h2>
+              <div class="portal-vista-toggle">
+                <button type="button" id="vista-grid-preaprobadasGrid" class="portal-vista-btn active" title="Cuadrícula" onclick="setVistaSeccion('preaprobadasGrid','grid')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+                <button type="button" id="vista-lista-preaprobadasGrid" class="portal-vista-btn" title="Lista" onclick="setVistaSeccion('preaprobadasGrid','lista')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+              </div>
             </div>
             <div id="preaprobadasGrid" class="vacantes-grid"></div>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
             <h2>Listado de Vacantes</h2>
+            <div class="portal-vista-toggle">
+              <button type="button" id="vista-grid-vacantesGestionGrid" class="portal-vista-btn active" title="Cuadrícula" onclick="setVistaSeccion('vacantesGestionGrid','grid')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+              <button type="button" id="vista-lista-vacantesGestionGrid" class="portal-vista-btn" title="Lista" onclick="setVistaSeccion('vacantesGestionGrid','lista')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+            </div>
           </div>
           <div id="vacantesGestionGrid" class="vacantes-grid"></div>
         </div>
@@ -369,6 +383,12 @@
           </div>
         </div>
 
+        <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+          <div class="portal-vista-toggle">
+            <button type="button" id="vista-grid-solicitudesJefeGrid" class="portal-vista-btn active" title="Cuadrícula" onclick="setVistaSeccion('solicitudesJefeGrid','grid')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+            <button type="button" id="vista-lista-solicitudesJefeGrid" class="portal-vista-btn" title="Lista" onclick="setVistaSeccion('solicitudesJefeGrid','lista')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+          </div>
+        </div>
         <div id="solicitudesJefeGrid" class="vacantes-grid"></div>
       </div>
 
@@ -410,15 +430,23 @@
 
 
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
             <h2>Pendientes de Revisión</h2>
+            <div class="portal-vista-toggle">
+              <button type="button" id="vista-grid-solicitudesAprobacionPendientes" class="portal-vista-btn active" title="Cuadrícula" onclick="setVistaSeccion('solicitudesAprobacionPendientes','grid')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+              <button type="button" id="vista-lista-solicitudesAprobacionPendientes" class="portal-vista-btn" title="Lista" onclick="setVistaSeccion('solicitudesAprobacionPendientes','lista')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+            </div>
           </div>
           <div id="solicitudesAprobacionPendientes" class="vacantes-grid"></div>
         </div>
 
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
             <h2>Ya Revisadas</h2>
+            <div class="portal-vista-toggle">
+              <button type="button" id="vista-grid-solicitudesAprobacionRevisadas" class="portal-vista-btn active" title="Cuadrícula" onclick="setVistaSeccion('solicitudesAprobacionRevisadas','grid')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+              <button type="button" id="vista-lista-solicitudesAprobacionRevisadas" class="portal-vista-btn" title="Lista" onclick="setVistaSeccion('solicitudesAprobacionRevisadas','lista')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+            </div>
           </div>
           <div id="solicitudesAprobacionRevisadas" class="vacantes-grid"></div>
         </div>
@@ -871,6 +899,20 @@
                 <div class="col-12"><label for="completar-conocimientos">Conocimientos</label><textarea id="completar-conocimientos" placeholder="Conocimientos técnicos requeridos..."></textarea></div>
                 <div class="col-12"><label for="completar-ofrecemos">Ofrecemos</label><textarea id="completar-ofrecemos" placeholder="Prestaciones, horarios, bonos..."></textarea></div>
                 <div class="col-12"><label for="completar-beneficios">Beneficios</label><textarea id="completar-beneficios" placeholder="Beneficios adicionales del puesto..."></textarea></div>
+                <div class="col-12" style="margin-top:8px;">
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="checkbox" id="completar-solicitar-cv" checked>
+                    <span>Solicitar CV al candidato (obligatorio para aplicar)</span>
+                  </label>
+                  <p class="help">Si se desmarca, el CV será opcional para esta vacante.</p>
+                </div>
+                <div class="col-12" style="margin-top:4px;">
+                  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="checkbox" id="completar-mostrar-salario" checked>
+                    <span>Mostrar salario en la vacante publicada</span>
+                  </label>
+                  <p class="help">Si se desmarca, el salario no será visible para los candidatos.</p>
+                </div>
               </div>
             </div>
             <div class="actions">

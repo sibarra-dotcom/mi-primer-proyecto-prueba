@@ -387,12 +387,142 @@
   padding: 2px;
 }
 
+/* Portal Filtros */
+.vacantes-module .portal-filtros{
+  margin-top:16px;
+}
+.vacantes-module .portal-filtros-row{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.vacantes-module .portal-filtro-busqueda{
+  position:relative;
+  width:170px;
+  flex-shrink:0;
+}
+.vacantes-module .portal-filtro-busqueda svg{
+  position:absolute;
+  left:8px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--muted);
+  pointer-events:none;
+}
+.vacantes-module .portal-filtro-busqueda input{
+  padding:5px 8px 5px 28px;
+  font-size:12px;
+  width:100%;
+  box-sizing:border-box;
+}
+.vacantes-module .portal-filtros-row select{
+  padding:5px 8px;
+  font-size:12px;
+  min-width:0;
+  max-width:130px;
+}
+.vacantes-module .portal-filtros-sep{
+  width:1px;
+  height:20px;
+  background:var(--border);
+  flex-shrink:0;
+  margin:0 2px;
+}
+.vacantes-module .portal-limpiar-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:5px 10px;
+  font-size:12px;
+  font-weight:600;
+  color:#dc2626;
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  border-radius:3px;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:background .15s;
+  flex-shrink:0;
+}
+.vacantes-module .portal-limpiar-btn:hover{
+  background:#fee2e2;
+}
+.vacantes-module .portal-vista-toggle{
+  display:flex;
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
+  flex-shrink:0;
+  margin-left:auto;
+}
+.vacantes-module .portal-vista-btn{
+  background:#fff;
+  border:none;
+  padding:5px 8px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  transition:background .15s,color .15s;
+}
+.vacantes-module .portal-vista-btn:not(:last-child){
+  border-right:1px solid var(--border);
+}
+.vacantes-module .portal-vista-btn.active{
+  background:var(--primary);
+  color:#fff;
+}
+.vacantes-module .portal-vista-btn:hover:not(.active){
+  background:#f1f5f9;
+}
+.vacantes-module .portal-filtros-resumen{
+  margin-top:8px;
+  font-size:12px;
+  color:var(--muted);
+}
+
 /* Vacantes Grid */
 .vacantes-module .vacantes-grid{
   display:grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap:16px;
-  margin-top: 20px;
+  margin-top: 16px;
+}
+
+/* Vacantes Lista */
+.vacantes-module .vacantes-grid.vista-lista{
+  grid-template-columns:1fr;
+}
+.vacantes-module .vacantes-grid.vista-lista .vacante-card{
+  flex-direction:row;
+  align-items:center;
+  gap:20px;
+  padding:14px 20px;
+}
+.vacantes-module .vacantes-grid.vista-lista .vacante-card-body{
+  flex:1;
+  min-width:0;
+}
+.vacantes-module .vacantes-grid.vista-lista .vacante-title{
+  font-size:16px;
+  margin-bottom:4px;
+}
+.vacantes-module .vacantes-grid.vista-lista .vacante-info{
+  flex-direction:row;
+  flex-wrap:wrap;
+  gap:4px 16px;
+  margin-bottom:4px;
+}
+.vacantes-module .vacantes-grid.vista-lista .vacante-desc{
+  margin:4px 0;
+  display:-webkit-box;
+  -webkit-line-clamp:1;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.vacantes-module .vacantes-grid.vista-lista .vacante-card-actions{
+  flex-shrink:0;
 }
 
 .vacantes-module .vacante-card{

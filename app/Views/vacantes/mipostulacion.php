@@ -15,11 +15,7 @@
   <!-- Header simple -->
   <header style="position:sticky;top:0;z-index:10;background:#ffffff;border-bottom:1px solid rgba(15,23,42,.12);box-shadow:0 2px 10px rgba(2,6,23,.08);">
     <div style="max-width:1400px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:12px;min-height:62px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;overflow:hidden;">
-        <svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:#ffffff;">
-          <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-        </svg>
-      </div>
+      <img src="<?= base_url('img/logo.jpeg') ?>" alt="Logo Gibanibb" style="width:44px;height:44px;border-radius:10px;object-fit:cover;">
     </div>
   </header>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Portal de Vacantes</title>
+  <title>Portal de Vacantes Gibanibb</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -15,24 +15,51 @@
   <!-- Header simple para portal público -->
   <header style="position:sticky;top:0;z-index:10;background:#ffffff;border-bottom:1px solid rgba(15,23,42,.12);box-shadow:0 2px 10px rgba(2,6,23,.08);">
     <div style="max-width:1400px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:12px;min-height:62px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;overflow:hidden;">
-        <svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:#ffffff;">
-          <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-        </svg>
-      </div>
+      <img src="<?= base_url('img/logo.jpeg') ?>" alt="Logo Gibanibb" style="width:44px;height:44px;border-radius:10px;object-fit:cover;">
+      <a href="<?= base_url('vacantes/mipostulacion') ?>" style="margin-left:auto;font-size:13px;color:var(--primary);font-weight:600;text-decoration:none;">Consultar seguimiento</a>
     </div>
   </header>
 
   <main>
     <div class="page-title">
-      <h1>Portal de Vacantes</h1>
+      <h1>Portal de Vacantes Gibanibb</h1>
+    </div>
+
+    <!-- Barra de filtros -->
+    <div class="portal-filtros" id="portalFiltros">
+      <div class="portal-filtros-row">
+        <div class="portal-filtro-busqueda">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="portal-busqueda" placeholder="Buscar...">
+        </div>
+        <select id="portal-filtro-depto"><option value="">Departamento</option></select>
+        <select id="portal-filtro-ubicacion"><option value="">Ubicación</option></select>
+        <select id="portal-filtro-jornada"><option value="">Jornada</option></select>
+        <div class="portal-filtros-sep"></div>
+        <select id="portal-ordenar">
+          <option value="reciente">Más reciente</option>
+          <option value="antigua">Más antigua</option>
+          <option value="az">A - Z</option>
+          <option value="za">Z - A</option>
+        </select>
+        <button type="button" id="portal-limpiar" class="portal-limpiar-btn" onclick="limpiarFiltrosPortal()" title="Limpiar filtros" style="display:none;">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Limpiar
+        </button>
+        <div class="portal-vista-toggle">
+          <button type="button" id="portal-vista-grid" class="portal-vista-btn active" title="Vista cuadrícula" onclick="setPortalVista('grid')">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button type="button" id="portal-vista-lista" class="portal-vista-btn" title="Vista lista" onclick="setPortalVista('lista')">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="portal-filtros-resumen" id="portalFiltrosResumen"></div>
     </div>
 
     <div class="vacantes-grid" id="vacantesGrid"></div>
 
-    <div style="text-align:center;margin-top:32px;margin-bottom:12px;">
-      <a href="<?= base_url('vacantes/mipostulacion') ?>" style="font-size:13px;color:var(--primary);font-weight:600;text-decoration:none;">¿Ya aplicaste? Consulta tu postulación &rarr;</a>
-    </div>
   </main>
 
   <!-- Modal: Aplicar a Vacante -->
@@ -129,13 +156,13 @@
               <div class="col-12"><label for="apli-carrera">Carrera/Especialidad</label><input id="apli-carrera" type="text"></div>
             </div>
           </div>
-          <div class="card">
+          <div class="card" id="apli-cv-seccion">
             <div class="card-header"><h2>Curriculum Vitae</h2></div>
             <div class="grid">
               <div class="col-12">
-                <label for="apli-cv">Adjuntar CV</label>
+                <label for="apli-cv" id="apli-cv-label">Adjuntar CV</label>
                 <input type="file" id="apli-cv" accept=".pdf,.doc,.docx">
-                <p class="help">Opcional. Formatos: PDF, DOC, DOCX. Máximo 2MB.</p>
+                <p class="help" id="apli-cv-help">Opcional. Formatos: PDF, DOC, DOCX. Máximo 2MB.</p>
               </div>
             </div>
           </div>

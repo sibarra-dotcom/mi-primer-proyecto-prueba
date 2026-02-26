@@ -748,38 +748,201 @@ function launchConfetti() {
 }
 
 // ==================== VACANTES ====================
+var vistaModos = {};
+
+function toggleVistaGrid(seccion) {
+  var modo = vistaModos[seccion] === 'lista' ? 'grid' : 'lista';
+  setVistaSeccion(seccion, modo);
+}
+
+function setVistaSeccion(seccion, modo) {
+  vistaModos[seccion] = modo;
+  var btnGrid = document.getElementById('vista-grid-' + seccion);
+  var btnLista = document.getElementById('vista-lista-' + seccion);
+  if (btnGrid) btnGrid.classList.toggle('active', modo === 'grid');
+  if (btnLista) btnLista.classList.toggle('active', modo === 'lista');
+  // Re-render la sección correspondiente
+  if (seccion === 'vacantesGestionGrid') filtrarVacantes();
+  else if (seccion === 'preaprobadasGrid') renderSolicitudesPreaprobadas();
+  else if (seccion === 'solicitudesJefeGrid') renderSolicitudesJefe();
+  else if (seccion === 'solicitudesAprobacionPendientes' || seccion === 'solicitudesAprobacionRevisadas') renderSolicitudesAprobacion();
+}
+
+var portalVistaActual = 'grid';
+
+function setPortalVista(modo) {
+  portalVistaActual = modo;
+  document.getElementById('portal-vista-grid').classList.toggle('active', modo === 'grid');
+  document.getElementById('portal-vista-lista').classList.toggle('active', modo === 'lista');
+  renderVacantesPortal();
+}
+
+function poblarFiltrosPortal() {
+  var abiertas = vacantes.filter(function(v) { return v.estado === 'abierta'; });
+
+  var deptos = [];
+  var ubics = [];
+  var jornadas = [];
+  abiertas.forEach(function(v) {
+    if (v.departamento && deptos.indexOf(v.departamento) === -1) deptos.push(v.departamento);
+    var ubNombre = v.ubicacionClave ? (UBICACION_NOMBRES[v.ubicacionClave] || v.ubicacion) : v.ubicacion;
+    if (ubNombre && ubics.indexOf(ubNombre) === -1) ubics.push(ubNombre);
+    var jorn = v.jornada || v.tipo;
+    if (jorn && jornadas.indexOf(jorn) === -1) jornadas.push(jorn);
+  });
+  deptos.sort();
+  ubics.sort();
+  jornadas.sort();
+
+  var selDepto = document.getElementById('portal-filtro-depto');
+  var selUbic = document.getElementById('portal-filtro-ubicacion');
+  var selJorn = document.getElementById('portal-filtro-jornada');
+  if (selDepto) {
+    selDepto.innerHTML = '<option value="">Departamento</option>' + deptos.map(function(d) { return '<option>' + escapeHtml(d) + '</option>'; }).join('');
+  }
+  if (selUbic) {
+    selUbic.innerHTML = '<option value="">Ubicación</option>' + ubics.map(function(u) { return '<option>' + escapeHtml(u) + '</option>'; }).join('');
+  }
+  if (selJorn) {
+    selJorn.innerHTML = '<option value="">Jornada</option>' + jornadas.map(function(j) { return '<option>' + escapeHtml(j) + '</option>'; }).join('');
+  }
+}
+
+function setupFiltrosPortal() {
+  var ids = ['portal-busqueda', 'portal-filtro-depto', 'portal-filtro-ubicacion', 'portal-filtro-jornada', 'portal-ordenar'];
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener(id === 'portal-busqueda' ? 'input' : 'change', renderVacantesPortal);
+  });
+}
+
+function limpiarFiltrosPortal() {
+  var busq = document.getElementById('portal-busqueda');
+  var depto = document.getElementById('portal-filtro-depto');
+  var ubic = document.getElementById('portal-filtro-ubicacion');
+  var jorn = document.getElementById('portal-filtro-jornada');
+  if (busq) busq.value = '';
+  if (depto) depto.value = '';
+  if (ubic) ubic.value = '';
+  if (jorn) jorn.value = '';
+  renderVacantesPortal();
+}
+
+function actualizarBotonLimpiar() {
+  var busqueda = (document.getElementById('portal-busqueda') || {}).value || '';
+  var filtroDepto = (document.getElementById('portal-filtro-depto') || {}).value || '';
+  var filtroUbic = (document.getElementById('portal-filtro-ubicacion') || {}).value || '';
+  var filtroJorn = (document.getElementById('portal-filtro-jornada') || {}).value || '';
+  var hayFiltros = !!(busqueda || filtroDepto || filtroUbic || filtroJorn);
+  var btn = document.getElementById('portal-limpiar');
+  if (btn) btn.style.display = hayFiltros ? '' : 'none';
+}
+
 function renderVacantesPortal() {
-  const grid = document.getElementById('vacantesGrid');
-  const vacantesAbiertas = vacantes.filter(v => v.estado === 'abierta');
+  var grid = document.getElementById('vacantesGrid');
+  if (!grid) return;
+  var vacantesAbiertas = vacantes.filter(function(v) { return v.estado === 'abierta'; });
+
+  // Filtros
+  var busqueda = (document.getElementById('portal-busqueda') || {}).value || '';
+  var filtroDepto = (document.getElementById('portal-filtro-depto') || {}).value || '';
+  var filtroUbic = (document.getElementById('portal-filtro-ubicacion') || {}).value || '';
+  var filtroJorn = (document.getElementById('portal-filtro-jornada') || {}).value || '';
+  var orden = (document.getElementById('portal-ordenar') || {}).value || 'reciente';
+
+  var totalAbiertas = vacantesAbiertas.length;
+
+  if (busqueda) {
+    var q = busqueda.toLowerCase();
+    vacantesAbiertas = vacantesAbiertas.filter(function(v) {
+      return (v.titulo && v.titulo.toLowerCase().indexOf(q) !== -1) ||
+             (v.departamento && v.departamento.toLowerCase().indexOf(q) !== -1) ||
+             (v.descripcion && v.descripcion.toLowerCase().indexOf(q) !== -1) ||
+             (v.codigo && v.codigo.toLowerCase().indexOf(q) !== -1);
+    });
+  }
+  if (filtroDepto) {
+    vacantesAbiertas = vacantesAbiertas.filter(function(v) { return v.departamento === filtroDepto; });
+  }
+  if (filtroUbic) {
+    vacantesAbiertas = vacantesAbiertas.filter(function(v) {
+      var ubNombre = v.ubicacionClave ? (UBICACION_NOMBRES[v.ubicacionClave] || v.ubicacion) : v.ubicacion;
+      return ubNombre === filtroUbic;
+    });
+  }
+  if (filtroJorn) {
+    vacantesAbiertas = vacantesAbiertas.filter(function(v) { return (v.jornada || v.tipo) === filtroJorn; });
+  }
+
+  // Ordenar
+  vacantesAbiertas.sort(function(a, b) {
+    if (orden === 'reciente') return (b.fechaCreacion || '').localeCompare(a.fechaCreacion || '');
+    if (orden === 'antigua') return (a.fechaCreacion || '').localeCompare(b.fechaCreacion || '');
+    if (orden === 'az') return (a.titulo || '').localeCompare(b.titulo || '');
+    if (orden === 'za') return (b.titulo || '').localeCompare(a.titulo || '');
+    return 0;
+  });
+
+  // Resumen y botón limpiar
+  actualizarBotonLimpiar();
+  var resumen = document.getElementById('portalFiltrosResumen');
+  if (resumen) {
+    if (busqueda || filtroDepto || filtroUbic || filtroJorn) {
+      resumen.textContent = vacantesAbiertas.length + ' de ' + totalAbiertas + ' vacantes';
+    } else {
+      resumen.textContent = totalAbiertas + ' vacantes disponibles';
+    }
+  }
+
+  // Vista toggle
+  var esLista = portalVistaActual === 'lista';
+  grid.classList.toggle('vista-lista', esLista);
 
   if (vacantesAbiertas.length === 0) {
-    grid.innerHTML = `
-      <div class="empty-state">
-        <svg viewBox="0 0 24 24">
-          <path stroke="currentColor" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-        </svg>
-        <h3>No hay vacantes disponibles</h3>
-        <p>Por el momento no hay posiciones abiertas</p>
-      </div>
-    `;
+    grid.innerHTML = '<div class="empty-state">' +
+      '<svg viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>' +
+      '<h3>No se encontraron vacantes</h3>' +
+      '<p>' + (busqueda || filtroDepto || filtroUbic || filtroJorn ? 'Intenta con otros filtros de búsqueda' : 'Por el momento no hay posiciones abiertas') + '</p>' +
+      '</div>';
     return;
   }
 
-  grid.innerHTML = vacantesAbiertas.map(v => `
-    <div class="vacante-card" onclick="verDetalleVacantePublica(${v.id})" style="cursor:pointer">
-      ${v.codigo ? `<span style="font-size:11px;font-weight:700;color:var(--primary);letter-spacing:.5px;">${escapeHtml(v.codigo)}</span>` : ''}
-      <h3 class="vacante-title">${escapeHtml(v.titulo)}</h3>
-      <div class="vacante-info">
-        <div class="vacante-info-item"><strong>Departamento:</strong> ${escapeHtml(v.departamento)}</div>
-        <div class="vacante-info-item"><strong>Ubicaci\u00f3n:</strong> ${escapeHtml(v.ubicacionClave ? (UBICACION_NOMBRES[v.ubicacionClave] || v.ubicacion) : v.ubicacion)}</div>
-        <div class="vacante-info-item"><strong>Jornada:</strong> ${escapeHtml(v.jornada || v.tipo)}</div>
-        ${v.duracion ? `<div class="vacante-info-item"><strong>Duraci\u00f3n:</strong> ${escapeHtml(v.duracion)}</div>` : ''}
-        ${v.salario ? `<div class="vacante-info-item"><strong>Salario:</strong> ${escapeHtml(v.salario)}</div>` : ''}
-      </div>
-      <p class="vacante-desc">${escapeHtml(v.descripcion).substring(0, 150)}...</p>
-      <button class="btn btn-primary btn-small" onclick="event.stopPropagation();aplicarVacante(${v.id})" style="margin-top:auto;align-self:flex-end;">Aplicar Ahora</button>
-    </div>
-  `).join('');
+  if (esLista) {
+    grid.innerHTML = vacantesAbiertas.map(function(v) {
+      return '<div class="vacante-card" onclick="verDetalleVacantePublica(' + v.id + ')" style="cursor:pointer">' +
+        '<div class="vacante-card-body">' +
+          (v.codigo ? '<span style="font-size:11px;font-weight:700;color:var(--primary);letter-spacing:.5px;">' + escapeHtml(v.codigo) + '</span>' : '') +
+          '<h3 class="vacante-title">' + escapeHtml(v.titulo) + '</h3>' +
+          '<div class="vacante-info">' +
+            '<div class="vacante-info-item"><strong>Departamento:</strong> ' + escapeHtml(v.departamento) + '</div>' +
+            '<div class="vacante-info-item"><strong>Ubicaci\u00f3n:</strong> ' + escapeHtml(v.ubicacionClave ? (UBICACION_NOMBRES[v.ubicacionClave] || v.ubicacion) : v.ubicacion) + '</div>' +
+            '<div class="vacante-info-item"><strong>Jornada:</strong> ' + escapeHtml(v.jornada || v.tipo) + '</div>' +
+            (v.salario && v.mostrarSalario !== false ? '<div class="vacante-info-item"><strong>Salario:</strong> ' + escapeHtml(v.salario) + '</div>' : '') +
+          '</div>' +
+          '<p class="vacante-desc">' + escapeHtml(v.descripcion).substring(0, 150) + '...</p>' +
+        '</div>' +
+        '<div class="vacante-card-actions">' +
+          '<button class="btn btn-primary btn-small" onclick="event.stopPropagation();aplicarVacante(' + v.id + ')">Aplicar Ahora</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } else {
+    grid.innerHTML = vacantesAbiertas.map(function(v) {
+      return '<div class="vacante-card" onclick="verDetalleVacantePublica(' + v.id + ')" style="cursor:pointer">' +
+        (v.codigo ? '<span style="font-size:11px;font-weight:700;color:var(--primary);letter-spacing:.5px;">' + escapeHtml(v.codigo) + '</span>' : '') +
+        '<h3 class="vacante-title">' + escapeHtml(v.titulo) + '</h3>' +
+        '<div class="vacante-info">' +
+          '<div class="vacante-info-item"><strong>Departamento:</strong> ' + escapeHtml(v.departamento) + '</div>' +
+          '<div class="vacante-info-item"><strong>Ubicaci\u00f3n:</strong> ' + escapeHtml(v.ubicacionClave ? (UBICACION_NOMBRES[v.ubicacionClave] || v.ubicacion) : v.ubicacion) + '</div>' +
+          '<div class="vacante-info-item"><strong>Jornada:</strong> ' + escapeHtml(v.jornada || v.tipo) + '</div>' +
+          (v.duracion ? '<div class="vacante-info-item"><strong>Duraci\u00f3n:</strong> ' + escapeHtml(v.duracion) + '</div>' : '') +
+          (v.salario && v.mostrarSalario !== false ? '<div class="vacante-info-item"><strong>Salario:</strong> ' + escapeHtml(v.salario) + '</div>' : '') +
+        '</div>' +
+        '<p class="vacante-desc">' + escapeHtml(v.descripcion).substring(0, 150) + '...</p>' +
+        '<button class="btn btn-primary btn-small" onclick="event.stopPropagation();aplicarVacante(' + v.id + ')" style="margin-top:auto;align-self:flex-end;">Aplicar Ahora</button>' +
+      '</div>';
+    }).join('');
+  }
 }
 
 function verDetalleVacantePublica(vacanteId) {
@@ -802,7 +965,7 @@ function verDetalleVacantePublica(vacanteId) {
         <div class="col-6">
           ${vacante.jornada ? `<p><strong>Jornada:</strong> ${escapeHtml(vacante.jornada)}</p>` : `<p><strong>Tipo:</strong> ${escapeHtml(vacante.tipo)}</p>`}
           ${vacante.duracion ? `<p><strong>Duraci\u00f3n:</strong> ${escapeHtml(vacante.duracion)}</p>` : ''}
-          ${vacante.salario ? `<p><strong>Salario:</strong> ${escapeHtml(vacante.salario)}</p>` : ''}
+          ${vacante.salario && vacante.mostrarSalario !== false ? `<p><strong>Salario:</strong> ${escapeHtml(vacante.salario)}</p>` : ''}
         </div>
         <div class="col-12">
           <p><strong>Descripci\u00f3n:</strong></p>
@@ -840,14 +1003,16 @@ function filtrarVacantes() {
   const searchTerm = document.getElementById('vac-search')?.value.toLowerCase() || '';
   const filterDepartamento = document.getElementById('vac-filter-departamento')?.value || '';
   const filterEstado = document.getElementById('vac-filter-estado')?.value || '';
+  const filterReclutadora = document.getElementById('vac-filter-reclutadora')?.value || '';
 
   let vacantesFiltradas = vacantes.filter(v => {
     const matchCodigo = !searchCodigo || (v.codigo && v.codigo.toUpperCase().includes(searchCodigo));
     const matchSearch = v.titulo.toLowerCase().includes(searchTerm);
     const matchDepartamento = !filterDepartamento || v.departamento === filterDepartamento;
     const matchEstado = !filterEstado || v.estado === filterEstado;
+    const matchReclutadora = !filterReclutadora || (v.reclutadoraId || '') === filterReclutadora;
 
-    return matchCodigo && matchSearch && matchDepartamento && matchEstado;
+    return matchCodigo && matchSearch && matchDepartamento && matchEstado && matchReclutadora;
   });
 
   const grid = document.getElementById('vacantesGestionGrid');
@@ -862,9 +1027,36 @@ function filtrarVacantes() {
     return;
   }
 
+  var esLista = vistaModos['vacantesGestionGrid'] === 'lista';
+  grid.classList.toggle('vista-lista', esLista);
+
   grid.innerHTML = vacantesFiltradas.map(v => {
     const candidatosCount = candidatos.filter(c => c.vacanteId === v.id).length;
     const diasPublicada = Math.floor((new Date() - new Date(v.fechaCreacion)) / (1000 * 60 * 60 * 24));
+
+    if (esLista) {
+      return `
+      <div class="vacante-card" onclick="verDetalleVacante(${v.id})" style="cursor:pointer">
+        <div class="vacante-card-body">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span style="font-size:11px;font-weight:700;color:var(--primary);letter-spacing:.5px;">${escapeHtml(v.codigo || '')}</span>
+            <h3 class="vacante-title">${escapeHtml(v.titulo)}</h3>
+            <span class="vacante-status status-${v.estado}" style="margin-left:auto;">${v.estado === 'abierta' ? 'ABIERTA' : 'CERRADA'}</span>
+          </div>
+          <div class="vacante-info">
+            <div class="vacante-info-item"><strong>Departamento:</strong> ${escapeHtml(v.departamento)}</div>
+            <div class="vacante-info-item"><strong>Candidatos:</strong> ${candidatosCount}</div>
+            <div class="vacante-info-item"><strong>Publicada:</strong> ${formatFecha(v.fechaCreacion)} (${diasPublicada}d)</div>
+            ${(() => { var rec = v.reclutadoraId ? RECLUTADORAS.find(r => r.id === v.reclutadoraId) : null; return rec ? '<div class="vacante-info-item"><strong>Reclutadora:</strong> <span style="color:' + rec.color + ';font-weight:600;">' + escapeHtml(rec.nombreCorto) + '</span></div>' : ''; })()}
+          </div>
+        </div>
+        <div class="vacante-card-actions" style="display:flex;gap:8px;flex-shrink:0;">
+          <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verDetalleVacante(${v.id})">Ver Detalle</button>
+          <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verCandidatosVacante(${v.id})">Candidatos</button>
+          <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();cerrarVacante(${v.id})">${v.estado === 'abierta' ? 'Cerrar' : 'Abrir'}</button>
+        </div>
+      </div>`;
+    }
 
     return `
       <div class="vacante-card" onclick="verDetalleVacante(${v.id})" style="cursor:pointer">
@@ -894,7 +1086,13 @@ function filtrarVacantes() {
 }
 
 function populateVacanteFilters() {
-  // Already populated in HTML
+  var sel = document.getElementById('vac-filter-reclutadora');
+  if (sel) {
+    sel.innerHTML = '<option value="">Todas</option>' +
+      RECLUTADORAS.map(function(r) {
+        return '<option value="' + r.id + '">' + escapeHtml(r.nombreCorto) + '</option>';
+      }).join('');
+  }
 }
 
 function aplicarVacante(vacanteId) {
@@ -902,6 +1100,23 @@ function aplicarVacante(vacanteId) {
   const vacante = vacantes.find(v => v.id === vacanteId);
   const nombreEl = document.getElementById('aplicar-vacante-nombre');
   if (nombreEl && vacante) nombreEl.textContent = vacante.titulo;
+
+  var cvSeccion = document.getElementById('apli-cv-seccion');
+  var cvInput = document.getElementById('apli-cv');
+  var cvLabel = document.getElementById('apli-cv-label');
+  var cvHelp = document.getElementById('apli-cv-help');
+  if (vacante && vacante.solicitarCV) {
+    if (cvSeccion) cvSeccion.style.display = '';
+    if (cvInput) cvInput.required = true;
+    if (cvLabel) cvLabel.textContent = 'Adjuntar CV *';
+    if (cvHelp) cvHelp.textContent = 'Obligatorio. Formatos: PDF, DOC, DOCX. Máximo 2MB.';
+  } else {
+    if (cvSeccion) cvSeccion.style.display = 'none';
+    if (cvInput) { cvInput.required = false; cvInput.value = ''; }
+    if (cvLabel) cvLabel.textContent = 'Adjuntar CV';
+    if (cvHelp) cvHelp.textContent = 'Opcional. Formatos: PDF, DOC, DOCX. Máximo 2MB.';
+  }
+
   openModal('aplicar');
 }
 
@@ -3017,8 +3232,29 @@ function renderSolicitudesJefe() {
     return;
   }
 
+  var esLista = vistaModos['solicitudesJefeGrid'] === 'lista';
+  grid.classList.toggle('vista-lista', esLista);
+
   grid.innerHTML = misSolicitudes.map(sol => {
     const estadoCalc = calcularEstadoSolicitud(sol);
+    if (esLista) {
+      return `
+      <div class="vacante-card" onclick="verDetalleSolicitud(${sol.id})" style="cursor:pointer">
+        <div class="vacante-card-body">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <h3 class="vacante-title">${escapeHtml(sol.titulo)}</h3>
+            <span class="vacante-status status-${getBadgeClassSolicitud(estadoCalc)}" style="margin-left:auto;">${getEstadoSolicitudLabel(estadoCalc)}</span>
+          </div>
+          <div class="vacante-info">
+            <div class="vacante-info-item"><strong>Departamento:</strong> ${escapeHtml(sol.departamento)}</div>
+            <div class="vacante-info-item"><strong>Tipo:</strong> ${escapeHtml(sol.tipoContrato)}</div>
+            <div class="vacante-info-item"><strong>Fecha:</strong> ${formatFecha(sol.fechaSolicitud)}</div>
+            <div class="vacante-info-item"><strong>Vacantes:</strong> ${sol.cantidadVacantes || 1}</div>
+          </div>
+        </div>
+        <div class="vacante-card-actions"><button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button></div>
+      </div>`;
+    }
     return `
       <div class="vacante-card" onclick="verDetalleSolicitud(${sol.id})" style="cursor:pointer">
         <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
@@ -3060,14 +3296,36 @@ function renderSolicitudesAprobacion() {
     revisadas = [];
   }
 
+  var esListaPend = vistaModos['solicitudesAprobacionPendientes'] === 'lista';
+  gridPendientes.classList.toggle('vista-lista', esListaPend);
+
   if (pendientes.length === 0) {
     gridPendientes.innerHTML = '<p style="padding:20px;text-align:center;color:var(--muted);">No hay solicitudes pendientes de revisi\u00f3n</p>';
   } else {
-    gridPendientes.innerHTML = pendientes.map(sol => `
+    gridPendientes.innerHTML = pendientes.map(sol => {
+      if (esListaPend) {
+        return `
+        <div class="vacante-card" onclick="verDetalleSolicitud(${sol.id})" style="cursor:pointer">
+          <div class="vacante-card-body">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <h3 class="vacante-title">${escapeHtml(sol.titulo)}</h3>
+              <span class="vacante-status ${rolActual === 'gerente-finanzas' ? 'status-solicitud-aprobada-do' : 'status-solicitud-pendiente'}" style="margin-left:auto;">${rolActual === 'gerente-finanzas' ? 'APROBADO POR D.O.' : 'PENDIENTE'}</span>
+            </div>
+            <div class="vacante-info">
+              <div class="vacante-info-item"><strong>Departamento:</strong> ${escapeHtml(sol.departamento)}</div>
+              <div class="vacante-info-item"><strong>Solicitante:</strong> Jefe de ${escapeHtml(sol.departamento)}</div>
+              <div class="vacante-info-item"><strong>Fecha:</strong> ${formatFecha(sol.fechaSolicitud)}</div>
+              <div class="vacante-info-item"><strong>Vacantes:</strong> ${sol.cantidadVacantes || 1}</div>
+            </div>
+          </div>
+          <div class="vacante-card-actions"><button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button></div>
+        </div>`;
+      }
+      return `
       <div class="vacante-card" onclick="verDetalleSolicitud(${sol.id})" style="cursor:pointer">
         <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
           <h3 class="vacante-title">${escapeHtml(sol.titulo)}</h3>
-          <span class="vacante-status status-solicitud-pendiente">${rolActual === 'gerente-finanzas' ? 'APROBADO POR D.O.' : 'PENDIENTE'}</span>
+          <span class="vacante-status ${rolActual === 'gerente-finanzas' ? 'status-solicitud-aprobada-do' : 'status-solicitud-pendiente'}">${rolActual === 'gerente-finanzas' ? 'APROBADO POR D.O.' : 'PENDIENTE'}</span>
         </div>
         <div class="vacante-info">
           <div class="vacante-info-item"><strong>Departamento:</strong> ${escapeHtml(sol.departamento)}</div>
@@ -3081,9 +3339,12 @@ function renderSolicitudesAprobacion() {
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;">
           <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button>
         </div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   }
+
+  var esListaRev = vistaModos['solicitudesAprobacionRevisadas'] === 'lista';
+  gridRevisadas.classList.toggle('vista-lista', esListaRev);
 
   if (revisadas.length === 0) {
     gridRevisadas.innerHTML = '<p style="padding:20px;text-align:center;color:var(--muted);">No hay solicitudes revisadas a\u00fan</p>';
@@ -3092,6 +3353,22 @@ function renderSolicitudesAprobacion() {
       const estadoCalc = calcularEstadoSolicitud(sol);
       const campoAprobacion = rolActual === 'gerente-finanzas' ? 'aprobacionFinanzas' : 'aprobacionDO';
       const miDecision = sol[campoAprobacion]?.estado || 'pendiente';
+      if (esListaRev) {
+        return `
+        <div class="vacante-card" onclick="verDetalleSolicitud(${sol.id})" style="cursor:pointer">
+          <div class="vacante-card-body">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <h3 class="vacante-title">${escapeHtml(sol.titulo)}</h3>
+              <span class="vacante-status status-${getBadgeClassSolicitud(estadoCalc)}" style="margin-left:auto;">${getEstadoSolicitudLabel(estadoCalc)}</span>
+            </div>
+            <div class="vacante-info">
+              <div class="vacante-info-item"><strong>Departamento:</strong> ${escapeHtml(sol.departamento)}</div>
+              <div class="vacante-info-item"><strong>Mi decisi\u00f3n:</strong> ${miDecision === 'aprobada' ? 'APROBADA' : 'RECHAZADA'}</div>
+            </div>
+          </div>
+          <div class="vacante-card-actions"><button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button></div>
+        </div>`;
+      }
       return `
         <div class="vacante-card" onclick="verDetalleSolicitud(${sol.id})" style="cursor:pointer">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
@@ -3126,7 +3403,28 @@ function renderSolicitudesPreaprobadas() {
 
   seccion.style.display = '';
   const grid = document.getElementById('preaprobadasGrid');
-  grid.innerHTML = preaprobadas.map(sol => `
+  var esLista = vistaModos['preaprobadasGrid'] === 'lista';
+  grid.classList.toggle('vista-lista', esLista);
+
+  grid.innerHTML = preaprobadas.map(sol => {
+    if (esLista) {
+      return `
+      <div class="vacante-card" onclick="iniciarCompletarVacante(${sol.id})" style="cursor:pointer">
+        <div class="vacante-card-body">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <h3 class="vacante-title">${escapeHtml(sol.titulo)}</h3>
+            <span class="vacante-status status-solicitud-preaprobada" style="margin-left:auto;">APROBADA</span>
+          </div>
+          <div class="vacante-info">
+            <div class="vacante-info-item"><strong>Departamento:</strong> ${escapeHtml(sol.departamento)}</div>
+            <div class="vacante-info-item"><strong>Solicitante:</strong> Jefe de ${escapeHtml(sol.departamento)}</div>
+            <div class="vacante-info-item"><strong>Vacantes:</strong> ${sol.cantidadVacantes || 1}</div>
+          </div>
+        </div>
+        <div class="vacante-card-actions"><button class="btn btn-ghost btn-small" onclick="event.stopPropagation();iniciarCompletarVacante(${sol.id})">Ver Aprobaciones y Publicar</button></div>
+      </div>`;
+    }
+    return `
     <div class="vacante-card" onclick="iniciarCompletarVacante(${sol.id})" style="cursor:pointer">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
         <h3 class="vacante-title">${escapeHtml(sol.titulo)}</h3>
@@ -3146,8 +3444,8 @@ function renderSolicitudesPreaprobadas() {
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;">
         <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();iniciarCompletarVacante(${sol.id})">Ver Aprobaciones y Publicar</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // --- Detalle y aprobacion ---
@@ -3382,7 +3680,7 @@ function procesarAprobacion(id, decision) {
   } else if (rolActual === 'gerente-finanzas') {
     sol.aprobacionFinanzas = { estado: decision, comentario, fecha };
     if (decision === 'aprobada') {
-      crearNotificacion('rh', `Vacante completamente aprobada: ${sol.titulo}`, { vista: 'gestion-vacantes', solicitudId: sol.id });
+      crearNotificacion('rh', `Vacante preaprobada: ${sol.titulo}`, { vista: 'gestion-vacantes', solicitudId: sol.id });
     } else {
       crearNotificacion(sol.solicitante, `Solicitud rechazada por Finanzas: ${sol.titulo}`, { vista: 'solicitudes-jefe', solicitudId: sol.id });
     }
@@ -3578,15 +3876,6 @@ function generarTablaHorario(prefix) {
 
   wrapper.style.display = 'block';
   wrapper.innerHTML = `
-    <div class="horario-aplicar">
-      <p style="margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);">Aplicar a todos los d\u00edas</p>
-      <div class="horario-fila">
-        <span></span>
-        <input type="time" id="horario-${prefix}-todos-entrada" value="09:00">
-        <input type="time" id="horario-${prefix}-todos-salida" value="18:00">
-        <button type="button" class="btn btn-primary btn-small" onclick="aplicarHorarioTodos('${prefix}')">Aplicar</button>
-      </div>
-    </div>
     <div class="horario-tabla">
       <div class="horario-fila horario-header">
         <span>D\u00eda</span><span>Entrada</span><span>Salida</span>
@@ -3600,6 +3889,15 @@ function generarTablaHorario(prefix) {
           <input type="time" id="horario-${prefix}-${key}-salida">
         </div>`;
       }).join('')}
+    </div>
+    <div class="horario-aplicar">
+      <p style="margin:0 0 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);">Aplicar a todos los d\u00edas</p>
+      <div class="horario-fila">
+        <span></span>
+        <input type="time" id="horario-${prefix}-todos-entrada" value="09:00">
+        <input type="time" id="horario-${prefix}-todos-salida" value="18:00">
+        <button type="button" class="btn btn-primary btn-small" onclick="aplicarHorarioTodos('${prefix}')">Aplicar</button>
+      </div>
     </div>
   `;
 }
@@ -3774,7 +4072,9 @@ function setupFormCompletarVacante() {
       duracion: sol.duracion || '',
       horario: sol.horario || null,
       ubicacionClave: sol.ubicacion || '',
-      direccion: sol.direccion || ''
+      direccion: sol.direccion || '',
+      solicitarCV: !!document.getElementById('completar-solicitar-cv').checked,
+      mostrarSalario: !!document.getElementById('completar-mostrar-salario').checked
     };
 
     vacantes.push(vacante);
@@ -3868,7 +4168,12 @@ function clickNotificacion(id) {
       showView(notif.link.vista);
     }
     if (notif.link.solicitudId) {
-      setTimeout(() => verDetalleSolicitud(notif.link.solicitudId), 300);
+      const solNotif = solicitudes.find(s => s.id === notif.link.solicitudId);
+      if (solNotif && calcularEstadoSolicitud(solNotif) === 'preaprobada') {
+        setTimeout(() => iniciarCompletarVacante(notif.link.solicitudId), 300);
+      } else {
+        setTimeout(() => verDetalleSolicitud(notif.link.solicitudId), 300);
+      }
     }
     if (notif.link.candidatoId) {
       setTimeout(() => verDetalleCandidato(notif.link.candidatoId), 300);
@@ -4018,6 +4323,13 @@ function setupFormAplicar() {
         curriculum = await leerArchivoCV(document.getElementById('apli-cv'));
       } catch (err) {
         showToast('Error en CV', err.message);
+        return;
+      }
+
+      var vacanteIdVal = parseInt(document.getElementById('aplicar-vacante-id').value);
+      var vacanteApp = vacantes.find(function(v) { return v.id === vacanteIdVal; });
+      if (vacanteApp && vacanteApp.solicitarCV && !curriculum) {
+        showToast('CV requerido', 'Esta vacante requiere que adjuntes tu Curriculum Vitae');
         return;
       }
 
@@ -4393,6 +4705,15 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('vacantes', JSON.stringify(vacantes));
   }
 
+  // Migración: asignar solicitarCV a vacantes existentes que no lo tengan
+  var vacSinCV = vacantes.filter(function(v) { return typeof v.solicitarCV === 'undefined'; });
+  if (vacSinCV.length > 0) {
+    vacSinCV.forEach(function(v) {
+      v.solicitarCV = true;
+    });
+    localStorage.setItem('vacantes', JSON.stringify(vacantes));
+  }
+
   var needsReseed = vacantes.length < 3 || candidatos.some(function(c) { return c.etapa === 'rechazado' && !c.etapaRechazo; }) || !candidatos.some(function(c) { return c.id >= 9001 && c.id <= 9010; });
   if (needsReseed) {
     vacantes = [];
@@ -4425,6 +4746,12 @@ document.addEventListener('DOMContentLoaded', () => {
       { id: 19, codigo: 'VAC-0019', titulo: 'Coordinador de Logistica', departamento: 'Operaciones', ubicacion: 'CEDIS Tonala', ubicacionClave: 'cedis', direccion: 'Av. Tonala #5678', tipo: 'Tiempo Completo', salario: '$22,000 - $30,000', descripcion: 'Coordinacion de rutas de distribucion.', requisitos: 'Ing. Industrial, 3 años', estado: 'abierta', fechaCreacion: '2026-02-10' },
       { id: 20, codigo: 'VAC-0020', titulo: 'Especialista SEO/SEM', departamento: 'Marketing', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$20,000 - $28,000', descripcion: 'Optimizacion de campanas en buscadores.', requisitos: 'Google Ads, Analytics, 2 años', estado: 'abierta', fechaCreacion: '2026-02-15' }
     ];
+
+    // Set solicitarCV for seed vacantes (false solo para puestos operativos)
+    vacantes.forEach(function(v) {
+      v.solicitarCV = (v.id !== 16 && v.id !== 18);
+      v.mostrarSalario = true;
+    });
 
     // Seed candidatos (60 candidatos repartidos en distintas etapas y vacantes)
     var etapas = ['aplicado','entrevista-rh','primer-filtro','entrevista-jefe','revision-medica','psicometrico','referencias','documentos','contratado','rechazado'];
@@ -4767,6 +5094,8 @@ document.addEventListener('DOMContentLoaded', () => {
       consultarPostulacion();
     }
   } else if (isPortal) {
+    poblarFiltrosPortal();
+    setupFiltrosPortal();
     renderVacantesPortal();
   } else if (isAdmin) {
     verificarSesion().then(ok => {
