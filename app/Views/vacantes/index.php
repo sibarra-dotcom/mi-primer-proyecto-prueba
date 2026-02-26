@@ -228,7 +228,8 @@
       </div>
 
       <!-- Gestión de Vacantes RH -->
-      <div id="view-gestion-vacantes" class="view">
+      <div id="view-gestion-vacantes" class="view" style="position:relative;">
+        <a href="javascript:void(0)" id="back-to-dash-vacantes" class="back-to-dash" onclick="volverAlDashboard()" title="Volver al Dashboard" style="display:none;"><i class="fas fa-arrow-turn-up fa-2x fa-rotate-270"></i></a>
         <div class="page-title">
           <h1>Gestión de Vacantes</h1>
         </div>
@@ -315,7 +316,8 @@
       </div>
 
       <!-- Gestión de Candidatos -->
-      <div id="view-gestion-candidatos" class="view">
+      <div id="view-gestion-candidatos" class="view" style="position:relative;">
+        <a href="javascript:void(0)" id="back-to-dash-candidatos" class="back-to-dash" onclick="volverAlDashboard()" title="Volver al Dashboard" style="display:none;"><i class="fas fa-arrow-turn-up fa-2x fa-rotate-270"></i></a>
         <div class="page-title">
           <h1>Gestión de Candidatos</h1>
         </div>
@@ -326,17 +328,29 @@
             <h2>Buscar y Filtrar Candidatos</h2>
           </div>
           <div class="grid">
-            <div class="col-4">
+            <div class="col-3">
               <label for="cand-search">Buscar por nombre</label>
               <input id="cand-search" type="text" placeholder="Nombre del candidato..." oninput="filtrarCandidatos()">
             </div>
-            <div class="col-4">
+            <div class="col-3">
+              <label for="cand-filter-departamento">Departamento</label>
+              <select id="cand-filter-departamento" onchange="filtrarCandidatosPorDepto()">
+                <option value="">Todos</option>
+                <option>Administración</option>
+                <option>Ventas</option>
+                <option>Marketing</option>
+                <option>IT</option>
+                <option>Operaciones</option>
+                <option>Finanzas</option>
+              </select>
+            </div>
+            <div class="col-3">
               <label for="cand-filter-vacante">Vacante</label>
               <select id="cand-filter-vacante" onchange="filtrarCandidatos()">
                 <option value="">Todas las vacantes</option>
               </select>
             </div>
-            <div class="col-4">
+            <div class="col-3">
               <label for="cand-filter-etapa">Etapa</label>
               <select id="cand-filter-etapa" onchange="filtrarCandidatos()">
                 <option value="">Todas las etapas</option>

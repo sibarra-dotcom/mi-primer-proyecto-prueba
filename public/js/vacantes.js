@@ -1316,14 +1316,33 @@ function renderCandidatosTable() {
   filtrarCandidatos();
 }
 
+function filtrarCandidatosPorDepto() {
+  // Al cambiar departamento, repoblar vacantes filtradas y luego filtrar candidatos
+  const depto = document.getElementById('cand-filter-departamento')?.value || '';
+  const selectVacante = document.getElementById('cand-filter-vacante');
+  if (selectVacante) {
+    const vacsFiltradas = depto ? vacantes.filter(v => v.departamento === depto) : vacantes;
+    selectVacante.innerHTML = '<option value="">Todas las vacantes</option>' +
+      vacsFiltradas.map(v => `<option value="${v.id}">${escapeHtml(v.titulo)}</option>`).join('');
+  }
+  filtrarCandidatos();
+}
+
 function filtrarCandidatos() {
   const searchTerm = document.getElementById('cand-search')?.value.toLowerCase() || '';
+  const filterDepto = document.getElementById('cand-filter-departamento')?.value || '';
   const filterVacante = document.getElementById('cand-filter-vacante')?.value || '';
   const filterEtapa = document.getElementById('cand-filter-etapa')?.value || '';
+
+  // IDs de vacantes del departamento seleccionado
+  const vacantesDeptoIds = filterDepto
+    ? new Set(vacantes.filter(v => v.departamento === filterDepto).map(v => v.id))
+    : null;
 
   let candidatosFiltrados = candidatos.filter(c => {
     const nombreCompleto = `${c.nombre} ${c.apellidos}`.toLowerCase();
     const matchSearch = nombreCompleto.includes(searchTerm);
+    const matchDepto = !vacantesDeptoIds || vacantesDeptoIds.has(c.vacanteId);
     const matchVacante = !filterVacante || c.vacanteId === parseInt(filterVacante);
     let matchEtapa;
     if (!filterEtapa) {
@@ -1334,7 +1353,7 @@ function filtrarCandidatos() {
       matchEtapa = c.etapa === filterEtapa;
     }
 
-    return matchSearch && matchVacante && matchEtapa;
+    return matchSearch && matchDepto && matchVacante && matchEtapa;
   });
 
   const container = document.getElementById('candidatosTable');
@@ -2858,15 +2877,23 @@ function renderDashboardKPIs(data) {
   document.getElementById('rh-candidatos-semana').textContent = data.candidatosSemana;
 }
 
+// Filtros guardados del dashboard para poder volver
+var _dashFiltrosGuardados = null;
+
 function navegarDesdeKPI(tipo) {
   // Leer filtros actuales del dashboard
   var dashVacante = document.getElementById('dash-vacante')?.value || '';
   var dashDepto = document.getElementById('dash-departamento')?.value || '';
   var dashEstado = document.getElementById('dash-estado')?.value || '';
+  var dashCodigo = document.getElementById('dash-codigo')?.value || '';
+
+  // Guardar filtros para poder volver
+  _dashFiltrosGuardados = { vacante: dashVacante, departamento: dashDepto, estado: dashEstado, codigo: dashCodigo };
 
   // KPIs que navegan a Vacantes RH
   if (tipo === 'total-vacantes' || tipo === 'vacantes-cerradas') {
     showView('gestion-vacantes');
+    mostrarFlechaVolver('back-to-dash-vacantes');
     var estadoSelect = document.getElementById('vac-filter-estado');
     if (estadoSelect) {
       estadoSelect.value = tipo === 'total-vacantes' ? 'abierta' : 'cerrada';
@@ -2881,11 +2908,24 @@ function navegarDesdeKPI(tipo) {
 
   // KPIs que navegan a Candidatos
   showView('gestion-candidatos');
+  mostrarFlechaVolver('back-to-dash-candidatos');
 
-  // Setear filtro de vacante si hay una seleccionada en el dashboard
+  // Setear filtro de departamento si hay uno seleccionado en el dashboard
+  var candDeptoSelect = document.getElementById('cand-filter-departamento');
+  if (candDeptoSelect) {
+    candDeptoSelect.value = dashDepto || '';
+  }
+
+  // Repoblar vacantes filtradas por departamento
   var candVacanteSelect = document.getElementById('cand-filter-vacante');
-  if (candVacanteSelect && dashVacante) {
-    candVacanteSelect.value = dashVacante;
+  if (candVacanteSelect) {
+    var vacsFiltradas = dashDepto ? vacantes.filter(function(v) { return v.departamento === dashDepto; }) : vacantes;
+    candVacanteSelect.innerHTML = '<option value="">Todas las vacantes</option>' +
+      vacsFiltradas.map(function(v) { return '<option value="' + v.id + '">' + escapeHtml(v.titulo) + '</option>'; }).join('');
+    // Setear vacante específica si hay una seleccionada en el dashboard
+    if (dashVacante) {
+      candVacanteSelect.value = dashVacante;
+    }
   }
 
   // Setear filtro de etapa según el KPI clickeado
@@ -2903,6 +2943,35 @@ function navegarDesdeKPI(tipo) {
   }
 
   filtrarCandidatos();
+}
+
+function mostrarFlechaVolver(id) {
+  // Ocultar todas las flechas primero
+  document.querySelectorAll('.back-to-dash').forEach(function(el) { el.style.display = 'none'; });
+  var arrow = document.getElementById(id);
+  if (arrow) arrow.style.display = 'inline-flex';
+}
+
+function volverAlDashboard() {
+  showView('gestion-dashboard');
+
+  // Ocultar flechas de regreso
+  document.querySelectorAll('.back-to-dash').forEach(function(el) { el.style.display = 'none'; });
+
+  // Restaurar filtros del dashboard
+  if (_dashFiltrosGuardados) {
+    var f = _dashFiltrosGuardados;
+    var elVac = document.getElementById('dash-vacante');
+    var elDepto = document.getElementById('dash-departamento');
+    var elEstado = document.getElementById('dash-estado');
+    var elCodigo = document.getElementById('dash-codigo');
+    if (elVac) elVac.value = f.vacante || '';
+    if (elDepto) elDepto.value = f.departamento || '';
+    if (elEstado) elEstado.value = f.estado || '';
+    if (elCodigo) elCodigo.value = f.codigo || '';
+    _dashFiltrosGuardados = null;
+    filtrarDashboard();
+  }
 }
 
 function computeHiringTrend(candidatosFiltrados) {

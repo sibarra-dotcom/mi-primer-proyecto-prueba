@@ -1449,6 +1449,20 @@
   font-weight: 600;
 }
 
+/* ==================== BACK TO DASHBOARD ARROW ==================== */
+.back-to-dash {
+  position: fixed;
+  top: 70px;
+  right: 3.5rem;
+  color: var(--text);
+  text-decoration: none;
+  transition: transform 0.3s;
+  z-index: 55;
+}
+.back-to-dash:hover {
+  transform: scale(1.05);
+}
+
 /* ==================== DROPDOWN MENUS ==================== */
 .nav-dropdown {
   position: relative;
