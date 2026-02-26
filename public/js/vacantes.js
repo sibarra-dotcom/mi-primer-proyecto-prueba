@@ -286,13 +286,13 @@ function crearCalendarioDropdown() {
   dd.innerHTML = `
     <div class="cal-header">
       <button type="button" class="cal-nav" id="cal-nav-prev" onclick="calNavPrev()">&lsaquo;</button>
-      <span class="cal-title"><span id="cal-titulo-mes" class="cal-mes-clickable" onclick="mostrarSelectorMes()"></span> <span id="cal-titulo-anio" class="cal-anio-clickable" onclick="mostrarSelectorAnio()"></span></span>
+      <span class="cal-title"><span id="cal-titulo-mes" class="cal-mes-clickable" onclick="mostrarSelectorMes()"></span> <span id="cal-titulo-año" class="cal-año-clickable" onclick="mostrarSelectorAnio()"></span></span>
       <button type="button" class="cal-nav" id="cal-nav-next" onclick="calNavNext()">&rsaquo;</button>
     </div>
     <div class="cal-dias-header" id="cal-dias-header-wrap">${DIAS_SEMANA_ES.map(d => `<span>${d}</span>`).join('')}</div>
     <div class="cal-dias" id="cal-dias"></div>
     <div class="cal-meses-grid" id="cal-meses-grid" style="display:none;"></div>
-    <div class="cal-anios-grid" id="cal-anios-grid" style="display:none;"></div>
+    <div class="cal-años-grid" id="cal-años-grid" style="display:none;"></div>
     <div class="cal-footer" id="cal-footer-wrap">
       <button type="button" class="cal-hoy" onclick="calHoy()">Hoy</button>
       <button type="button" class="cal-limpiar" onclick="calLimpiar()">Limpiar</button>
@@ -336,25 +336,25 @@ function toggleCalendario(btn) {
   dd.style.left = rect.left + 'px';
 
   // Determinar mes/año a mostrar
-  let anio, mes;
+  let año, mes;
   const val = input.value;
   if (val && val.length === 10) {
     const partes = val.split('/');
     if (partes.length === 3) {
       mes = parseInt(partes[1], 10) - 1;
-      anio = parseInt(partes[2], 10);
+      año = parseInt(partes[2], 10);
     }
   }
-  if (anio === undefined || isNaN(anio)) {
+  if (año === undefined || isNaN(año)) {
     const hoy = new Date();
-    anio = hoy.getFullYear();
+    año = hoy.getFullYear();
     mes = hoy.getMonth();
   }
 
-  window.__calAnioActual = anio;
+  window.__calAnioActual = año;
   window.__calMesActual = mes;
 
-  renderMesCalendario(anio, mes);
+  renderMesCalendario(año, mes);
   dd.style.display = 'block';
   dd.classList.add('show');
 }
@@ -366,22 +366,22 @@ function cerrarCalendario() {
   }
 }
 
-function renderMesCalendario(anio, mes) {
+function renderMesCalendario(año, mes) {
   window.__calVistaAnios = false;
   window.__calVistaMeses = false;
   document.getElementById('cal-titulo-mes').textContent = MESES_ES[mes];
-  document.getElementById('cal-titulo-anio').textContent = anio;
+  document.getElementById('cal-titulo-año').textContent = año;
   // Asegurar que la vista de días esté visible
   document.getElementById('cal-dias-header-wrap').style.display = '';
   document.getElementById('cal-dias').style.display = '';
   document.getElementById('cal-footer-wrap').style.display = '';
-  document.getElementById('cal-anios-grid').style.display = 'none';
+  document.getElementById('cal-años-grid').style.display = 'none';
   document.getElementById('cal-meses-grid').style.display = 'none';
   document.getElementById('cal-nav-prev').style.visibility = '';
   document.getElementById('cal-nav-next').style.visibility = '';
 
-  const primerDia = new Date(anio, mes, 1);
-  const ultimoDia = new Date(anio, mes + 1, 0);
+  const primerDia = new Date(año, mes, 1);
+  const ultimoDia = new Date(año, mes + 1, 0);
   const diasEnMes = ultimoDia.getDate();
 
   // Lunes=0, Domingo=6
@@ -411,20 +411,20 @@ function renderMesCalendario(anio, mes) {
   let html = '';
 
   // Días del mes anterior
-  const mesAnteriorUltimo = new Date(anio, mes, 0).getDate();
+  const mesAnteriorUltimo = new Date(año, mes, 0).getDate();
   for (let i = diaInicio - 1; i >= 0; i--) {
     const d = mesAnteriorUltimo - i;
     const mAnt = mes === 0 ? 11 : mes - 1;
-    const aAnt = mes === 0 ? anio - 1 : anio;
+    const aAnt = mes === 0 ? año - 1 : año;
     html += `<button type="button" class="cal-dia otro-mes" onclick="seleccionarDiaCalendario(${d},${mAnt},${aAnt})">${d}</button>`;
   }
 
   // Días del mes actual
   for (let d = 1; d <= diasEnMes; d++) {
     let clases = 'cal-dia';
-    if (d === hoyDia && mes === hoyMes && anio === hoyAnio) clases += ' hoy';
-    if (d === selDia && mes === selMes && anio === selAnio) clases += ' seleccionado';
-    html += `<button type="button" class="${clases}" onclick="seleccionarDiaCalendario(${d},${mes},${anio})">${d}</button>`;
+    if (d === hoyDia && mes === hoyMes && año === hoyAnio) clases += ' hoy';
+    if (d === selDia && mes === selMes && año === selAnio) clases += ' seleccionado';
+    html += `<button type="button" class="${clases}" onclick="seleccionarDiaCalendario(${d},${mes},${año})">${d}</button>`;
   }
 
   // Días del mes siguiente para completar la grilla
@@ -432,17 +432,17 @@ function renderMesCalendario(anio, mes) {
   const restantes = totalCeldas % 7 === 0 ? 0 : 7 - (totalCeldas % 7);
   for (let d = 1; d <= restantes; d++) {
     const mSig = mes === 11 ? 0 : mes + 1;
-    const aSig = mes === 11 ? anio + 1 : anio;
+    const aSig = mes === 11 ? año + 1 : año;
     html += `<button type="button" class="cal-dia otro-mes" onclick="seleccionarDiaCalendario(${d},${mSig},${aSig})">${d}</button>`;
   }
 
   diasContainer.innerHTML = html;
 }
 
-function seleccionarDiaCalendario(dia, mes, anio) {
+function seleccionarDiaCalendario(dia, mes, año) {
   const dd = String(dia).padStart(2, '0');
   const mm = String(mes + 1).padStart(2, '0');
-  const valor = `${dd}/${mm}/${anio}`;
+  const valor = `${dd}/${mm}/${año}`;
 
   if (window.__calInputActivo) {
     window.__calInputActivo.value = valor;
@@ -457,7 +457,7 @@ function mostrarSelectorMes() {
   document.getElementById('cal-dias-header-wrap').style.display = 'none';
   document.getElementById('cal-dias').style.display = 'none';
   document.getElementById('cal-footer-wrap').style.display = 'none';
-  document.getElementById('cal-anios-grid').style.display = 'none';
+  document.getElementById('cal-años-grid').style.display = 'none';
   // Flechas para cambiar año mientras se eligen meses
   document.getElementById('cal-nav-prev').style.visibility = '';
   renderSelectorMes();
@@ -466,24 +466,24 @@ function mostrarSelectorMes() {
 function renderSelectorMes() {
   const grid = document.getElementById('cal-meses-grid');
   const mesSel = window.__calMesActual;
-  const anio = window.__calAnioActual;
+  const año = window.__calAnioActual;
   const hoy = new Date();
   const hoyMes = hoy.getMonth();
   const hoyAnio = hoy.getFullYear();
 
   document.getElementById('cal-titulo-mes').textContent = '';
-  document.getElementById('cal-titulo-anio').textContent = anio;
+  document.getElementById('cal-titulo-año').textContent = año;
 
   // Ocultar → si el año ya es el actual (no avanzar más)
-  document.getElementById('cal-nav-next').style.visibility = anio >= hoyAnio ? 'hidden' : '';
+  document.getElementById('cal-nav-next').style.visibility = año >= hoyAnio ? 'hidden' : '';
 
   const MESES_CORTOS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   let html = '';
   for (let m = 0; m < 12; m++) {
     let clases = 'cal-mes-item';
     if (m === mesSel && !window.__calVistaAnios) clases += ' seleccionado';
-    if (m === hoyMes && anio === hoyAnio) clases += ' hoy';
-    const esFuturo = anio === hoyAnio && m > hoyMes;
+    if (m === hoyMes && año === hoyAnio) clases += ' hoy';
+    const esFuturo = año === hoyAnio && m > hoyMes;
     if (esFuturo) clases += ' disabled';
     const disabled = esFuturo ? ' disabled' : '';
     html += `<button type="button" class="${clases}"${disabled} onclick="seleccionarMes(${m})">${MESES_CORTOS[m]}</button>`;
@@ -513,23 +513,23 @@ function mostrarSelectorAnio() {
 }
 
 function renderSelectorAnio() {
-  const grid = document.getElementById('cal-anios-grid');
-  const anioSel = window.__calAnioActual;
+  const grid = document.getElementById('cal-años-grid');
+  const añoSel = window.__calAnioActual;
   const hoyAnio = new Date().getFullYear();
   const inicio = window.__calAniosPagInicio;
   const fin = inicio + 11;
 
   // Actualizar título con rango
   document.getElementById('cal-titulo-mes').textContent = inicio + ' - ' + Math.min(fin, hoyAnio);
-  document.getElementById('cal-titulo-anio').textContent = '';
+  document.getElementById('cal-titulo-año').textContent = '';
 
   // Ocultar flecha → si la página ya contiene el año actual
   document.getElementById('cal-nav-next').style.visibility = fin >= hoyAnio ? 'hidden' : '';
 
   let html = '';
   for (let a = inicio; a <= fin; a++) {
-    let clases = 'cal-anio-item';
-    if (a === anioSel) clases += ' seleccionado';
+    let clases = 'cal-año-item';
+    if (a === añoSel) clases += ' seleccionado';
     if (a === hoyAnio) clases += ' hoy';
     if (a > hoyAnio) clases += ' disabled';
     const disabled = a > hoyAnio ? ' disabled' : '';
@@ -539,11 +539,11 @@ function renderSelectorAnio() {
   grid.style.display = 'grid';
 }
 
-function seleccionarAnio(anio) {
+function seleccionarAnio(año) {
   window.__calVistaAnios = false;
-  window.__calAnioActual = anio;
+  window.__calAnioActual = año;
   document.getElementById('cal-nav-next').style.visibility = '';
-  renderMesCalendario(anio, window.__calMesActual);
+  renderMesCalendario(año, window.__calMesActual);
 }
 
 function calNavPrev() {
@@ -555,11 +555,11 @@ function calNavPrev() {
     renderSelectorMes();
   } else {
     let mes = window.__calMesActual - 1;
-    let anio = window.__calAnioActual;
-    if (mes < 0) { mes = 11; anio--; }
+    let año = window.__calAnioActual;
+    if (mes < 0) { mes = 11; año--; }
     window.__calMesActual = mes;
-    window.__calAnioActual = anio;
-    renderMesCalendario(anio, mes);
+    window.__calAnioActual = año;
+    renderMesCalendario(año, mes);
   }
 }
 
@@ -578,11 +578,11 @@ function calNavNext() {
     }
   } else {
     let mes = window.__calMesActual + 1;
-    let anio = window.__calAnioActual;
-    if (mes > 11) { mes = 0; anio++; }
+    let año = window.__calAnioActual;
+    if (mes > 11) { mes = 0; año++; }
     window.__calMesActual = mes;
-    window.__calAnioActual = anio;
-    renderMesCalendario(anio, mes);
+    window.__calAnioActual = año;
+    renderMesCalendario(año, mes);
   }
 }
 
@@ -1208,18 +1208,20 @@ function verDetalleCandidato(candidatoId) {
       ${candidato.habilidades ? `<p><strong>Habilidades:</strong> ${escapeHtml(candidato.habilidades)}</p>` : ''}
     </div>
 
-    ${candidato.curriculum ? `
     <div class="card">
       <div class="card-header">
         <h2>Curriculum Vitae</h2>
       </div>
-      <p><strong>Archivo:</strong> ${escapeHtml(candidato.curriculum.nombre)}</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-        <a class="btn btn-primary btn-small" href="${candidato.curriculum.data}" download="${escapeHtml(candidato.curriculum.nombre)}" style="text-decoration:none;">Descargar CV</a>
-        ${candidato.curriculum.tipo === 'application/pdf' ? `<button class="btn btn-ghost btn-small" onclick="verCVEnLinea(${candidato.id})">Ver PDF</button>` : ''}
-      </div>
+      ${candidato.curriculum ? `
+        <p><strong>Archivo:</strong> ${escapeHtml(candidato.curriculum.nombre)}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+          <a class="btn btn-primary btn-small" href="${candidato.curriculum.data}" download="${escapeHtml(candidato.curriculum.nombre)}" style="text-decoration:none;">Descargar CV</a>
+          ${candidato.curriculum.tipo === 'application/pdf' ? `<button class="btn btn-ghost btn-small" onclick="verCVEnLinea(${candidato.id})">Ver PDF</button>` : ''}
+        </div>
+      ` : `
+        <p style="text-align:center;color:var(--muted);font-size:13px;padding:12px 0;">Sin CV adjunto</p>
+      `}
     </div>
-    ` : ''}
 
     <div class="card">
       <div class="card-header">
@@ -1238,8 +1240,10 @@ function verDetalleCandidato(candidatoId) {
       ` : ''}
 
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;">
-        ${etapaActual === 1 ? `<button class="btn btn-primary" onclick="agendarEntrevistaRH(${candidato.id})">Agendar Entrevista RH</button>` : ''}
-        ${etapaActual === 2 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'primer-filtro')">Aprobar Primer Filtro</button>` : ''}
+        ${etapaActual === 1 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'entrevista-rh')">Aprobar Primer Filtro</button>` : ''}
+        ${etapaActual === 2 ? (entrevistas.find(e => e.candidatoId === candidato.id && e.tipo === 'rh')
+          ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'primer-filtro')">Aprobar Entrevista RH</button>`
+          : `<button class="btn btn-primary" onclick="agendarEntrevistaRH(${candidato.id})">Agendar Entrevista RH</button>`) : ''}
         ${etapaActual === 3 ? `<button class="btn btn-primary" onclick="agendarEntrevistaJefe(${candidato.id})">Agendar Entrevista con Jefe</button>` : ''}
         ${etapaActual === 4 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'revision-medica')">Pasar a Revisi\u00f3n M\u00e9dica</button>` : ''}
         ${etapaActual === 5 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'psicometrico')">Pasar a Pruebas Psicom\u00e9tricas</button>` : ''}
@@ -1379,16 +1383,18 @@ function verDetalleCandidatoJefe(candidatoId) {
       ${candidato.habilidades ? `<p><strong>Habilidades:</strong> ${escapeHtml(candidato.habilidades)}</p>` : ''}
     </div>
 
-    ${candidato.curriculum ? `
     <div class="card">
       <div class="card-header"><h2>Curriculum Vitae</h2></div>
-      <p><strong>Archivo:</strong> ${escapeHtml(candidato.curriculum.nombre)}</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-        <a class="btn btn-primary btn-small" href="${candidato.curriculum.data}" download="${escapeHtml(candidato.curriculum.nombre)}" style="text-decoration:none;">Descargar CV</a>
-        ${candidato.curriculum.tipo === 'application/pdf' ? `<button class="btn btn-ghost btn-small" onclick="verCVEnLinea(${candidato.id})">Ver PDF</button>` : ''}
-      </div>
+      ${candidato.curriculum ? `
+        <p><strong>Archivo:</strong> ${escapeHtml(candidato.curriculum.nombre)}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+          <a class="btn btn-primary btn-small" href="${candidato.curriculum.data}" download="${escapeHtml(candidato.curriculum.nombre)}" style="text-decoration:none;">Descargar CV</a>
+          ${candidato.curriculum.tipo === 'application/pdf' ? `<button class="btn btn-ghost btn-small" onclick="verCVEnLinea(${candidato.id})">Ver PDF</button>` : ''}
+        </div>
+      ` : `
+        <p style="text-align:center;color:var(--muted);font-size:13px;padding:12px 0;">Sin CV adjunto</p>
+      `}
     </div>
-    ` : ''}
 
     <div class="card">
       <div class="card-header"><h2>Proceso de Selección</h2></div>
@@ -1470,14 +1476,18 @@ function renderProcesoSteps(etapaActual, candidato) {
   const esRechazado = candidato && candidato.etapa === 'rechazado';
   const etapaRechazo = esRechazado ? (candidato.etapaRechazo || 1) : null;
 
+  const tieneEntrevistaRH = candidato && entrevistas.find(e => e.candidatoId === candidato.id && e.tipo === 'rh');
+
   return steps.map((step, index) => {
     const isRejected = esRechazado && step.num === etapaRechazo;
     const isCompleted = esRechazado ? step.num < etapaRechazo : step.num < etapaActual;
     const isActive = !esRechazado && step.num === etapaActual;
     const showConnector = index < steps.length - 1;
+    const esEntrevistaRH = step.num === 2 && tieneEntrevistaRH && (isCompleted || isActive);
+    const clickAttr = esEntrevistaRH ? `onclick="toggleDetalleEntrevista(${candidato.id})" style="cursor:pointer" title="Click para ver detalles de entrevista"` : '';
 
     return `
-      <div class="step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isRejected ? 'rejected' : ''}">
+      <div class="step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isRejected ? 'rejected' : ''}" ${clickAttr}>
         <div class="step-number">${isRejected ? '\u2717' : step.num}</div>
         <div class="step-label">${step.label}</div>
       </div>
@@ -1495,6 +1505,86 @@ function avanzarEtapa(candidatoId, nuevaEtapa) {
     closeModal('detalle-candidato');
     renderCandidatosTable();
   }
+}
+
+function toggleDetalleEntrevista(candidatoId) {
+  var existing = document.getElementById('entrevista-detalle-popup');
+  if (existing) {
+    existing.remove();
+    return;
+  }
+
+  var ent = entrevistas.find(function(e) { return e.candidatoId === candidatoId && e.tipo === 'rh'; });
+  if (!ent) return;
+
+  var fechaStr = formatFecha(ent.fecha);
+  var horaInicio = ent.hora || '';
+  var duracion = parseInt(ent.duracion) || 60;
+  var horaFin = '';
+  if (horaInicio) {
+    var parts = horaInicio.split(':');
+    var totalMin = parseInt(parts[0]) * 60 + parseInt(parts[1]) + duracion;
+    horaFin = minutosAHora(totalMin);
+  }
+
+  var reclutadora = '';
+  if (ent.reclutadoraId) {
+    var rec = RECLUTADORAS.find(function(r) { return r.id === ent.reclutadoraId; });
+    if (rec) reclutadora = rec.nombre;
+  }
+
+  var entrevistador = ent.entrevistador || '';
+  var esOnline = ent.lugarClave === 'online' || ent.lugar === 'Reunión en línea';
+  var lugarHTML = '';
+
+  if (esOnline) {
+    var link = escapeHtml(ent.linkReunion || '');
+    lugarHTML = '<p style="margin:0 0 6px;font-size:13px;"><strong>Lugar:</strong> Reunión en línea</p>';
+    if (ent.linkReunion) {
+      lugarHTML += '<p style="margin:0 0 6px;font-size:13px;display:flex;align-items:center;gap:6px;">' +
+        '<strong>Link:</strong> <a href="' + link + '" target="_blank" style="color:var(--primary);word-break:break-all;">' + link + '</a>' +
+        ' <span onclick="copiarAlPortapapeles(\'' + link.replace(/'/g, "\\'") + '\')" style="cursor:pointer;font-size:16px;" title="Copiar enlace">📋</span></p>';
+    }
+  } else {
+    var nombreUbicacion = UBICACION_NOMBRES[ent.lugarClave] || ent.lugar || '';
+    var direccion = DIRECCIONES[ent.lugarClave] || ent.direccion || '';
+    lugarHTML = '<p style="margin:0 0 6px;font-size:13px;"><strong>Lugar:</strong> ' + escapeHtml(nombreUbicacion) + '</p>';
+    if (direccion) {
+      var mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(direccion);
+      lugarHTML += '<p style="margin:0 0 6px;font-size:13px;display:flex;align-items:center;gap:6px;">' +
+        '<strong>Dirección:</strong> <a href="' + escapeHtml(mapsUrl) + '" target="_blank" style="color:var(--primary);word-break:break-all;">' + escapeHtml(direccion) + '</a>' +
+        ' <span onclick="copiarAlPortapapeles(\'' + escapeHtml(direccion).replace(/'/g, "\\'") + '\')" style="cursor:pointer;font-size:16px;" title="Copiar dirección">📋</span></p>';
+    }
+  }
+
+  var notasHTML = ent.notas ? '<p style="margin:0 0 6px;font-size:13px;"><strong>Notas:</strong> ' + escapeHtml(ent.notas) + '</p>' : '';
+
+  var card = document.createElement('div');
+  card.id = 'entrevista-detalle-popup';
+  card.style.cssText = 'background:var(--bg-card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:10px;padding:16px 18px;margin-top:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);';
+  card.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+      '<h3 style="margin:0;font-size:15px;font-weight:700;">Detalles de Entrevista RH</h3>' +
+      '<span onclick="document.getElementById(\'entrevista-detalle-popup\').remove()" style="cursor:pointer;font-size:18px;color:var(--muted);" title="Cerrar">&times;</span>' +
+    '</div>' +
+    '<p style="margin:0 0 6px;font-size:13px;"><strong>Fecha:</strong> ' + escapeHtml(fechaStr) + '</p>' +
+    '<p style="margin:0 0 6px;font-size:13px;"><strong>Horario:</strong> ' + escapeHtml(horaInicio) + ' - ' + escapeHtml(horaFin) + '</p>' +
+    '<p style="margin:0 0 6px;font-size:13px;"><strong>Duración:</strong> ' + duracion + ' min</p>' +
+    (reclutadora ? '<p style="margin:0 0 6px;font-size:13px;"><strong>Reclutadora:</strong> ' + escapeHtml(reclutadora) + '</p>' : '') +
+    (entrevistador ? '<p style="margin:0 0 6px;font-size:13px;"><strong>Entrevistador:</strong> ' + escapeHtml(entrevistador) + '</p>' : '') +
+    lugarHTML +
+    notasHTML;
+
+  var stepsContainer = document.querySelector('.proceso-steps');
+  if (stepsContainer) {
+    stepsContainer.parentNode.insertBefore(card, stepsContainer.nextSibling);
+  }
+}
+
+function copiarAlPortapapeles(texto) {
+  navigator.clipboard.writeText(texto).then(function() {
+    showToast('Copiado', 'Copiado al portapapeles');
+  });
 }
 
 function rechazarCandidato(candidatoId) {
@@ -1700,13 +1790,61 @@ function isSlotOcupado(reclutadoraId, fecha, hora, minuto) {
 function seleccionarSlotMiniCal(fecha, hora) {
   document.getElementById('entrevista-fecha').value = fechaISOaDDMMAAAA(fecha);
   document.getElementById('entrevista-hora').value = hora;
+  miniCalMostrarSeleccion(fecha, hora);
+}
 
-  // Quitar selección previa y marcar el slot clickeado
+function miniCalMostrarSeleccion(fecha, hora) {
+  // Limpiar selección previa
+  var prev = document.getElementById('mini-cal-sel-block');
+  if (prev) prev.remove();
   document.querySelectorAll('.mini-cal-slot.mini-cal-selected').forEach(function(el) {
     el.classList.remove('mini-cal-selected');
   });
+
+  if (!fecha || !hora) return;
+
   var slot = document.querySelector('.mini-cal-slot[data-fecha="' + fecha + '"][data-hora="' + hora + '"]');
-  if (slot) slot.classList.add('mini-cal-selected');
+  if (!slot) return;
+
+  slot.classList.add('mini-cal-selected');
+
+  var duracion = parseInt(document.getElementById('entrevista-duracion').value) || 60;
+  var spanSlots = duracion / CALENDARIO_CONFIG.slotMinutos;
+  var spanPx = spanSlots * 25 - 1;
+
+  var block = document.createElement('span');
+  block.id = 'mini-cal-sel-block';
+  block.className = 'mini-cal-sel-block';
+  block.style.height = spanPx + 'px';
+  block.textContent = hora + ' - ' + minutosAHora(parseInt(hora.split(':')[0]) * 60 + parseInt(hora.split(':')[1]) + duracion);
+  slot.appendChild(block);
+}
+
+function onEntrevistaLugarChange() {
+  var sel = document.getElementById('entrevista-lugar');
+  var dirEl = document.getElementById('entrevista-lugar-direccion');
+  var linkWrapper = document.getElementById('entrevista-link-wrapper');
+  var linkInput = document.getElementById('entrevista-link');
+  var val = sel.value;
+
+  if (val === 'online') {
+    dirEl.style.display = 'none';
+    dirEl.textContent = '';
+    linkWrapper.style.display = '';
+    linkInput.required = true;
+  } else if (val && DIRECCIONES[val]) {
+    dirEl.style.display = 'block';
+    dirEl.textContent = DIRECCIONES[val];
+    linkWrapper.style.display = 'none';
+    linkInput.required = false;
+    linkInput.value = '';
+  } else {
+    dirEl.style.display = 'none';
+    dirEl.textContent = '';
+    linkWrapper.style.display = 'none';
+    linkInput.required = false;
+    linkInput.value = '';
+  }
 }
 
 // ==================== VALIDACI\u00d3N DE CONFLICTOS ====================
@@ -3970,6 +4108,20 @@ function setupFormEntrevista() {
         }
       }
 
+      const lugarClave = document.getElementById('entrevista-lugar').value;
+      const linkReunion = document.getElementById('entrevista-link').value.trim();
+
+      // Validar enlace obligatorio para reunión en línea
+      if (lugarClave === 'online' && !linkReunion) {
+        showToast('Enlace requerido', 'Debes ingresar el enlace de la reunión en línea');
+        document.getElementById('entrevista-link').focus();
+        return;
+      }
+
+      const lugarTexto = lugarClave === 'online'
+        ? 'Reunión en línea'
+        : (UBICACION_NOMBRES[lugarClave] || lugarClave);
+
       const entrevista = {
         id: Date.now(),
         candidatoId: candidatoId,
@@ -3979,7 +4131,10 @@ function setupFormEntrevista() {
         duracion: duracion,
         entrevistador: document.getElementById('entrevista-entrevistador').value,
         reclutadoraId: reclutadoraId,
-        lugar: document.getElementById('entrevista-lugar').value,
+        lugar: lugarTexto,
+        lugarClave: lugarClave,
+        direccion: lugarClave !== 'online' ? (DIRECCIONES[lugarClave] || '') : '',
+        linkReunion: lugarClave === 'online' ? linkReunion : '',
         notas: document.getElementById('entrevista-notas').value
       };
 
@@ -3999,8 +4154,20 @@ function setupFormEntrevista() {
       showToast('Entrevista agendada', 'La entrevista ha sido programada exitosamente');
       closeModal('agendar-entrevista');
       document.getElementById('entrevista-disponibilidad-wrapper').style.display = 'none';
+      document.getElementById('entrevista-link-wrapper').style.display = 'none';
+      document.getElementById('entrevista-lugar-direccion').style.display = 'none';
       e.target.reset();
       renderCandidatosTable();
+    });
+  }
+
+  // Al cambiar duración, actualizar bloque visual de selección
+  var durInput = document.getElementById('entrevista-duracion');
+  if (durInput) {
+    durInput.addEventListener('input', function() {
+      var fecha = fechaDDMMAAAAaISO(document.getElementById('entrevista-fecha').value) || document.getElementById('entrevista-fecha').value;
+      var hora = document.getElementById('entrevista-hora').value;
+      if (fecha && hora) miniCalMostrarSeleccion(fecha, hora);
     });
   }
 }
@@ -4226,7 +4393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('vacantes', JSON.stringify(vacantes));
   }
 
-  var needsReseed = vacantes.length < 3 || candidatos.some(function(c) { return c.etapa === 'rechazado' && !c.etapaRechazo; });
+  var needsReseed = vacantes.length < 3 || candidatos.some(function(c) { return c.etapa === 'rechazado' && !c.etapaRechazo; }) || !candidatos.some(function(c) { return c.id >= 9001 && c.id <= 9010; });
   if (needsReseed) {
     vacantes = [];
     candidatos = [];
@@ -4237,26 +4404,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (vacantes.length === 0) {
     vacantes = [
-      { id: 1, codigo: 'VAC-0001', titulo: 'Desarrollador Full Stack', departamento: 'IT', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025, Col Americana, Lafayette, 44130 Guadalajara, Jal.', tipo: 'Tiempo Completo', salario: '$25,000 - $35,000', descripcion: 'Desarrollo web con React y Node.js.', requisitos: '3 anios de experiencia, Git, agiles', estado: 'abierta', fechaCreacion: '2025-10-15' },
-      { id: 2, codigo: 'VAC-0002', titulo: 'Gerente de Ventas', departamento: 'Ventas', ubicacion: 'Planta 2 Artes', ubicacionClave: 'planta2', direccion: 'C. Artes 2767, San Rafael, 44810 Guadalajara, Jal.', tipo: 'Tiempo Completo', salario: '$30,000 - $45,000', descripcion: 'Manejo de equipos de ventas y cumplimiento de objetivos.', requisitos: '5 anios, liderazgo', estado: 'abierta', fechaCreacion: '2025-11-01' },
-      { id: 3, codigo: 'VAC-0003', titulo: 'Analista de Datos', departamento: 'IT', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$22,000 - $30,000', descripcion: 'Analisis de datos con Python y SQL.', requisitos: '2 anios en analisis de datos', estado: 'abierta', fechaCreacion: '2025-11-10' },
-      { id: 4, codigo: 'VAC-0004', titulo: 'Ejecutivo de Ventas', departamento: 'Ventas', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$15,000 - $22,000', descripcion: 'Prospeccion y cierre de ventas B2B.', requisitos: '2 anios en ventas', estado: 'abierta', fechaCreacion: '2025-11-20' },
+      { id: 1, codigo: 'VAC-0001', titulo: 'Desarrollador Full Stack', departamento: 'IT', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025, Col Americana, Lafayette, 44130 Guadalajara, Jal.', tipo: 'Tiempo Completo', salario: '$25,000 - $35,000', descripcion: 'Desarrollo web con React y Node.js.', requisitos: '3 años de experiencia, Git, agiles', estado: 'abierta', fechaCreacion: '2025-10-15' },
+      { id: 2, codigo: 'VAC-0002', titulo: 'Gerente de Ventas', departamento: 'Ventas', ubicacion: 'Planta 2 Artes', ubicacionClave: 'planta2', direccion: 'C. Artes 2767, San Rafael, 44810 Guadalajara, Jal.', tipo: 'Tiempo Completo', salario: '$30,000 - $45,000', descripcion: 'Manejo de equipos de ventas y cumplimiento de objetivos.', requisitos: '5 años, liderazgo', estado: 'abierta', fechaCreacion: '2025-11-01' },
+      { id: 3, codigo: 'VAC-0003', titulo: 'Analista de Datos', departamento: 'IT', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$22,000 - $30,000', descripcion: 'Analisis de datos con Python y SQL.', requisitos: '2 años en analisis de datos', estado: 'abierta', fechaCreacion: '2025-11-10' },
+      { id: 4, codigo: 'VAC-0004', titulo: 'Ejecutivo de Ventas', departamento: 'Ventas', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$15,000 - $22,000', descripcion: 'Prospeccion y cierre de ventas B2B.', requisitos: '2 años en ventas', estado: 'abierta', fechaCreacion: '2025-11-20' },
       { id: 5, codigo: 'VAC-0005', titulo: 'Disenador Grafico', departamento: 'Marketing', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$18,000 - $25,000', descripcion: 'Diseno de material grafico para campanas.', requisitos: 'Adobe Creative Suite', estado: 'abierta', fechaCreacion: '2025-12-01' },
-      { id: 6, codigo: 'VAC-0006', titulo: 'Supervisor de Produccion', departamento: 'Operaciones', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$20,000 - $28,000', descripcion: 'Supervision de lineas de produccion.', requisitos: '3 anios en manufactura', estado: 'abierta', fechaCreacion: '2025-12-05' },
-      { id: 7, codigo: 'VAC-0007', titulo: 'Contador General', departamento: 'Finanzas', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$22,000 - $30,000', descripcion: 'Contabilidad general y estados financieros.', requisitos: 'Lic. Contaduria, 3 anios', estado: 'abierta', fechaCreacion: '2025-12-10' },
+      { id: 6, codigo: 'VAC-0006', titulo: 'Supervisor de Produccion', departamento: 'Operaciones', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$20,000 - $28,000', descripcion: 'Supervision de lineas de produccion.', requisitos: '3 años en manufactura', estado: 'abierta', fechaCreacion: '2025-12-05' },
+      { id: 7, codigo: 'VAC-0007', titulo: 'Contador General', departamento: 'Finanzas', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$22,000 - $30,000', descripcion: 'Contabilidad general y estados financieros.', requisitos: 'Lic. Contaduria, 3 años', estado: 'abierta', fechaCreacion: '2025-12-10' },
       { id: 8, codigo: 'VAC-0008', titulo: 'Coordinador de RRHH', departamento: 'RRHH', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$20,000 - $28,000', descripcion: 'Coordinacion de procesos de reclutamiento y capacitacion.', requisitos: 'Lic. Psicologia o afin', estado: 'abierta', fechaCreacion: '2025-12-15' },
-      { id: 9, codigo: 'VAC-0009', titulo: 'Community Manager', departamento: 'Marketing', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$15,000 - $20,000', descripcion: 'Gestion de redes sociales y contenido digital.', requisitos: '1 anio en redes sociales', estado: 'abierta', fechaCreacion: '2026-01-05' },
+      { id: 9, codigo: 'VAC-0009', titulo: 'Community Manager', departamento: 'Marketing', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$15,000 - $20,000', descripcion: 'Gestion de redes sociales y contenido digital.', requisitos: '1 año en redes sociales', estado: 'abierta', fechaCreacion: '2026-01-05' },
       { id: 10, codigo: 'VAC-0010', titulo: 'Ingeniero de Calidad', departamento: 'Operaciones', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$18,000 - $25,000', descripcion: 'Control de calidad en lineas de produccion.', requisitos: 'ISO 9001, Six Sigma', estado: 'abierta', fechaCreacion: '2026-01-10' },
       { id: 11, codigo: 'VAC-0011', titulo: 'Soporte Tecnico', departamento: 'IT', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$14,000 - $18,000', descripcion: 'Soporte a usuarios y mantenimiento de equipos.', requisitos: 'Tecnico en sistemas', estado: 'abierta', fechaCreacion: '2026-01-15' },
       { id: 12, codigo: 'VAC-0012', titulo: 'Auxiliar Contable', departamento: 'Finanzas', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Medio Tiempo', salario: '$10,000 - $14,000', descripcion: 'Apoyo en registro contable y conciliaciones.', requisitos: 'Estudiante de Contaduria', estado: 'abierta', fechaCreacion: '2026-01-20' },
-      { id: 13, codigo: 'VAC-0013', titulo: 'Jefe de Almacen', departamento: 'Operaciones', ubicacion: 'CEDIS Tonala', ubicacionClave: 'cedis', direccion: 'Av. Tonala #5678', tipo: 'Tiempo Completo', salario: '$18,000 - $24,000', descripcion: 'Gestion de inventarios y despacho de mercancia.', requisitos: 'Ing. Industrial, 2 anios', estado: 'abierta', fechaCreacion: '2026-01-25' },
+      { id: 13, codigo: 'VAC-0013', titulo: 'Jefe de Almacen', departamento: 'Operaciones', ubicacion: 'CEDIS Tonala', ubicacionClave: 'cedis', direccion: 'Av. Tonala #5678', tipo: 'Tiempo Completo', salario: '$18,000 - $24,000', descripcion: 'Gestion de inventarios y despacho de mercancia.', requisitos: 'Ing. Industrial, 2 años', estado: 'abierta', fechaCreacion: '2026-01-25' },
       { id: 14, codigo: 'VAC-0014', titulo: 'Asistente de Direccion', departamento: 'Administracion', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$16,000 - $22,000', descripcion: 'Asistencia ejecutiva a la direccion general.', requisitos: 'Lic. Administracion, ingles avanzado', estado: 'abierta', fechaCreacion: '2026-02-01' },
       { id: 15, codigo: 'VAC-0015', titulo: 'Analista de Nominas', departamento: 'RRHH', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$17,000 - $23,000', descripcion: 'Calculo de nominas y prestaciones.', requisitos: 'Experiencia con IMSS, Infonavit', estado: 'abierta', fechaCreacion: '2026-02-05' },
       { id: 16, codigo: 'VAC-0016', titulo: 'Operador de Produccion', departamento: 'Operaciones', ubicacion: 'Planta 1 Tonala', ubicacionClave: 'planta1', direccion: 'Av. Tonala #1234', tipo: 'Tiempo Completo', salario: '$9,000 - $12,000', descripcion: 'Operacion de maquinaria en lineas de produccion.', requisitos: 'Secundaria terminada', estado: 'cerrada', fechaCreacion: '2025-09-15' },
-      { id: 17, codigo: 'VAC-0017', titulo: 'Ejecutivo de Cobranza', departamento: 'Finanzas', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$14,000 - $18,000', descripcion: 'Gestion de cartera de cobranza.', requisitos: '1 anio en cobranza', estado: 'cerrada', fechaCreacion: '2025-10-01' },
+      { id: 17, codigo: 'VAC-0017', titulo: 'Ejecutivo de Cobranza', departamento: 'Finanzas', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$14,000 - $18,000', descripcion: 'Gestion de cartera de cobranza.', requisitos: '1 año en cobranza', estado: 'cerrada', fechaCreacion: '2025-10-01' },
       { id: 18, codigo: 'VAC-0018', titulo: 'Recepcionista', departamento: 'Administracion', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$10,000 - $13,000', descripcion: 'Atencion al publico y manejo de conmutador.', requisitos: 'Preparatoria terminada', estado: 'cerrada', fechaCreacion: '2025-09-01' },
-      { id: 19, codigo: 'VAC-0019', titulo: 'Coordinador de Logistica', departamento: 'Operaciones', ubicacion: 'CEDIS Tonala', ubicacionClave: 'cedis', direccion: 'Av. Tonala #5678', tipo: 'Tiempo Completo', salario: '$22,000 - $30,000', descripcion: 'Coordinacion de rutas de distribucion.', requisitos: 'Ing. Industrial, 3 anios', estado: 'abierta', fechaCreacion: '2026-02-10' },
-      { id: 20, codigo: 'VAC-0020', titulo: 'Especialista SEO/SEM', departamento: 'Marketing', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$20,000 - $28,000', descripcion: 'Optimizacion de campanas en buscadores.', requisitos: 'Google Ads, Analytics, 2 anios', estado: 'abierta', fechaCreacion: '2026-02-15' }
+      { id: 19, codigo: 'VAC-0019', titulo: 'Coordinador de Logistica', departamento: 'Operaciones', ubicacion: 'CEDIS Tonala', ubicacionClave: 'cedis', direccion: 'Av. Tonala #5678', tipo: 'Tiempo Completo', salario: '$22,000 - $30,000', descripcion: 'Coordinacion de rutas de distribucion.', requisitos: 'Ing. Industrial, 3 años', estado: 'abierta', fechaCreacion: '2026-02-10' },
+      { id: 20, codigo: 'VAC-0020', titulo: 'Especialista SEO/SEM', departamento: 'Marketing', ubicacion: 'Corporativo Vallarta', ubicacionClave: 'corporativo', direccion: 'Av. Ignacio L Vallarta 2025', tipo: 'Tiempo Completo', salario: '$20,000 - $28,000', descripcion: 'Optimizacion de campanas en buscadores.', requisitos: 'Google Ads, Analytics, 2 años', estado: 'abierta', fechaCreacion: '2026-02-15' }
     ];
 
     // Seed candidatos (60 candidatos repartidos en distintas etapas y vacantes)
@@ -4288,7 +4455,7 @@ document.addEventListener('DOMContentLoaded', () => {
           telefono: '33' + String(10000000 + candId).slice(-8),
           fechaNacimiento: '199' + (candId % 9) + '-0' + ((candId % 9) + 1) + '-15',
           ciudad: 'Guadalajara',
-          experiencia: String((candId % 5) + 1) + ' anios',
+          experiencia: String((candId % 5) + 1) + ' años',
           ultimaEmpresa: 'Empresa ' + String.fromCharCode(65 + (candId % 26)),
           ultimoPuesto: 'Puesto anterior',
           habilidades: 'Habilidad A, Habilidad B',
@@ -4308,6 +4475,49 @@ document.addEventListener('DOMContentLoaded', () => {
         seedCandidatos.push(candidatoSeed);
       }
     }
+    // 10 candidatos adicionales recién postulados (etapa: aplicado)
+    var postulados = [
+      { nombre: 'Alejandro', apellidos: 'Navarro Ríos', email: 'alejandro.navarro@gmail.com', telefono: '3312456701', fechaNacimiento: '1995-03-22', ciudad: 'Guadalajara', experiencia: '3 años', ultimaEmpresa: 'Softtek', ultimoPuesto: 'Desarrollador Jr', habilidades: 'JavaScript, React, SQL', escolaridad: 'Ingenieria', carrera: 'Ing. en Computación', vacanteId: 1 },
+      { nombre: 'Mariana', apellidos: 'Estrada Solís', email: 'mariana.estrada@outlook.com', telefono: '3318765432', fechaNacimiento: '1997-07-10', ciudad: 'Zapopan', experiencia: '2 años', ultimaEmpresa: 'Liverpool', ultimoPuesto: 'Ejecutiva de Ventas', habilidades: 'Ventas B2B, CRM, Negociación', escolaridad: 'Licenciatura', carrera: 'Lic. en Mercadotecnia', vacanteId: 2 },
+      { nombre: 'Iván', apellidos: 'Córdova Delgado', email: 'ivan.cordova@hotmail.com', telefono: '3325678901', fechaNacimiento: '1993-11-05', ciudad: 'Tlaquepaque', experiencia: '4 años', ultimaEmpresa: 'HSBC', ultimoPuesto: 'Analista BI', habilidades: 'Python, Power BI, SQL', escolaridad: 'Licenciatura', carrera: 'Lic. en Actuaría', vacanteId: 3 },
+      { nombre: 'Paulina', apellidos: 'Becerra Meza', email: 'paulina.becerra@gmail.com', telefono: '3331234567', fechaNacimiento: '1998-01-18', ciudad: 'Guadalajara', experiencia: '1 año', ultimaEmpresa: 'Freelance', ultimoPuesto: 'Diseñadora', habilidades: 'Photoshop, Illustrator, Figma', escolaridad: 'Licenciatura', carrera: 'Lic. en Diseño Gráfico', vacanteId: 5 },
+      { nombre: 'Héctor', apellidos: 'Salazar Orozco', email: 'hector.salazar@yahoo.com', telefono: '3347890123', fechaNacimiento: '1990-05-30', ciudad: 'Tonalá', experiencia: '6 años', ultimaEmpresa: 'Flextronics', ultimoPuesto: 'Supervisor de Línea', habilidades: 'Lean Manufacturing, 5S, Liderazgo', escolaridad: 'Ingenieria', carrera: 'Ing. Industrial', vacanteId: 6 },
+      { nombre: 'Diana', apellidos: 'Quintero Luna', email: 'diana.quintero@gmail.com', telefono: '3354321098', fechaNacimiento: '1994-09-12', ciudad: 'Zapopan', experiencia: '3 años', ultimaEmpresa: 'Deloitte', ultimoPuesto: 'Contador Sr', habilidades: 'SAP, Nóminas, IMSS', escolaridad: 'Licenciatura', carrera: 'Lic. en Contaduría', vacanteId: 7 },
+      { nombre: 'Sebastián', apellidos: 'Ochoa Ibarra', email: 'sebastian.ochoa@outlook.com', telefono: '3367654321', fechaNacimiento: '1996-12-03', ciudad: 'Guadalajara', experiencia: '2 años', ultimaEmpresa: 'IBM', ultimoPuesto: 'Soporte N2', habilidades: 'Redes, Windows Server, ITIL', escolaridad: 'Ingenieria', carrera: 'Ing. en Sistemas', vacanteId: 11 },
+      { nombre: 'Renata', apellidos: 'Campos Herrera', email: 'renata.campos@gmail.com', telefono: '3370987654', fechaNacimiento: '1999-04-25', ciudad: 'Tlajomulco', experiencia: '1 año', ultimaEmpresa: 'Agencia Digital MX', ultimoPuesto: 'Community Manager Jr', habilidades: 'Redes sociales, Canva, Copywriting', escolaridad: 'Licenciatura', carrera: 'Lic. en Comunicación', vacanteId: 9 },
+      { nombre: 'Emilio', apellidos: 'Villarreal Ponce', email: 'emilio.villarreal@hotmail.com', telefono: '3383210987', fechaNacimiento: '1991-08-14', ciudad: 'Tonalá', experiencia: '5 años', ultimaEmpresa: 'FedEx', ultimoPuesto: 'Coordinador Logístico', habilidades: 'WMS, Rutas, Inventarios', escolaridad: 'Ingenieria', carrera: 'Ing. Industrial', vacanteId: 19 },
+      { nombre: 'Ximena', apellidos: 'Treviño Ávila', email: 'ximena.trevino@gmail.com', telefono: '3396543210', fechaNacimiento: '1997-02-08', ciudad: 'Guadalajara', experiencia: '2 años', ultimaEmpresa: 'Tequila Don Julio', ultimoPuesto: 'Analista de Nóminas', habilidades: 'NOI, Excel avanzado, IMSS', escolaridad: 'Licenciatura', carrera: 'Lic. en Administración', vacanteId: 15 }
+    ];
+    var seedCvData = 'data:application/pdf;base64,JVBERi0xLjAKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PmVuZG9iagozIDAgb2JqPDwvVHlwZS9QYWdlL01lZGlhQm94WzAgMCA2MTIgNzkyXS9QYXJlbnQgMiAwIFIvUmVzb3VyY2VzPDw+Pj4+ZW5kb2JqCnhyZWYKMCA0CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKdHJhaWxlcjw8L1NpemUgNC9Sb290IDEgMCBSPj4Kc3RhcnR4cmVmCjIwNgolJUVPRg==';
+    var postId = 9000;
+    postulados.forEach(function(p) {
+      postId++;
+      var dia = String(((postId * 3) % 28) + 1).padStart(2, '0');
+      var cvNombre = 'CV_' + p.nombre + '_' + p.apellidos.split(' ')[0] + '.pdf';
+      seedCandidatos.push({
+        id: postId,
+        vacanteId: p.vacanteId,
+        nombre: p.nombre,
+        apellidos: p.apellidos,
+        email: p.email,
+        telefono: p.telefono,
+        fechaNacimiento: p.fechaNacimiento,
+        ciudad: p.ciudad,
+        experiencia: p.experiencia,
+        ultimaEmpresa: p.ultimaEmpresa,
+        ultimoPuesto: p.ultimoPuesto,
+        habilidades: p.habilidades,
+        escolaridad: p.escolaridad,
+        carrera: p.carrera,
+        curriculum: { nombre: cvNombre, tipo: 'application/pdf', data: seedCvData },
+        etapa: 'aplicado',
+        fechaAplicacion: '2026-02-' + dia,
+        codigoSeguimiento: String(200000 + postId),
+        comentariosPublicos: [],
+        comentariosInternos: []
+      });
+    });
+
     candidatos = seedCandidatos;
 
     // Seed entrevistas (para candidatos en etapas de entrevista)
