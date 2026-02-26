@@ -29,7 +29,7 @@ let rhLineChart = null;
 let rhRejectionChart = null;
 
 const RH_CHART_HEIGHTS = {
-  funnel: 380,
+  funnel: 420,
   bar: 284,
   gauge: 350,
   line: 332
@@ -3007,10 +3007,9 @@ function computeHiringTrend(candidatosFiltrados) {
 // ---- ApexCharts config functions (same pattern as reporte_dashboard) ----
 
 function renderRhFunnel(pipelineDistribution) {
-  // Etapas secuenciales del pipeline (excluye 'rechazado' que no es secuencial)
   const stageOrder = [
     'contratado', 'documentos', 'referencias', 'psicometrico',
-    'revision-medica', 'entrevista-jefe', 'primer-filtro', 'entrevista-rh', 'aplicado'
+    'revision-medica', 'entrevista-jefe', 'primer-filtro', 'entrevista-rh', 'aplicado', 'rechazado'
   ];
 
   const labels = [];
@@ -3019,7 +3018,7 @@ function renderRhFunnel(pipelineDistribution) {
 
   const activeColors = [
     '#22c55e', '#10b981', '#06b6d4', '#8b5cf6',
-    '#f97316', '#ec4899', '#6366f1', '#f59e0b', '#3b82f6'
+    '#f97316', '#ec4899', '#6366f1', '#f59e0b', '#3b82f6', '#ef4444'
   ];
   const emptyColor = '#d1d5db';
 
