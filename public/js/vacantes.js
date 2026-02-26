@@ -152,10 +152,47 @@ function aplicarVistasPorRol() {
     showView('solicitudes-aprobacion');
   } else {
     navsRH.forEach(el => el.style.display = '');
+    // Expandir sección Vacantes en mobile por defecto
+    const mobileVacantesToggle = document.querySelector('.mobile-section-vacantes')?.closest('ul')?.querySelector('.mobile-section-toggle:not([disabled])');
+    if (mobileVacantesToggle && !mobileVacantesToggle.classList.contains('open')) {
+      mobileVacantesToggle.classList.add('open');
+      document.querySelectorAll('.mobile-section-vacantes').forEach(el => el.classList.add('mobile-section-open'));
+    }
     showView('gestion-dashboard');
   }
 
   contarNoLeidas();
+}
+
+// ==================== DROPDOWN MENUS ====================
+function toggleDropdown(dropdownId) {
+  const dd = document.getElementById(dropdownId);
+  if (!dd) return;
+  const wasOpen = dd.classList.contains('open');
+  // Cerrar todos los dropdowns primero
+  document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+  if (!wasOpen) dd.classList.add('open');
+}
+
+// Cerrar dropdowns al hacer clic fuera
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.nav-dropdown')) {
+    document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+  }
+});
+
+// Mobile sections toggle
+function toggleMobileSection(btn) {
+  if (btn.disabled) return;
+  btn.classList.toggle('open');
+  const sectionLi = btn.closest('li');
+  const isOpen = btn.classList.contains('open');
+  // Buscar los items de la sección (siguientes li con mobile-section-item)
+  let next = sectionLi.nextElementSibling;
+  while (next && next.classList.contains('mobile-section-item')) {
+    next.classList.toggle('mobile-section-open', isOpen);
+    next = next.nextElementSibling;
+  }
 }
 
 // ==================== NAVIGATION ====================
@@ -165,10 +202,21 @@ function showView(viewName) {
   if (!target) return;
   target.classList.add('active');
 
-  // Actualizar estado activo en navbar
+  // Actualizar estado activo en navbar (items del dropdown)
   document.querySelectorAll('.nav-link-vac').forEach(link => link.classList.remove('nav-active'));
-  const activeLink = document.querySelector(`.nav-link-vac[data-view="${viewName}"]`);
-  if (activeLink) activeLink.classList.add('nav-active');
+  const activeLinks = document.querySelectorAll(`.nav-link-vac[data-view="${viewName}"]`);
+  activeLinks.forEach(link => link.classList.add('nav-active'));
+
+  // Actualizar estado activo del toggle padre del dropdown
+  document.querySelectorAll('.nav-dropdown-toggle').forEach(t => t.classList.remove('nav-parent-active'));
+  const activeDropdownItem = document.querySelector(`.nav-dropdown-item.nav-active`);
+  if (activeDropdownItem) {
+    const parentToggle = activeDropdownItem.closest('.nav-dropdown')?.querySelector('.nav-dropdown-toggle');
+    if (parentToggle) parentToggle.classList.add('nav-parent-active');
+  }
+
+  // Cerrar dropdown al seleccionar una vista
+  document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
 
   // Dashboard usa ancho completo
   const mainEl = document.querySelector('.vacantes-module main');

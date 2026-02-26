@@ -1449,6 +1449,135 @@
   font-weight: 600;
 }
 
+/* ==================== DROPDOWN MENUS ==================== */
+.nav-dropdown {
+  position: relative;
+}
+.nav-dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.nav-dropdown-toggle:hover {
+  color: var(--primary);
+}
+.nav-dropdown-toggle.nav-parent-active {
+  color: var(--primary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary);
+}
+.nav-dropdown-chevron {
+  transition: transform 0.2s;
+}
+.nav-dropdown.open .nav-dropdown-chevron {
+  transform: rotate(180deg);
+}
+.nav-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.10);
+  padding: 6px 0;
+  z-index: 100;
+}
+.nav-dropdown.open .nav-dropdown-menu {
+  display: block;
+}
+.nav-dropdown-item {
+  display: block;
+  padding: 8px 18px;
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: none !important;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-dropdown-item:hover {
+  background: #f1f5f9;
+  color: var(--primary);
+}
+.nav-dropdown-item.nav-active {
+  color: var(--primary);
+  font-weight: 600;
+  background: rgba(0,121,64,.05);
+  border-bottom: none !important;
+}
+.nav-dropdown-disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+.nav-badge-soon {
+  display: inline-block;
+  font-size: 10px;
+  background: #e2e8f0;
+  color: #64748b;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-weight: 500;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ==================== MOBILE SECTIONS ==================== */
+.mobile-section-toggle {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+}
+.mobile-section-toggle[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.mobile-chevron {
+  transition: transform 0.2s;
+}
+.mobile-section-toggle.open .mobile-chevron {
+  transform: rotate(180deg);
+}
+.mobile-section-item {
+  display: none;
+}
+.mobile-section-item.mobile-section-open {
+  display: list-item;
+}
+.mobile-section-item a {
+  padding-left: 16px !important;
+  font-size: 14px;
+}
+.mobile-section-header {
+  font-weight: 600;
+}
+.mobile-badge-soon {
+  display: inline-block;
+  font-size: 9px;
+  background: rgba(255,255,255,.25);
+  color: rgba(255,255,255,.8);
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
 /* ==================== CALENDARIO DE RECLUTADORAS ==================== */
 
 /* Tabs */
