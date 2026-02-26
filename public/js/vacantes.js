@@ -29,7 +29,7 @@ let rhLineChart = null;
 let rhRejectionChart = null;
 
 const RH_CHART_HEIGHTS = {
-  funnel: 420,
+  funnel: 390,
   bar: 284,
   gauge: 350,
   line: 332
@@ -1187,7 +1187,7 @@ function verDetalleVacante(vacanteId) {
   const diasPublicada = Math.floor((new Date() - new Date(vacante.fechaCreacion)) / (1000 * 60 * 60 * 24));
 
   const porEtapa = {
-    'aplicado': 0, 'entrevista-rh': 0, 'primer-filtro': 0,
+    'aplicado': 0, 'entrevista-rh': 0,
     'entrevista-jefe': 0, 'revision-medica': 0, 'psicometrico': 0,
     'referencias': 0, 'documentos': 0, 'contratado': 0, 'rechazado': 0
   };
@@ -1248,7 +1248,7 @@ function verDetalleVacante(vacanteId) {
         <div class="mini-card">
           <div style="font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;">En Proceso</div>
           <div style="font-size:28px;font-weight:900;color:#f59e0b;">${
-            porEtapa['entrevista-rh'] + porEtapa['primer-filtro'] + porEtapa['entrevista-jefe'] +
+            porEtapa['entrevista-rh'] + porEtapa['entrevista-jefe'] +
             porEtapa['revision-medica'] + porEtapa['psicometrico'] + porEtapa['referencias'] + porEtapa['documentos']
           }</div>
         </div>
@@ -1413,7 +1413,7 @@ function populateCandidatoFilters() {
 function getBadgeClass(etapa) {
   const classes = {
     'aplicado': 'aplicado', 'entrevista-rh': 'entrevista-rh',
-    'primer-filtro': 'primer-filtro', 'entrevista-jefe': 'entrevista-jefe',
+    'entrevista-jefe': 'entrevista-jefe',
     'revision-medica': 'revision-medica', 'psicometrico': 'psicometrico',
     'referencias': 'referencias', 'documentos': 'documentos',
     'contratado': 'contratado', 'rechazado': 'rechazado'
@@ -1424,7 +1424,7 @@ function getBadgeClass(etapa) {
 function getEtapaLabel(etapa) {
   const labels = {
     'aplicado': 'Postulado', 'entrevista-rh': 'Entrevista RH',
-    'primer-filtro': 'Primer Filtro', 'entrevista-jefe': 'Entrevista Jefe',
+    'entrevista-jefe': 'Entrevista Jefe',
     'revision-medica': 'Revisi\u00f3n M\u00e9dica', 'psicometrico': 'Psicom\u00e9trico',
     'referencias': 'Referencias', 'documentos': 'Documentos',
     'contratado': 'Contratado', 'rechazado': 'Rechazado'
@@ -1434,18 +1434,18 @@ function getEtapaLabel(etapa) {
 
 function getEtapaNumero(etapa) {
   const numeros = {
-    'aplicado': 1, 'entrevista-rh': 2, 'primer-filtro': 3,
-    'entrevista-jefe': 4, 'revision-medica': 5, 'psicometrico': 6,
-    'referencias': 7, 'documentos': 8, 'contratado': 8, 'rechazado': 0
+    'aplicado': 1, 'entrevista-rh': 2,
+    'entrevista-jefe': 3, 'revision-medica': 4, 'psicometrico': 5,
+    'referencias': 6, 'documentos': 7, 'contratado': 7, 'rechazado': 0
   };
   return numeros[etapa] || 1;
 }
 
 function getEtapaNombre(num) {
   const nombres = {
-    1: 'aplicado', 2: 'entrevista-rh', 3: 'primer-filtro',
-    4: 'entrevista-jefe', 5: 'revision-medica', 6: 'psicometrico',
-    7: 'referencias', 8: 'documentos'
+    1: 'aplicado', 2: 'entrevista-rh',
+    3: 'entrevista-jefe', 4: 'revision-medica', 5: 'psicometrico',
+    6: 'referencias', 7: 'documentos'
   };
   return nombres[num] || 'aplicado';
 }
@@ -1524,14 +1524,15 @@ function verDetalleCandidato(candidatoId) {
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;">
         ${etapaActual === 1 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'entrevista-rh')">Aprobar Primer Filtro</button>` : ''}
         ${etapaActual === 2 ? (entrevistas.find(e => e.candidatoId === candidato.id && e.tipo === 'rh')
-          ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'primer-filtro')">Aprobar Entrevista RH</button>`
+          ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'entrevista-jefe')">Aprobar Entrevista RH</button>`
           : `<button class="btn btn-primary" onclick="agendarEntrevistaRH(${candidato.id})">Agendar Entrevista RH</button>`) : ''}
-        ${etapaActual === 3 ? `<button class="btn btn-primary" onclick="agendarEntrevistaJefe(${candidato.id})">Agendar Entrevista con Jefe</button>` : ''}
-        ${etapaActual === 4 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'revision-medica')">Pasar a Revisi\u00f3n M\u00e9dica</button>` : ''}
-        ${etapaActual === 5 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'psicometrico')">Pasar a Pruebas Psicom\u00e9tricas</button>` : ''}
-        ${etapaActual === 6 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'referencias')">Verificar Referencias</button>` : ''}
-        ${etapaActual === 7 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'documentos')">Solicitar Documentos</button>` : ''}
-        ${etapaActual === 8 && candidato.etapa === 'documentos' ? `<button class="btn btn-primary" onclick="iniciarAltaEmpleado(${candidato.id})">Contratar</button>` : ''}
+        ${etapaActual === 3 ? (entrevistas.find(e => e.candidatoId === candidato.id && e.tipo === 'jefe')
+          ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'revision-medica')">Pasar a Revisi\u00f3n M\u00e9dica</button>`
+          : `<button class="btn btn-primary" onclick="agendarEntrevistaJefe(${candidato.id})">Agendar Entrevista con Jefe</button>`) : ''}
+        ${etapaActual === 4 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'psicometrico')">Pasar a Pruebas Psicom\u00e9tricas</button>` : ''}
+        ${etapaActual === 5 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'referencias')">Verificar Referencias</button>` : ''}
+        ${etapaActual === 6 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'documentos')">Solicitar Documentos</button>` : ''}
+        ${etapaActual === 7 && candidato.etapa === 'documentos' ? `<button class="btn btn-primary" onclick="iniciarAltaEmpleado(${candidato.id})">Contratar</button>` : ''}
         ${etapaActual > 0 && candidato.etapa !== 'contratado' && candidato.etapa !== 'rechazado' ? `<button class="btn btn-danger" onclick="rechazarCandidato(${candidato.id})">Rechazar</button>` : ''}
       </div>
     </div>
@@ -1747,12 +1748,11 @@ function renderProcesoSteps(etapaActual, candidato) {
   const steps = [
     { num: 1, label: 'Postulaci\u00f3n' },
     { num: 2, label: 'Entrevista RH' },
-    { num: 3, label: 'Primer Filtro' },
-    { num: 4, label: 'Entrevista Jefe' },
-    { num: 5, label: 'Revisi\u00f3n M\u00e9dica' },
-    { num: 6, label: 'Psicom\u00e9trico' },
-    { num: 7, label: 'Referencias' },
-    { num: 8, label: 'Documentos' }
+    { num: 3, label: 'Entrevista Jefe' },
+    { num: 4, label: 'Revisi\u00f3n M\u00e9dica' },
+    { num: 5, label: 'Psicom\u00e9trico' },
+    { num: 6, label: 'Referencias' },
+    { num: 7, label: 'Documentos' }
   ];
 
   const esRechazado = candidato && candidato.etapa === 'rechazado';
@@ -2823,7 +2823,7 @@ function computeDashboardData() {
 
   // Pipeline distribution for donut
   var pipelineStages = [
-    'aplicado', 'entrevista-rh', 'primer-filtro', 'entrevista-jefe',
+    'aplicado', 'entrevista-rh', 'entrevista-jefe',
     'revision-medica', 'psicometrico', 'referencias', 'documentos',
     'contratado', 'rechazado'
   ];
@@ -3009,7 +3009,7 @@ function computeHiringTrend(candidatosFiltrados) {
 function renderRhFunnel(pipelineDistribution) {
   const stageOrder = [
     'contratado', 'documentos', 'referencias', 'psicometrico',
-    'revision-medica', 'entrevista-jefe', 'primer-filtro', 'entrevista-rh', 'aplicado', 'rechazado'
+    'revision-medica', 'entrevista-jefe', 'entrevista-rh', 'aplicado', 'rechazado'
   ];
 
   const labels = [];
@@ -3018,7 +3018,7 @@ function renderRhFunnel(pipelineDistribution) {
 
   const activeColors = [
     '#22c55e', '#10b981', '#06b6d4', '#8b5cf6',
-    '#f97316', '#ec4899', '#6366f1', '#f59e0b', '#3b82f6', '#ef4444'
+    '#f97316', '#6366f1', '#f59e0b', '#3b82f6', '#ef4444'
   ];
   const emptyColor = '#d1d5db';
 
@@ -3062,7 +3062,7 @@ function renderRhFunnel(pipelineDistribution) {
 
 function renderRhRejectionDonut(rejectionByStage) {
   const stageOrder = [
-    'aplicado', 'entrevista-rh', 'primer-filtro', 'entrevista-jefe',
+    'aplicado', 'entrevista-rh', 'entrevista-jefe',
     'revision-medica', 'psicometrico', 'referencias', 'documentos'
   ];
 
@@ -3583,7 +3583,7 @@ function verDetalleSolicitud(id) {
   if (esRolJefe() && sol.vacanteId) {
     const candidatosVacante = candidatos.filter(c => c.vacanteId === sol.vacanteId);
     const porEtapa = {
-      'aplicado': 0, 'entrevista-rh': 0, 'primer-filtro': 0,
+      'aplicado': 0, 'entrevista-rh': 0,
       'entrevista-jefe': 0, 'revision-medica': 0, 'psicometrico': 0,
       'referencias': 0, 'documentos': 0, 'contratado': 0, 'rechazado': 0
     };
@@ -4870,7 +4870,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Seed candidatos (60 candidatos repartidos en distintas etapas y vacantes)
-    var etapas = ['aplicado','entrevista-rh','primer-filtro','entrevista-jefe','revision-medica','psicometrico','referencias','documentos','contratado','rechazado'];
+    var etapas = ['aplicado','entrevista-rh','entrevista-jefe','revision-medica','psicometrico','referencias','documentos','contratado','rechazado'];
     var nombres = ['Juan','Maria','Pedro','Ana','Carlos','Laura','Miguel','Sofia','Diego','Carmen','Fernando','Patricia','Ricardo','Gabriela','Andres','Monica','Luis','Elena','Jorge','Valeria','Oscar','Daniela','Roberto','Paola','Eduardo','Fernanda','Raul','Alejandra','Manuel','Isabella'];
     var apellidos = ['Garcia','Martinez','Lopez','Hernandez','Gonzalez','Rodriguez','Perez','Sanchez','Ramirez','Torres','Flores','Rivera','Gomez','Diaz','Cruz','Morales','Reyes','Ortiz','Gutierrez','Ruiz','Mendoza','Aguilar','Castillo','Vargas','Rojas'];
 
