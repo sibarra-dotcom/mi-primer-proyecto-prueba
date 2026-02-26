@@ -9,44 +9,10 @@ use App\Models\UserModel;
 
 class Auth extends BaseController
 {
-
-    // $hashedPassword = password_hash($plainPassword, PASSWORD_BCRYPT);
-    // public function loginAuth()
-    // {
-    //     $session = session();
-    //     $userModel = new UserModel();
-    //     $email = $this->request->getVar('email');
-    //     $password = $this->request->getVar('password');
-        
-    //     $data = $userModel->where('email', $email)->first();
-        
-    //     if($data){
-    //         $pass = $data['password'];
-    //         $authenticatePassword = password_verify($password, $pass);
-    //         if($authenticatePassword){
-    //             $ses_data = [
-    //                 'id' => $data['id'],
-    //                 'name' => $data['name'],
-    //                 'email' => $data['email'],
-    //                 'isLoggedIn' => TRUE
-    //             ];
-    //             $session->set($ses_data);
-    //             return redirect()->to('/dashboard');
-            
-    //         }else{
-    //             $session->setFlashdata('msg', 'Password is incorrect.');
-    //             return redirect()->to('/signin');
-    //         }
-    //     }else{
-    //         $session->setFlashdata('msg', 'Email does not exist.');
-    //         return redirect()->to('/signin');
-    //     }
-    // }
-
-
     public function signin()
     {
 			if ($this->request->getMethod() === 'POST') {
+
         $userModel = new UserModel();
 				
 				if(isset($_POST['password'])) {
@@ -114,11 +80,8 @@ class Auth extends BaseController
 				}
 
 			}
-
-
     }
 
-    // si el metodo es private no se podrá acceder
     public function signout()
     {
         $this->session->destroy();
@@ -127,9 +90,9 @@ class Auth extends BaseController
 
     public function forgot()
     {
-        $data['title'] = 'En construcción';
-        $data['message'] = 'En construcción..';
-        
-        return view('auth/forgot', $data);
+				$data['title'] = 'Sitio en construcción.';
+				$data['message'] = '';
+				return view('inactive/link', $data);
+        // return view('auth/forgot', $data);
     }
 }

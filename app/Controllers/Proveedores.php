@@ -6,13 +6,6 @@ use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
 
 use App\Models\UserModel;
-use App\Models\Cotizacion;
-use App\Models\CotizArchivo;
-use App\Models\CotizDetalle;
-use App\Models\ArticuloComm;
-use App\Models\MaquinariaModel;
-use App\Models\MantenimientoModel;
-use App\Models\MantAdjunto;
 use App\Models\Proveedor;
 use App\Models\ProveedorContacto;
 
@@ -27,7 +20,7 @@ class Proveedores extends BaseController
         $this->validation = \Config\Services::validation();
     }
 
-
+		// not used
     public function contacto($contactoId)
     {
         if ($this->request->getMethod() === 'GET')
@@ -77,7 +70,7 @@ class Proveedores extends BaseController
 
     }
 
-
+		// not used
     public function details($proveedorId)
     {
         if ($this->request->getMethod() === 'GET')
@@ -183,13 +176,15 @@ class Proveedores extends BaseController
             $prov = new Proveedor();
 						$prov_cont = new ProveedorContacto();
 
+						// $btn = $this->request->getPost('create_prov');
+
 						if(isset($_POST['create_prov'])) {
 
-						// 	            echo "<pre>";
-            // print_r($_POST);
-            // echo "</pre>";
+							// echo "<pre>";
+							// print_r($_POST);
+							// echo "</pre>";
 
-            // exit;
+							// exit;
 
 							$data_prov = [
                 'razon_social' => $this->request->getPost('razon_social'),
@@ -214,29 +209,27 @@ class Proveedores extends BaseController
 											'telefono' => $telefono[$i],
 											'puesto' => $puesto[$i],
 									]);
-
 							}
 
             
 							if ($prov_id) {
-									// If no errors, respond with a redirect URL
-									// return $this->response->setJSON([
-									//     'status' => 'success',
-									//     'redirect' => '/success-page'
-									// ]);
+									return $this->response->setJSON([
+									    'status' => 'success',
+									    'redirect' => '/success-page'
+									]);
 	
-									$this->session->setFlashdata('msg', 'Creado Correctamente');
-									return redirect()->to('/proveedores');
+									// $this->session->setFlashdata('msg', 'Creado Correctamente');
+									// return redirect()->to('/proveedores');
 	
 							} else {
-									// If errors, respond with the errors array
-									// return $this->response->setJSON([
-									//     'status' => 'error',
-									//     'errors' => $validationErrors
-									// ]);
-									$this->session->setFlashdata('msg_error', 'Ocurrio un Error');
-									$this->session->setFlashdata('msg', 'Ocurrio un Error');
-									return redirect()->to('/proveedores');
+
+									return $this->response->setJSON([
+									    'status' => 'error',
+									    // 'errors' => $validationErrors
+									]);
+									// $this->session->setFlashdata('msg_error', 'Ocurrio un Error');
+									// $this->session->setFlashdata('msg', 'Ocurrio un Error');
+									// return redirect()->to('/proveedores');
 							}
 
 						} else if (isset($_POST['create_contacto'])) {
@@ -261,24 +254,22 @@ class Proveedores extends BaseController
 							}
 
 							if ($prov_id) {
-									// If no errors, respond with a redirect URL
-									// return $this->response->setJSON([
-									//     'status' => 'success',
-									//     'redirect' => '/success-page'
-									// ]);
+									return $this->response->setJSON([
+									    'status' => 'success',
+									    'redirect' => '/success-page'
+									]);
 	
-									$this->session->setFlashdata('msg', 'Creado Correctamente');
-									return redirect()->to('/proveedores');
+									// $this->session->setFlashdata('msg', 'Creado Correctamente');
+									// return redirect()->to('/proveedores');
 	
 							} else {
-									// If errors, respond with the errors array
-									// return $this->response->setJSON([
-									//     'status' => 'error',
-									//     'errors' => $validationErrors
-									// ]);
-									$this->session->setFlashdata('msg_error', 'Ocurrio un Error');
-									$this->session->setFlashdata('msg', 'Ocurrio un Error');
-									return redirect()->to('/proveedores');
+									return $this->response->setJSON([
+									    'status' => 'error',
+									    // 'errors' => $validationErrors
+									]);
+									// $this->session->setFlashdata('msg_error', 'Ocurrio un Error');
+									// $this->session->setFlashdata('msg', 'Ocurrio un Error');
+									// return redirect()->to('/proveedores');
 							}
 
 

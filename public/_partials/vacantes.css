@@ -1513,8 +1513,24 @@
   background: rgba(0,121,64,.08);
 }
 .vacantes-module .mini-cal-selected{
-  background: rgba(0,121,64,.18) !important;
-  box-shadow: inset 0 0 0 2px var(--primary);
+  background: rgba(0,121,64,.10) !important;
+}
+.vacantes-module .mini-cal-sel-block{
+  position: absolute;
+  top: 0;
+  left: 1px;
+  right: 1px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0,121,64,.7);
+  border: 2px solid var(--primary);
+  pointer-events: none;
 }
 .vacantes-module .mini-cal-ocupado{
   cursor: not-allowed;

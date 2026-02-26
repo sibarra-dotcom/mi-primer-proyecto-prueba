@@ -483,6 +483,8 @@ class Mimes
             'application/vnd.ms-pki.stl',
             'application/x-navistyle',
         ],
+				'heic'     =>    'image/heic',
+    		'heif'     =>    'image/heif'
     ];
 
     /**

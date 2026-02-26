@@ -12,7 +12,7 @@
     <!-- Right Column for Login Form -->
     <div class=" flex flex-col p-2 w-full md:w-1/2  justify-center ">
 
-      <form id="form_login" action="<?= base_url('auth/signin') ?>" class=" h-5/6 p-4 md:px-8 md:border-l md:border-grayMid " method="post">
+      <form id="form_login" action="<?= base_url('auth/signin') ?>" class=" h-5/6 p-4 md:px-8 md:border-l md:border-grayMid " method="POST">
         <?= csrf_field() ?>
 
         <img src="<?= base_url('img/logo.jpeg') ?>" alt="Login Image" class="mx-auto max-w-16 h-16 rounded-full mb-8">
@@ -66,7 +66,7 @@
 			<div class="btn_close_modal absolute -top-4 right-0 text-4xl text-gray cursor-pointer">&times;</div>
 		</div>
 
-		<form id="form_login_pin" action="<?= base_url('auth/signin') ?>" method="post" class="bg-white p-6 flex flex-col gap-y-8 text-center w-full">
+		<form id="form_login_pin" action="<?= base_url('auth/signin') ?>" method="POST" class="bg-white p-6 flex flex-col gap-y-8 text-center w-full">
 
 			<input id="pinInput" type="text" name="pin" class="w-full p-3 border rounded text-center text-2xl" readonly>
 			<input id="emailInput" type="hidden" name="email">

@@ -100,9 +100,9 @@
                 <h5 class="text-center uppercase">Prioridad</h5>
                 <select name="prioridad" id="prioridad" required>
                   <option value="" disabled selected>Seleccionar...</option>
-                  <option value="BAJA">BAJA</option>
-                <!--  <option value="MEDIA">MEDIA</option> -->
-                  <option value="ALTA">ALTA</option>
+                  <option value="BAJA">BAJA (OTM)</option>
+                  <!-- <option value="MEDIA">MEDIA</option> -->
+                  <option value="ALTA">ALTA (FIS)</option>
                 </select>
               </div>
 
@@ -284,16 +284,13 @@ window.addEventListener('click', e => {
   const planta = document.getElementById('planta');
   const linea = document.getElementById('linea');
 
-	const resetSelect = (selectId) => {
-			const select = document.getElementById(selectId);
-			select.innerHTML = '<option value="" disabled selected>Seleccionar...</option>';
-	};
 
 
 	planta?.addEventListener('change', e => {
     const planta = e.target.value.trim();
 
 		Service.exec('get', `/get_lineas/${planta}`)
+		// Service.exec('get', `/get_lineas_alt`)
 		.then( r => {
 			// console.log(r); return;
 			resetSelect('linea'); 
@@ -302,7 +299,7 @@ window.addEventListener('click', e => {
 				r.forEach(line => {
 					let opt = document.createElement('option');
 					opt.value = line.linea;
-					opt.textContent = `LINEA ${line.linea}`;
+					opt.textContent = `${line.linea}`;
 					linea.appendChild(opt);
 				});
 

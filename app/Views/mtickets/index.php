@@ -4,6 +4,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/locale/es.js"></script>
   <script src="<?= load_asset('js/axios.js') ?>"></script>
   <script src="<?= load_asset('js/Service.js') ?>"></script>
   <script src="<?= load_asset('js/helper.js') ?>"></script>
@@ -51,20 +52,33 @@
       <div class="w-full text-sm text-gray  ">
         <div class="flex flex-col h-full" >
 
-          <div class="pb-4 px-4 lg:px-10 flex w-fit items-center gap-x-4">
-            <span>ORDENAR POR:</span>
-            <select id="order_by" name="order_by" class="w-44">
-              <option value="" disabled selected>Seleccionar...</option>
-              <option value="asc-fecha">- a + Fecha</option>
-              <option value="desc-fecha">+ a - Fecha</option>
-              <option value="asc-prioridad">ALTA - BAJA</option>
-              <option value="desc-prioridad">BAJA - ALTA</option>
-							<option value="asc-estado-maq">NO FUNC. - FUNC</option>
-              <option value="desc-estado-maq">FUNC - NO FUNC.</option>
-							<option value="asc-estado-ticket">ABIERTO - CERRADO</option>
-              <option value="desc-estado-ticket">CERRADO - ABIERTO</option>
-            </select>
-          </div>
+					<div class=" w-full py-2 px-4 gap-4 flex items-center justify-between ">
+
+						<div class="flex w-fit items-center gap-x-4">
+							<span>ORDENAR POR:</span>
+							<select id="order_by" name="order_by" class="w-44">
+								<option value="" disabled selected>Seleccionar...</option>
+								<option value="asc-fecha">- a + Fecha</option>
+								<option value="desc-fecha">+ a - Fecha</option>
+								<option value="asc-prioridad">ALTA - BAJA</option>
+								<option value="desc-prioridad">BAJA - ALTA</option>
+								<option value="asc-estado-maq">NO FUNC. - FUNC</option>
+								<option value="desc-estado-maq">FUNC - NO FUNC.</option>
+								<option value="asc-estado-ticket">ABIERTO - CERRADO</option>
+								<option value="desc-estado-ticket">CERRADO - ABIERTO</option>
+							</select>
+						</div>
+
+						<div class="w-1/2 lg:w-1/3 flex gap-2 px-4 text-sm">
+							<select id="monthSelect" class="py-1 px-4 text-center"></select>
+							<select id="yearSelect" class="py-1 px-4 text-center"></select>
+							<button id="btn_download" type="button" class="btn btn-sm btn--search uppercase">
+								<i class="fas fa-download"></i>
+								<span>Descargar</span>
+							</button>
+						</div>
+					</div>
+
 
 					<div class="w-full pl-4 pr-4 pb-8">
 						<div class="relative text-xs w-full text-sm h-[45vh] overflow-y-scroll ">
@@ -174,7 +188,7 @@
 						<select name="prioridad" id="prioridad">
 							<option value="" disabled selected>Seleccionar...</option>
 							<option value="BAJA">BAJA</option>
-							<option value="MEDIA">MEDIA</option>
+						<option value="MEDIA">MEDIA</option>
 							<option value="ALTA">ALTA</option>
 						</select>
 					</div>
@@ -224,6 +238,7 @@
 
 			<div class="relative flex w-full justify-center text-center ">
 				<p class="modal_title text-lg uppercase"></p>
+				<a href="" class="btn_pdf absolute right-2 top-0 btn btn-sm btn--search uppercase">Version PDF<i class="fas fa-print mx-1"></i></a>
 			</div>
 
 
@@ -268,6 +283,65 @@
 
 					<div class="relative flex flex-col w-full ">
 						<h5 class="text-center uppercase">Inicio de Reparacion</h5>
+						<input type="text" id="fecha_reparacion" class="text-center to_uppercase" readonly>
+					</div>
+
+					<div class="relative flex flex-col w-full ">
+						<h5 class="text-center uppercase">Fin de Reparacion</h5>
+						<input type="text" id="fin_reparacion" class="text-center to_uppercase" readonly>
+					</div>
+
+					<div class="flex flex-col w-full ">
+						<h5 class="text-center uppercase">Tiempo total reparacion</h5>
+						<input type="text" id="tiempo_total_reparacion" class="text-center to_uppercase" readonly>
+					</div>
+
+				</div>
+
+				<!-- <div class="flex w-full items-center justify-between gap-x-8 text-sm text-gray ">
+
+					<div class="relative flex flex-col w-full ">
+						<h5 class="text-center uppercase">Inicio de Limpieza y sanitizacion</h5>
+						<input type="text" id="fecha_inicio_limpieza" class="text-center to_uppercase" readonly>
+					</div>
+
+					<div class="relative flex flex-col w-full ">
+						<h5 class="text-center uppercase">Fin de Limpieza y sanitizacion</h5>
+						<input type="text" id="fecha_cierre_limpieza" class="text-center to_uppercase" readonly>
+					</div>
+
+					<div class="flex flex-col w-full ">
+						<h5 class="text-center uppercase">Tiempo total Limpieza y sanitizacion</h5>
+						<input type="text" id="tiempo_total_limpieza" class="text-center to_uppercase" readonly>
+					</div>
+
+				</div> -->
+
+
+				<!-- <div class="flex w-full items-center justify-between gap-x-8 text-sm text-gray ">
+
+					<div class="relative flex flex-col w-full ">
+						<h5 class="text-center uppercase">Notificacion de liberacion y calidad</h5>
+						<input type="text" id="fecha_inicio_liberacion" class="text-center to_uppercase" readonly>
+					</div>
+
+					<div class="relative flex flex-col w-full ">
+						<h5 class="text-center uppercase">Fin de liberacion y calidad</h5>
+						<input type="text" id="fecha_cierre_liberacion" class="text-center to_uppercase" readonly>
+					</div>
+
+					<div class="flex flex-col w-full ">
+						<h5 class="text-center uppercase">Tiempo total de liberacion y calidad</h5>
+						<input type="text" id="tiempo_total_liberacion" class="text-center to_uppercase" readonly>
+					</div>
+
+				</div> -->
+
+
+				<!-- <div class="flex w-full items-center justify-between gap-x-8 text-sm text-gray ">
+
+					<div class="relative flex flex-col w-full ">
+						<h5 class="text-center uppercase">Inicio de Reparacion</h5>
 						<input type="text" id="fecha_reparacion" class="text-center to_uppercase" >
 					</div>
 
@@ -281,14 +355,14 @@
 						<input type="text" id="fecha_cierre" class="text-center to_uppercase" readonly>
 					</div>
 
-				</div>
+				</div> -->
 
 
-				<div class="flex w-full items-center justify-between gap-x-8 text-sm text-gray ">
-
-					<div class="relative flex flex-col w-full ">
-						<h5 class="text-center uppercase">SLA</h5>
-						<input type="text" name="sla" class="text-center to_uppercase" readonly>
+				<!-- <div class="flex w-full items-center justify-between gap-x-8 text-sm text-gray ">
+					
+					<div class="relative flex flex-col w-full">
+						<h5 class="text-center uppercase">Solicitud Compra</h5>
+						<input type="text" name="solicitud_compra" class="text-center to_uppercase " readonly>
 					</div>
 
 					<div class="relative flex flex-col w-full ">
@@ -296,29 +370,56 @@
 						<input type="text" name="costo" class="text-center to_uppercase" readonly>
 					</div>
 
-					<div class="flex flex-col w-full ">
-						<h5 class="text-center uppercase">solicitud de Compra</h5>
-						<input type="text" name="solicitud_compra" class="text-center to_uppercase" readonly>
+					<div class="relative flex flex-col w-full ">
+						<h5 class="text-center uppercase">Tiempo de reaccion</h5>
+						<input type="text" name="tiempo_reaccion" class="text-center to_uppercase" readonly>
 					</div>
 
-				</div>
+				</div> -->
 
+				<!-- <div class="flex w-full items-center justify-between gap-x-8 text-sm text-gray ">
 
-				<div class="flex w-full items-center justify-center gap-x-8 text-sm text-gray ">
-					<div class="relative flex flex-col w-1/3 px-2">
+					<div class="relative flex flex-col w-full ">
+						<h5 class="text-center uppercase">SLA</h5>
+						<input type="text" name="sla" class="text-center to_uppercase" readonly>
+					</div>
+
+					<div class="relative flex flex-col w-full ">
+						<h5 class="text-center uppercase">Fecha de Cierre</h5>
+						<input type="text" id="fecha_cierre" class="text-center to_uppercase" readonly>
+					</div>
+
+					<div class="relative flex flex-col w-full">
 						<h5 class="text-center uppercase">Tiempo muerto</h5>
 						<input type="text" name="tiempo_muerto" class="text-center to_uppercase " readonly>
 					</div>
+
+				</div> -->
+
+				<div class="flex w-full items-center justify-center gap-x-8 text-sm text-gray ">
+					<!-- <div class="relative flex flex-col w-1/3 px-2">
+						<h5 class="text-center uppercase" style="color:#ff6600; font-weight: bold;">Hora Arranque</h5>
+						<input type="text" id="fecha_arranque" class="text-center to_uppercase " readonly>
+					</div> -->
+
+					<div class="relative flex flex-col  w-1/3 px-2">
+						<h5 class="text-center uppercase">Fecha de Cierre</h5>
+						<input type="text" id="fecha_cierre" class="text-center to_uppercase" readonly>
+					</div>
+
 					<div class="relative flex flex-col w-1/3 px-2">
 						<h5 class="text-center uppercase">Imputable a</h5>
-						<input type="text" name="imputable" class="text-center to_uppercase " readonly>
 
-						<!-- <select id="imputable"  name="imputable" class="text-center to_uppercase" >
+						<select id="imputable" name="imputable" class="text-center to_uppercase" >
 							<option value="" >Seleccionar ....</option>
-							<option value="1">Falla de equipo</option>
-							<option value="2">Ajustes de operación</option>
-							<option value="3">Materia prima</option>
-						</select> -->
+							<option value="Falla de equipo">Falla de equipo</option>
+							<option value="Ajuste de Operación">Ajuste de Operación</option>
+							<option value="Materia Prima">Materia Prima</option>
+							<option value="Ajuste de Arranque">Ajuste de Arranque</option>
+							<option value="Limpieza Sopleteo">Limpieza Sopleteo</option>
+						</select>
+
+						<!-- <input type="text" name="imputable" class="text-center to_uppercase " readonly> -->
 					</div>
 				</div>
 
@@ -436,17 +537,17 @@
 				<div class="flex flex-col w-full items-center justify-between gap-y-4 text-sm text-gray ">
 
 					<div class="flex flex-col w-full items-start space-y-2  ">
-						<h5 class="text-center uppercase">diagnostico</h5>
+						<h5 class="text-center uppercase">Diagnostico</h5>
 						<input type="text" name="diagnostico" class="px-4 py-2 w-full border border-grayMid bg-grayLight outline-none text-gray drop-shadow  " placeholder="Escribe aqui el diagnostico alcanzado ..." >
 					</div>
 
 					<div class="flex flex-col w-full items-start space-y-2  ">
 						<h5 class="text-center uppercase">Reparacion Realizada</h5>
-						<textarea name="reparacion_detalle" class="p-4 w-full border border-grayMid outline-none resize-none bg-grayLight text-gray drop-shadow " rows="4" placeholder="Escribe aquí el detalle de la reparación ..."></textarea>
+						<textarea name="reparacion_detalle" class="p-4 w-full border border-grayMid outline-none resize-none bg-grayLight text-gray drop-shadow " rows="4" placeholder="Escribe aquí el detalle de la reparación ..." ></textarea>
 					</div>
 				</div>
 
-				<p class="font-bold text-gray text-center text-xl pt-4">¿Se requiere algun cambio de pieza?</p>
+				<!-- <p class="font-bold text-gray text-center text-xl pt-4">¿Se requiere algun cambio de pieza?</p>
 
 				<div class="flex items-center justify-center gap-x-24 pt-4">
 					<label class="flex flex-col justify-center items-center">
@@ -460,7 +561,7 @@
 							<span class="checkbox-label"><i class="fas fa-check "></i></span>
 							<span>Si</span>
 					</label>
-				</div>
+				</div> -->
 
 				<div id="pregunta_compra" class="hidden my-4 flex flex-col w-full items-center justify-between gap-y-4 ">
 					<p class="font-bold text-gray text-center text-xl pt-4">¿El ticket require alguna compra?</p>
@@ -512,7 +613,7 @@
 
 					</div>
 
-					<div class="flex flex-col w-full items-center gap-y-2 justify-center w-1/3 ">
+					<!-- <div class="flex flex-col w-full items-center gap-y-2 justify-center w-1/3 ">
 						
 						<img id="produccion_firma" class="h-44 w-full border-2 border-grayMid bg-grayLight">  
 
@@ -527,7 +628,7 @@
 						<button data-area="produccionId" data-user-id="<?= session()->get('user')['id'] ?>" data-field="firma_produccion" class="btn_firmar flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="button">FIRMAR</button>
 						<?php endif; ?>
 
-					</div>
+					</div> -->
 
 				</div>
 
@@ -548,11 +649,21 @@
 						</label>
 					</div>
 				
+					<div id="add_limpieza_section" class="hidden my-10 flex items-start justify-center gap-x-12 w-full">
+						<div class="flex flex-col w-1/3 items-center gap-y-2 justify-center  ">
+
+							<p>¿Esta seguro ?</p>
+						
+							<button data-area="limpieza" class="btn_inicio_limpieza flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="button">Aceptar</button>
+						</div>
+
+					</div>
+					
 				</div>
 
 				<!-- firmas limpieza -->
 				<div id="limpieza_section" class="hidden my-10 flex items-start justify-center gap-x-12 w-full">
-					
+
 					<div class="flex flex-col w-1/3 items-center gap-y-2 justify-center  ">
 						
 						<img id="limpieza_firma" class="h-44 w-full border-2 border-grayMid bg-grayLight">  
@@ -611,6 +722,8 @@
 
 			</div>
 
+			<div id="msg_error" class="hidden flex w-full items-center justify-center text-warning font-semibold"></div>
+
 			<div class="flex w-full items-center justify-between text-sm  ">
 				<?php if (hasRole('mantenimiento') || hasRole('jefe_mantenimiento')): ?>
 				<button class="btn_close_modal flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="button">CANCELAR</button>
@@ -640,6 +753,86 @@
 <?php echo view('_partials/_modal_msg_tablet'); ?>
 
 <script>
+
+
+
+const monthSelect = document.getElementById('monthSelect');
+const yearSelect = document.getElementById('yearSelect');
+
+function generateYears(start = 2023, end = moment().year()) {
+  for (let y = start; y <= end; y++) {
+    const option = document.createElement('option');
+    option.value = y;
+    option.textContent = y;
+    yearSelect.appendChild(option);
+  }
+  yearSelect.value = moment().year();
+}
+
+function generateMonths(year) {
+  monthSelect.innerHTML = '<option value="">Seleccionar mes</option>';
+
+  const currentYear = moment().year();
+  const currentMonth = moment().month() + 1;  // moment().month() is 0-indexed, so we add 1
+
+  let totalMonths = 12;
+
+  // If the selected year is the current year, limit the months to the current month
+  if (year === currentYear) {
+    totalMonths = currentMonth;
+  }
+
+  for (let i = 1; i <= totalMonths; i++) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = moment().month(i - 1).format('MMMM'); // Use moment to get the month name
+    monthSelect.appendChild(option);
+  }
+
+  // ✅ Auto-select current month AND auto-load data
+  if (year === currentYear && totalMonths > 0) {
+    monthSelect.value = currentMonth;
+    monthSelect.dispatchEvent(new Event('change'));
+  }
+}
+
+generateYears();
+generateMonths(moment().year());
+
+
+
+function getMonthRange(year, month) {
+	return {
+		start_date: moment(`${year}-${month}-01`)
+			.startOf('month')
+			.format('YYYY-MM-DD'),
+
+		end_date: moment(`${year}-${month}-01`)
+			.endOf('month')
+			.format('YYYY-MM-DD')
+	};
+}
+
+
+const getListaMensual = (start_date, end_date) => {
+	const url = `mtickets/get_by_daterange/${start_date}/${end_date}`;
+	window.location.href = url;
+};
+
+const btn_download = document.getElementById('btn_download');
+btn_download.addEventListener('click', () => {
+	const month = parseInt(monthSelect.value);
+	const year = parseInt(yearSelect.value);
+
+	if (!month || !year) return;
+
+	const { start_date, end_date } = getMonthRange(year, month);
+	getListaMensual(start_date, end_date);
+});
+
+
+
+
 	const previewPhoto = (e) => {
 		const file = e.target.files[0];
 		if (file) {
@@ -856,11 +1049,11 @@
 				form.querySelector('#calidad_firma').src = `${root}/img/no_img_alt.png`; 
       }
 
-			if ( r.ticket.firma_produccion == "si" ) {
-				form.querySelector('#produccion_firma').src = `${root}/files/download?path=${r.produccion.signature}`; 
-      } else {
-				form.querySelector('#produccion_firma').src = `${root}/img/no_img_alt.png`; 
-      }
+			// if ( r.ticket.firma_produccion == "si" ) {
+			// 	form.querySelector('#produccion_firma').src = `${root}/files/download?path=${r.produccion.signature}`; 
+      // } else {
+			// 	form.querySelector('#produccion_firma').src = `${root}/img/no_img_alt.png`; 
+      // }
 
 			if ( r.ticket.firma_limpieza == "si" ) {
 				form.querySelector('#limpieza_firma').src = `${root}/files/download?path=${r.limpieza.signature}`; 
@@ -871,6 +1064,32 @@
     });
 
 	}
+
+	const submitLimpieza = (e) => {
+    let area = e.target.getAttribute('data-area');
+		let id = document.querySelector('input[name="mant_id"]').value;
+		let req_limpieza = document.querySelector('input[name="requiere_limpieza"]').value;
+
+		e.target.disabled = true;
+
+		const formData = new FormData();
+		formData.append('area', area);
+		formData.append('mantId', id);
+		formData.append('requiere_limpieza', req_limpieza);
+
+		Service.exec('post', `/add_limpieza_mt`, formData_header, formData)
+		.then( r => {
+			e.target.disabled = false;
+			document.querySelector('#add_limpieza_section').classList.add('hidden');
+		});
+	}
+
+	const allInitLimpieza = document.querySelectorAll('.btn_inicio_limpieza');
+	allInitLimpieza?.forEach( btn => {
+		btn.addEventListener('click', submitLimpieza);
+	});
+
+
 
 	const submitFirma = (e) => {
 
@@ -1085,17 +1304,6 @@ form_search?.addEventListener('submit', e => {
 
 
 
-  // const form_create = document.querySelector('#form_create');
-  // form_create?.addEventListener('submit', e => {
-  //   e.preventDefault();
-  //   let btn = e.target.querySelector('button[type="submit"]');
-
-  //   document.querySelector('#loadingOverlay').style.display = 'block';
-  //   btn.disabled = true;
-
-  //   e.target.submit();
-  // });
-	
 	const estado_ticket = document.querySelector('#form_ticket #estado_ticket1');
 	estado_ticket?.addEventListener('change', e => {
 		let form = document.querySelector(`#form_ticket`);
@@ -1110,7 +1318,7 @@ form_search?.addEventListener('submit', e => {
 			form.querySelector('input[name="estado_ticket"]').value = e.target.value;
 			
 			form.querySelector('input[name="fecha_arranque"]').value = moment().format('YYYY-MM-DD H:mm:ss');
-			form.querySelector('#fecha_arranque').value = moment().format('H:mm') + ' hrs.';
+			// form.querySelector('#fecha_arranque').value = moment().format('H:mm') + ' hrs.';
 			// form.querySelector('input[name="fecha_cierre"]').value = moment().format('YYYY-MM-DD H:mm:ss');
 		}
 	});
@@ -1120,12 +1328,15 @@ form_search?.addEventListener('submit', e => {
 		let _val = e.target.getAttribute('data-value');
 		let name = e.target.getAttribute('data-name');
 		let limpieza_section = document.querySelector('#limpieza_section');
+		let add_limpieza_section = document.querySelector('#add_limpieza_section');
 
 		document.querySelector(`input[name="${name}"]`).value = _val;
 
 		console.log(_val);
 
 		if(name == "requiere_limpieza") {
+			add_limpieza_section.classList.remove('hidden');
+
 			if(_val == 'si') {
 				limpieza_section.classList.remove('hidden');
 			} else {
@@ -1200,43 +1411,54 @@ form_search?.addEventListener('submit', e => {
   const initModalTicket = (id) => {
     let modal_ticket = document.querySelector(`#modal_ticket`);
     let title = modal_ticket.querySelector('.modal_title');
+    let btn_pdf = modal_ticket.querySelector('.btn_pdf');
 
 		let inventario_section = document.querySelector('#inventario_section');
 		let limpieza_section = document.querySelector('#limpieza_section');
 		let pregunta_compra = document.querySelector('#pregunta_compra');
 
 
-		// inventario_section.classList.add('hidden');
-
-    // let aprobaciones_container = document.querySelector(`#aprobaciones_container_${aprob_type}`);
-    // aprobaciones_container.innerHTML = Service.loader();
-		// console.log(id)
     Service.exec('get', `/get_ticket/${id}`)
     .then( r => {
 
       let form = document.querySelector(`#form_ticket`);
 
 			title.innerHTML = `${format_id(r.id, 'id')}`;
+			btn_pdf.href = `${root}/mtickets/print/${r.id}`;
 
 			// form?.reset();
       // aprobaciones_container.innerHTML = "";
 
       if (r) {
 			
-
 				form.querySelector('#mant_id').value = r.id;
 				form.querySelector('input[name="fecha_creacion"]').value = dateToString(r.created_at);
 				form.querySelector('input[name="hora_reporte"]').value = `${fixedTimeMoment(r.created_at, 'HH:mm')}`;
 				form.querySelector('input[name="solicitante"]').value = r.solicitante;
 
-				form.querySelector('#fecha_reparacion').value = `${dateToString(r.fecha_reparacion)} ${fixedTimeMoment(r.fecha_reparacion, 'HH:mm')}`;
+				form.querySelector('#fecha_reparacion').value = `${fixedTimeMoment(r.fecha_reparacion, 'HH:mm')} ${dateToString(r.fecha_reparacion)}`;
 				// form.querySelector('#fecha_arranque').value = `${fixedTimeMoment(r.fecha_arranque, 'DD-MM-YYYY HH:mm')}`;
-				form.querySelector('#fecha_arranque').value = `${fixedTimeMoment(r.fecha_arranque, 'HH:mm')}`;
+				// form.querySelector('#fecha_arranque').value = `${fixedTimeMoment(r.fecha_arranque, 'HH:mm')}`;
 
-				form.querySelector('#fecha_cierre').value = dateToString(r.fecha_arranque);
+				form.querySelector('#fin_reparacion').value = `${fixedTimeMoment(r.fecha_arranque, 'HH:mm')} ${dateToString(r.fecha_arranque)}`
+
+				// fecha cierre solo cuando encargado mantenimiento pone el ticket como firmado y cerrado
+				form.querySelector('#fecha_cierre').value = dateToString(r.fecha_cierre);
 
 
-				form.querySelector('input[name="sla"]').value = r.days_remaining;
+				// form.querySelector('#fecha_inicio_liberacion').value = `${fixedTimeMoment(r.fecha_inicio_liberacion, 'HH:mm')} ${dateToString(r.fecha_inicio_liberacion)}`;
+
+				// form.querySelector('#fecha_cierre_liberacion').value = `${fixedTimeMoment(r.fecha_cierre_liberacion, 'HH:mm')} ${dateToString(r.fecha_cierre_liberacion)}`;
+
+
+				// form.querySelector('#fecha_inicio_limpieza').value = `${fixedTimeMoment(r.fecha_inicio_limpieza, 'HH:mm')} ${dateToString(r.fecha_inicio_limpieza)}`;
+
+				// form.querySelector('#fecha_cierre_limpieza').value = `${fixedTimeMoment(r.fecha_cierre_limpieza, 'HH:mm')} ${dateToString(r.fecha_cierre_limpieza)}`;
+
+
+
+				// form.querySelector('input[name="sla"]').value = r.days_remaining;
+
 				form.querySelector('input[name="planta"]').value = r.planta;
 				form.querySelector('input[name="linea"]').value = r.linea;
 				form.querySelector('input[name="maquina"]').value = r.nombre;
@@ -1244,9 +1466,44 @@ form_search?.addEventListener('submit', e => {
 				form.querySelector('input[name="prioridad"]').value = r.prioridad;
 				form.querySelector('input[name="asunto"]').value = r.asunto;
 				form.querySelector('input[name="diagnostico"]').value = r.diagnostico;
+
+
+
 				form.querySelector('textarea[name="descripcion"]').value = r.descripcion;
 				form.querySelector('textarea[name="reparacion_detalle"]').value = r.reparacion_detalle;
 				form.querySelector('textarea[name="nota_inventario"]').value = r.nota_inventario;
+
+
+
+				// tiempo_reaccion =  fecha_inicio_liberacion - created_at
+
+				// if(r.fecha_inicio_liberacion) {			
+				// 	form.querySelector('input[name="tiempo_reaccion"]').value = getTimeDiff(r.created_at, r.fecha_reparacion);
+				// }
+
+
+				// tiempo_total_reparacion = fecha_reparacion - fecha_arranque
+
+				if(r.fecha_reparacion) {			
+					form.querySelector('#tiempo_total_reparacion').value = getTimeDiff(r.fecha_reparacion, r.fecha_arranque);
+				}
+
+				// tiempo_total_limpieza = fecha_cierre_limpieza - fecha_inicio_limpieza
+
+				// if(r.fecha_inicio_limpieza) {			
+				// 	form.querySelector('#tiempo_total_limpieza').value = getTimeDiff(r.fecha_inicio_limpieza, r.fecha_cierre_limpieza);
+				// }
+				
+
+				// tiempo_total_liberacion = fecha_cierre_liberacion - fecha_inicio_liberacion
+
+				// if(r.fecha_inicio_liberacion) {			
+				// 	form.querySelector('#tiempo_total_liberacion').value = getTimeDiff(r.fecha_arranque, r.fecha_cierre_liberacion);
+				// }
+
+
+
+
 
 				if(r.fecha_reparacion) {			
 					form.querySelector('input[name="fecha_reparacion"]').value = r.fecha_reparacion;
@@ -1257,10 +1514,6 @@ form_search?.addEventListener('submit', e => {
 					form.querySelector('input[name="fecha_cierre"]').value = r.fecha_arranque;
 
 				}
-
-				// if(r.fecha_cierre) {			
-				// 	form.querySelector('input[name="fecha_cierre"]').value = r.fecha_cierre;
-				// }
 				
 				if(r.cambio_pieza) {
 
@@ -1274,8 +1527,8 @@ form_search?.addEventListener('submit', e => {
 						inventario_section.classList.add('hidden');
 					}
 
-					form.querySelector(`input[data-name="cambio_pieza"][data-value="${r.cambio_pieza}"]`).checked = true;
-					form.querySelector('input[name="cambio_pieza"]').value = r.cambio_pieza
+					// form.querySelector(`input[data-name="cambio_pieza"][data-value="${r.cambio_pieza}"]`).checked = true;
+					// form.querySelector('input[name="cambio_pieza"]').value = r.cambio_pieza
 				}
 
 				if(r.compra_pieza) {
@@ -1286,12 +1539,6 @@ form_search?.addEventListener('submit', e => {
 					if(r.compra_pieza == 'no') {
 						inventario_section.classList.remove('hidden');
 					}
-
-					// if(r.compra_pieza == 'si') {
-					// 	inventario_section.classList.add('hidden');
-					// } else {
-					// 	inventario_section.classList.remove('hidden');
-					// }
 
 					form.querySelector(`input[data-name="compra_pieza"][data-value="${r.compra_pieza}"]`).checked = true;
 					form.querySelector('input[name="compra_pieza"]').value = r.compra_pieza
@@ -1310,7 +1557,9 @@ form_search?.addEventListener('submit', e => {
 					form.querySelector('input[name="requiere_limpieza"]').value = r.requiere_limpieza
 				}
 
+
 				setSelectedOption('#responsableId', r.responsableId, 'string')
+				setSelectedOption('#imputable', r.imputable, 'string')
 
 				// console.log(typeof r.estado_ticket)
 				setSelectedOption('#form_ticket #estado_ticket1', r.estado_ticket, 'string');
@@ -1321,10 +1570,16 @@ form_search?.addEventListener('submit', e => {
 					disableOptions(r.estado_ticket);
 				} 
 	
+				let total_times = 				[
+					[r.created_at, r.fecha_reparacion],
+					[r.fecha_reparacion, r.fecha_arranque],
+					[r.fecha_inicio_limpieza, r.fecha_cierre_limpieza],
+					[r.fecha_arranque, r.fecha_cierre_liberacion]
+				];
 
-				let t_muerto = getTimeDiff(r.fecha_reparacion, r.fecha_arranque);
+				let t_muerto = getTimeDiffArray(total_times);
 
-				form.querySelector('input[name="tiempo_muerto"]').value = t_muerto;
+				// form.querySelector('input[name="tiempo_muerto"]').value = t_muerto;
 
 
 				initComment(r.id);
@@ -1383,20 +1638,35 @@ form_search?.addEventListener('submit', e => {
   const form_ticket = document.querySelector('#form_ticket');
   form_ticket?.addEventListener('submit', e => {
 
+		// const img = document.querySelector('#adjunto_repar');
+		// const invalidSrc = '/img/no_img_alt.png';
+
+		// const hasValidImage =
+		// 	img &&
+		// 	img.src &&
+		// 	!img.src.endsWith(invalidSrc) &&
+		// 	img.complete &&
+		// 	img.naturalWidth > 0;
+
+		// if (!hasValidImage) {
+		// 	const fileInput = document.querySelector('#form_ticket #cameraInput');
+		// 	const msg_error = document.querySelector('#msg_error');
+
+		// 	if (!fileInput.files || fileInput.files.length === 0) {
+		// 		e.preventDefault();
+		// 		msg_error.classList.remove('hidden');
+		// 		msg_error.innerHTML = '* Es requerido adjuntar Evidencia de Mantenimiento (Foto)';
+		// 		return;
+		// 	}
+		// }
+
     e.preventDefault();
-    // let btn = e.target.querySelector('button[type="submit"]');
 		Service.stopSubmit(e.target, false);
-    // let _overlay = e.target.querySelector('.loading');
-
-    // btn.disabled = true;
-
+  
     const formData = new FormData(e.target);
-
-    // archivo_files.forEach((file, index) => {
-    //   formData.append(`archivo[${index}]`, file);
-    // });
-
     Service.show('.loading');
+
+		// debugFormData(formData); return;
 
     Service.exec('post', `/edit_mant`, formData_header, formData)
     .then( r => {
@@ -1405,6 +1675,7 @@ form_search?.addEventListener('submit', e => {
       if(r){
 
         form_ticket.reset();
+				msg_error.classList.add('hidden');
 
         let modal_active = document.querySelector('.modal_active');
         if (modal_active) {
@@ -1463,6 +1734,8 @@ form_search?.addEventListener('submit', e => {
 
       initRowBtn();
     } else {
+      initRowBtn();
+
       Service.show('#row__empty');
     }
   }

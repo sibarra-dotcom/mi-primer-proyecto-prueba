@@ -12,7 +12,7 @@ class MaquinariaModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['nombre', 'marca', 'modelo', 'serie', 'linea', 'planta', 'year', 'fechaAdqui'];
+    protected $allowedFields    = ['nombre', 'marca', 'modelo', 'serie', 'linea', 'planta', 'year', 'fechaAdqui', 'tipo', 'clave', 'estado'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -61,7 +61,15 @@ class MaquinariaModel extends Model
             if (!empty($searchCriteria['marca'])) {
                 $builder->like('maquinaria.marca', $searchCriteria['marca']);
             }
-
+            if (!empty($searchCriteria['clave'])) {
+								$builder->like('maquinaria.clave', $searchCriteria['clave']);
+						}
+						if (!empty($searchCriteria['tipo'])) {
+								$builder->like('maquinaria.tipo', $searchCriteria['tipo']);
+						}
+						if (!empty($searchCriteria['estado'])) {
+								$builder->like('maquinaria.estado', $searchCriteria['estado']);
+						}
 
             if (!empty($searchCriteria['modelo'])) {
                 $builder->like('maquinaria.modelo', $searchCriteria['modelo']);
@@ -72,12 +80,16 @@ class MaquinariaModel extends Model
             }
 
             if (!empty($searchCriteria['planta'])) {
-                $builder->like('maquinaria.planta', $searchCriteria['planta']);
+                $builder->where('maquinaria.planta', $searchCriteria['planta']);
             }
 
             if (!empty($searchCriteria['linea'])) {
-                $builder->like('maquinaria.linea', $searchCriteria['linea']);
+                $builder->where('maquinaria.linea', $searchCriteria['linea']);
             }
+
+						if (!empty($searchCriteria['fechaAdqui'])) {
+								$builder->where('maquinaria.fechaAdqui', $searchCriteria['fechaAdqui']);
+						}
         }
 
         // Fetch the filtered results
@@ -86,6 +98,15 @@ class MaquinariaModel extends Model
 
     public function getPlantas()
     {
-        return $this->select('planta')->distinct()->findAll();
+        // return $this->select('planta')->distinct()->findAll();
+				
+				$plantas = [
+					['planta' => '1- Artes'],
+					['planta' => '2- A05'],
+					['planta' => '3- GUARDA BOX']
+				];
+
+        return $plantas;
+
     }
 }

@@ -6,6 +6,7 @@
   <script src="<?= load_asset('js/Service.js') ?>"></script>
   <script src="<?= load_asset('js/helper.js') ?>"></script>
   <script src="<?= load_asset('js/modal.js') ?>"></script>
+  <script src="<?= load_asset('js/Modal.min.js') ?>"></script>
 
 
   <title><?= esc($title) ?></title>
@@ -45,18 +46,21 @@
 			<a href="<?= base_url('profile/change_password') ?>"  class="w-full flex items-center justify-center space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 uppercase">Cambiar Contraseña</a>
 		</div>
 
-		<div class="mb-12 w-full relative flex flex-col gap-y-6 items-center justify-center font-titil ">
+		<div class="mb-6 w-full relative flex flex-col gap-y-4 items-center justify-center font-titil ">
 			<h2 class=" text-4xl text-title font-bold ">Completa tu Perfil</h2>
-			<div class=" w-full relative flex flex-col gap-y-4 items-center justify-center font-titil ">
+			<div class=" w-full relative flex flex-col gap-y-2 items-center justify-center font-titil ">
 				<h2 class="text-2xl text-gray font-bold "><?= $profile_complete ?> %</h2>
 				<?= renderProgressBar($profile_complete) ?>
 				<p class="w-2/3">Crea tu firma digital para completar tu perfil. Esta firma te servirá para firmar documentos bajo tu nombre con validez oficial.</p>
 			</div>
+
+			<button type="button" id="btn_aviso" data-modal="modal_tos" class="modal-open-btn btn btn-md btn--primary">Ver Aviso de Privacidad</button>
+
 		</div>
 
 		<?php if (empty($signature)) :  ?>
-		<div class="flex items-center justify-center mb-12 ">
-			<a href="<?= base_url('profile/signature') ?>"  class="w-full flex items-center justify-center space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 uppercase">Crear Firma Digital</a>
+		<div class="flex items-center justify-center mb-8">
+			<a id="btn_signature" href="<?= ($aviso_confirmado == 1) ? base_url('profile/signature') : "#"?>"  class="w-full flex items-center justify-center space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 uppercase">Crear Firma Digital</a>
 		</div>
 		<?php endif; ?>
 
@@ -88,6 +92,38 @@
     </div>
   </div>
 
+<!-- modal TOS -->
+<div id="modal_tos" class="modal modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" data-dismiss="modal" class="modal-btn--close">&times;</button>
+      <h3 id="titleDocument">AVISO DE PRIVACIDAD</h3>
+    </div>
+    <div class="modal-body relative mb-6">
+      <div class="h-[450px] w-full" >
+				<iframe src="<?= base_url('assets/AVISO_DE_PRIVACIDAD.pdf') ?>#toolbar=1&navpanes=0&scrollbar=0&view=FitH" width="100%" height="450px" style="border:none;"></iframe>
+			</div>
+    </div>
+
+		<?php if ($aviso_confirmado == 0) :  ?>
+		<div id="section_aviso" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 w-fit self-center" >
+			<span class="text-lg text-link font-semibold">Confirmo he leido y comprendo el aviso.</span>
+
+			<div class="col flex justify-center ">
+				<div class="py-1">
+					<label>
+						<input type="checkbox" id="confirmar_aviso" class="checkbox_sorteo hidden">
+						<span class="checkbox-label-sorteo"><i class="fas fa-check"></i></span>
+					</label>
+				</div>
+			</div>
+
+		</div>
+		<?php endif; ?>
+
+  </div>
+</div>
+
 
 </div>
 
@@ -95,7 +131,38 @@
 
 <script>
  Service.setLoading();
- 
+const btn_signature = document.querySelector('#btn_signature');
+
+
+const setConfirmarAviso = (e) => {
+	Service.show('.loading');
+
+	const isChecked = e.target.checked;
+
+	const formData = new FormData();
+	formData.append('confirmar_aviso', isChecked ? 1 : 0);
+	formData.append('csrf_token', "<?= csrf_hash() ?>");
+
+	Service.exec('post', `/profile/confirmar_aviso`, formData_header, formData)
+	.then( r => {
+		if(r.success){
+			
+			Modal.init("modal_tos").close();
+			Service.hide('.loading');
+			Service.hide('#section_aviso');
+
+			if(btn_signature) {
+				btn_signature.href = "<?= base_url('profile/signature') ?>";
+			}
+		}
+	});
+}
+
+
+const checkbox_aviso = document.querySelector('#confirmar_aviso');
+checkbox_aviso?.addEventListener('change', setConfirmarAviso);
+
+
  const previewPhoto = (e) => {
 		const file = e.target.files[0];
 		if (file) {

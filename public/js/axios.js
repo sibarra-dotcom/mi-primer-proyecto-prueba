@@ -5,7 +5,7 @@ let axios_headers = {
   "Content-Type":   "application/json; charset=UTF-8",
 };
 
-let root = window.location.protocol == 'https:' ? 'https://portalgibanibb.com' : 'http://localhost/cotizacion';
+let root = window.location.protocol == 'https:' ? 'https://portalgibanibb.com' : '/portalgibanibb';
 
 const Cotizador = axios.create({
   baseURL: root,

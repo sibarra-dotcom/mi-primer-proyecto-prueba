@@ -10,6 +10,7 @@ use App\Models\Cotizacion;
 use App\Models\CotizArchivo;
 use App\Models\CotizDetalle;
 use App\Models\ArticuloComm;
+use App\Models\ArticuloCondModel;
 use App\Models\MantAdjunto;
 
 class Cotizar extends BaseController
@@ -26,6 +27,12 @@ class Cotizar extends BaseController
     public function index()
     {
         if ($this->request->getMethod() === 'GET') {
+
+						if (!hasAnyRole(['admin', 'desarrollo', 'calidad', 'cotizador', 'costos'])) {
+								// return redirect()->to('apps');
+								return redirect()->to(previous_url());
+						}
+
             $cotizacion = new Cotizacion();
             
             $_last = $cotizacion->orderBy('id', 'DESC')->first();
@@ -46,6 +53,7 @@ class Cotizar extends BaseController
             $cotizacion = new Cotizacion();
             $cotiz_detalle = new CotizDetalle();
             $art_comment = new ArticuloComm();
+            $cond_comment = new ArticuloCondModel();
 
             // echo "<pre>";
             // print_r($_POST);
@@ -76,6 +84,9 @@ class Cotizar extends BaseController
             $periodo = $this->request->getPost('periodo');
             $tipoDia = $this->request->getPost('tipoDia');
             $comentario = $this->request->getPost('comentario');
+            $condicion = $this->request->getPost('condicion');
+
+						$userId = $this->session->get('user')['id'];
 
             for ($i = 0; $i < count($nombreDelArticulo); $i++) {
                 $articuloId = $cotiz_detalle->insert([
@@ -112,12 +123,37 @@ class Cotizar extends BaseController
                 //     // $validation->getErrors();
                 // }
 
+		
 
-                $art_comment->insert([
-                    'userId' => $this->session->get('user')['id'],
-                    'articuloId' => $articuloId,
-                    'comentario' => !empty(trim($comentario[$i])) ? $comentario[$i] : 'empty',
-                ]);
+                // $art_comment->insert([
+                //     'userId' => $this->session->get('user')['id'],
+                //     'articuloId' => $articuloId,
+                //     'comentario' => !empty(trim($comentario[$i])) ? $comentario[$i] : 'empty',
+                // ]);
+
+								// $cond_comment->insert([
+								// 		'userId' => $this->session->get('user')['id'],
+								// 		'articuloId' => $articuloId,
+								// 		'condicion' => !empty(trim($condicion[$i])) ? $condicion[$i] : 'empty',
+								// ]);
+
+								if (!empty($comentario[$i]) && trim($comentario[$i]) !== '') {
+										$art_comment->insert([
+												'userId'     => $userId,
+												'articuloId' => $articuloId,
+												'comentario' => trim($comentario[$i]),
+										]);
+								}
+								
+								if (!empty($condicion[$i]) && trim($condicion[$i]) !== '') {
+										$cond_comment->insert([
+												'userId'     => $userId,
+												'articuloId' => $articuloId,
+												'condicion'  => trim($condicion[$i]),
+										]);
+								}
+								
+								
             }
 
 
@@ -193,8 +229,12 @@ class Cotizar extends BaseController
                     if ($file->isValid() && !$file->hasMoved()) {
 
                         $originalFileName = $file->getClientName();
+
+												$originalFileName = cleanFileName($originalFileName);
+
                         $file->move($targetDir, $originalFileName);
                         
+
                         // $data = [
                         //     'cotizacionId' => $this->request->getPost('cotiz_num'),
                         //     'archivo'      => $this->request->getPost('cotiz_num') . DIRECTORY_SEPARATOR . $originalFileName,
@@ -272,3 +312,4 @@ class Cotizar extends BaseController
     }
 
 }
+

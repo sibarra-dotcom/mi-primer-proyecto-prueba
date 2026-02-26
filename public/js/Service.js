@@ -9,6 +9,10 @@ class Service {
 		return '<div class="p-6 w-full flex justify-center"><span class="loader"></span></div>';
 	}
 
+	static loader_sm = () => {
+		return '<div class="p-1 w-full flex items-center justify-center"><span class="loader"></span></div>';
+	}
+
 	static empty = (message) => {
 		return `<div class="p-2 w-full text-center text-gray">${message}</div>`;
 	}

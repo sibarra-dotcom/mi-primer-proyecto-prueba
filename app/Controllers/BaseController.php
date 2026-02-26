@@ -41,7 +41,7 @@ abstract class BaseController extends Controller
      * Be sure to declare properties for any property fetch you initialized.
      * The creation of dynamic property is deprecated in PHP 8.2.
      */
-    // protected $session;
+    protected $session;
 
     /**
      * @return void
@@ -54,5 +54,22 @@ abstract class BaseController extends Controller
         // Preload any models, libraries, etc, here.
 
         $this->session = \Config\Services::session();
+    }
+
+    protected function returnJSON(bool $success, string $message, string $redirect = null)
+    {
+        $csrf = [
+            'name' => csrf_token(),
+            'hash' => csrf_hash(),
+        ];
+
+        $response = [
+            'success' => $success,
+            'message' => $message, 
+            'redirect' => $redirect,
+            'csrf' => $csrf,
+        ];
+
+        return $this->response->setJSON($response);
     }
 }

@@ -156,7 +156,7 @@
                     <th>
                       <div class="row__origen">
                         <span>Origen</span>
-                        <span>Incoterm</span>
+                        <span>Incot.</span>
                       </div>
                     </th>
                     <th>
@@ -166,7 +166,8 @@
                         <span>Cal</span>
                       </div>
                     </th>
-                    <th>Adj.</th>
+                    <th>Cot.</th>
+                    <th>F.T.</th>
                     <th>Coment.</th>
                     <!-- <th>Acciones</th> -->
                   </tr>
@@ -442,9 +443,70 @@
   </div>
 </div>
 
+<!-- Modal Ficha -->
+<div id="modal_ficha" class="hidden fixed inset-0 bg-dark bg-opacity-50 flex items-center justify-center font-titil ">
+  <div class=" flex flex-col space-y-8 bg-white border-2 border-icon p-10 w-full md:max-w-4xl  max-h-[85vh]">
+
+    <div class="relative flex flex-col gap-y-2 w-full justify-center text-center  ">
+      <h3 class="text-gray text-xl uppercase">Ficha Tecnica </h3>
+      <h2 class="text-gray uppercase"></h2>
+      <div class="btn_close_modal absolute -top-4 right-0 text-4xl text-gray cursor-pointer">&times;</div>
+    </div>
+    <div class=" flex flex-col space-y-2 w-full text-sm ">
+      <div class="flex w-full text-center">
+        <div class="w-44 bg-icon text-white p-2">Nombre</div>
+        <div class="w-28 bg-icon text-white p-2">Fecha</div>
+        <div class="flex-grow bg-icon text-white p-2">Archivo</div>
+      </div>
+      <div id="ficha_container" class="flex flex-col space-y-2 w-full "></div>
+    </div>
+
+
+  </div>
+</div>
+
 <?php echo view('_partials/_modal_msg'); ?>
 
 <script>
+	const initFicha = (artId) => {
+
+		let ficha_container = document.querySelector('#ficha_container');
+		ficha_container.innerHTML = Service.loader();
+
+		let modal_ficha = document.querySelector('#modal_ficha');
+		let subtitle = modal_ficha.querySelector('h2');
+
+		Service.exec('get', `/get_art_ficha/${artId}`)
+		.then( r => {
+			ficha_container.innerHTML = '';
+			subtitle.innerHTML = modal_ficha.dataset.articulo;
+			
+			if (r.length > 0) {
+
+				r.forEach(adj => {
+					const div = document.createElement('div');
+					div.className = 'row-adjunto';
+					div.innerHTML = `
+						<div class="w-44 p-2">${adj.name} ${adj.last_name}</div>
+						<div class="w-28 p-2 text-gray ">${dateToStringAlt(adj.fecha)}</div>
+						<div class="p-2 flex items-center space-x-2 text-link">
+							<i class="fas fa-paperclip"></i>
+							<a href="${root}/files/download?path=${adj.archivo}" target="_blank" class="underline ">${getEncodedFileName(adj.archivo)}</a>
+						</div>
+					`;
+					ficha_container.appendChild(div);
+				});
+
+			} else {
+				const div = document.createElement('div');
+				div.className = 'row-adjunto';
+				div.innerHTML = Service.empty('No se encontraron archivos.');
+				ficha_container.appendChild(div);
+			}
+		});
+
+	}
+
 
   document.addEventListener('DOMContentLoaded', () => {
     const btn_search = document.querySelector("#btn_search");
@@ -566,7 +628,7 @@
 
     const formData = new FormData(e.target);
 
-    Service.exec('post', `/search`, formData_header, formData)
+    Service.exec('post', `/search_articulos`, formData_header, formData)
     .then(r => {
       renderArticles(r);
       Service.stopSubmit(e.target, false);
@@ -616,22 +678,14 @@
     let aprobaciones_container = document.querySelector(`#aprobaciones_container_${aprob_type}`);
     aprobaciones_container.innerHTML = Service.loader();
 
-    Service.exec('get', `/get_aprobacion`, {params: { art_id: id, area: aprob_type }})
+    Service.exec('get', `/get_aprobacion/${id}/${aprob_type}`)
     .then( r => {
 
       let form = document.querySelector(`#form_aprobacion_${aprob_type}`);
 
-			if(form) {
-				let art_id = form.querySelector('input[name="art_id"]');
-				let comentario = form.querySelector('textarea[name="comentario"]');
-				let aprobId = form.querySelector('input[name="aprobId"]');
-			}
-
-			// form?.reset();
-
       aprobaciones_container.innerHTML = "";
 
-      if (r) {
+      if (r.id) {
 
 				const div = document.createElement('div');
 				div.className = 'row-comentario';
@@ -644,20 +698,25 @@
 				aprobaciones_container.appendChild(div);		
 				
 				if(form) {
+					let art_id = form.querySelector('input[name="art_id"]');
+					let comentario = form.querySelector('textarea[name="comentario"]');
+					let aprobId = form.querySelector('input[name="aprobId"]');
+					
 					art_id.value = r.articuloId;
 					aprobId.value = r.id;
 					comentario.value = r.comentario;
 					setSelectedOption(`#status_${aprob_type}`, r.status, 'string');
-					console.log(aprobId)
 				}
-
         
       } else {
 				if(form) {
+
+					let art_id = form.querySelector('input[name="art_id"]');
+					let aprobId = form.querySelector('input[name="aprobId"]');
+					
 					form?.reset();
 					art_id.value = id;
 					aprobId.value = "";
-					// console.log(aprobId)
 				}
 
         const div = document.createElement('div');
@@ -713,6 +772,12 @@
             }
           });
 
+        } else if (modal_id == 'modal_ficha') {
+          let id = e.currentTarget.getAttribute('data-id');
+					let modal_ficha = document.querySelector('#modal_ficha');
+					modal_ficha.dataset.articulo = btn.dataset.articulo;
+          initFicha(id);
+
         } else if (modal_id == 'modal_comment') {
           let id = e.currentTarget.getAttribute('data-id');
           let icon = e.currentTarget.querySelector('i');
@@ -751,10 +816,18 @@
 
       data.forEach(art => {
         const row = document.createElement('tr');
+				
+				let warning = "";
+
+				if (art.num_cond > 0) {
+					warning = `<i class="fas fa-triangle-exclamation text-warning text-lg pr-1"></i>`;
+				} 
+
         row.innerHTML =
           `
             <td>
               <div class="row__articulo">
+								${warning}
                 <span>${art.articulo}</span>
               </div>
             </td>
@@ -818,6 +891,11 @@
             <td>
               <div class="row__adjunto ">
                 <button data-modal="modal_files" data-id="${art.cotiz_id}" class="btn_open_modal rounded text-icon w-fit" type="button">${getIcon('clip')}</button>
+              </div>
+            </td>
+						<td>
+              <div class="row__adjunto ">
+                <button data-modal="modal_ficha" data-id="${art.art_id}" data-cotiz="${art.cotiz_id}" data-articulo="${art.articulo}" class="btn_open_modal rounded text-icon w-fit" type="button"><i class="fas fa-file-alt fa-2x"></i></button>
               </div>
             </td>
             <td>

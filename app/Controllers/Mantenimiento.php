@@ -74,6 +74,7 @@ class Mantenimiento extends BaseController
 
             $mant_id = $mant->insert($_data);
       
+
             // $targetDir = WRITEPATH . 'storage/mant/' . $this->request->getPost('mant_num');
             $targetDir = WRITEPATH . 'storage/mant/' . $mant_id;
 
@@ -115,14 +116,14 @@ class Mantenimiento extends BaseController
                         $originalFileName = $file->getClientName();
                         $file->move($targetDir, $originalFileName);
                         
-                        $data = [
+                        $data_file = [
                             // 'mantId' => $this->request->getPost('mant_num'),
                             // 'archivo' => 'mant' . DIRECTORY_SEPARATOR . $this->request->getPost('mant_num') . DIRECTORY_SEPARATOR . $originalFileName,
                             'mantId' => $mant_id,
                             'archivo' => 'mant' . DIRECTORY_SEPARATOR . $mant_id . DIRECTORY_SEPARATOR . $originalFileName,
                         ];
 
-                        $mant_adj->insert($data);
+                        $mant_adj->insert($data_file);
 
                     } else {
                         $validationErrors[] = [
@@ -179,6 +180,7 @@ class Mantenimiento extends BaseController
                 $this->session->setFlashdata('msg', 'Ticket creado');
                 return redirect()->to('/mantenimiento');
             } else {
+
                 $this->session->setFlashdata('msg_error', 'Ocurrio un Error');
                 $this->session->setFlashdata('msg', 'Ocurrio un Error');
                 return redirect()->to('/mantenimiento');

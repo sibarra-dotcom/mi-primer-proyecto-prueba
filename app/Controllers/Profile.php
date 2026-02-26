@@ -22,10 +22,13 @@ class Profile extends BaseController
 				{
 					$data['title'] = 'Mi Perfil';
 
-					$signature = $user->where('id', $this->session->get('user')['id'])->first()['signature'];
-					$data['signature'] = $signature;
-					$data['picture'] = $user->where('id', $this->session->get('user')['id'])->first()['picture'];
-					$data['profile_complete'] = $signature ? 100 : 80;
+					$user = $user->where('id', $this->session->get('user')['id'])->first();
+					$data['signature'] = $user['signature'];
+					$data['aviso_confirmado'] = $user['confirmar_aviso'];
+
+					$data['picture'] = $user['picture'];
+
+					$data['profile_complete'] = $user['signature'] ? 100 : 80;
 					$data['message'] = 'Iniciar Sesion';
 					
 					return view('profile/index', $data);
@@ -122,6 +125,40 @@ class Profile extends BaseController
 				}
 
     }
+
+		public function confirmar_aviso()
+    {
+				if ($this->request->getMethod() === 'POST')
+				{
+	
+					// echo "<pre>";
+					// print_r( $this->request->getPost());
+					// exit;
+
+					$user = new UserModel();
+					$userId = $this->session->get('user')['id'];
+
+					$data_det = [
+							'confirmar_aviso' => $this->request->getPost("confirmar_aviso")
+					];
+					
+					$response = $user->update($userId, $data_det);
+
+					if ($response) {
+							return $this->response->setJSON([
+									'success' => true,
+									'redirect' => '/success-page'
+							]);
+					} else {
+							return $this->response->setJSON([
+									'success' => false,
+									'errors' => "error on update"
+							]);
+					}
+				}
+		}
+		
+				
 
 		public function signature()
     {

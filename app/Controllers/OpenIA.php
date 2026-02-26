@@ -31,11 +31,60 @@ class OpenIA extends BaseController
 			$this->openiaTable = new OpeniaQueriesModel();
     }
 
+		public function read_pdf()
+    {
+				if ($this->request->getMethod() === 'POST')
+				{	
+					$pdf_text = $this->request->getPost('pdf-text');
+	
+					if (!$pdf_text || trim($pdf_text) === '') {
+							return $this->response->setJSON(['error' => 'Consulta vacía']);
+					}
+          $userPrompt = "
+						You will extract information from a manufacturing order document.\n\n
+						Only extract information from sections “Orden de fabricación”, “Detalles orden”, “Detalles artículo”, and “Rangos de llenado”.\n
+						Skip any section titled “Componentes” or data below that title.\n\n
+						For “Piezas por caja”, if there are two numbers (e.g., \"18.0000\" and \"0.0000\"), only return the **first valid number with decimals**.\n\n
+						For “Cantidad planificada”, include both the number and its **unit** (e.g., \"1,000 PIEZAS\").\n\n
+
+						Return JSON in the following format:\n
+						{\n
+								\"num_orden\": \"\",\n
+								\"fecha_vencimiento\": \"\",\n
+								\"codigo_cliente\": \"\",\n
+								\"pedido\": \"\",\n
+								\"tipo_orden\": \"\",\n
+								\"nombre_deudor\": \"\",\n
+								\"status_pedido\": \"\",\n
+								\"origen\": \"\",\n
+								\"cantidad_plan\": \"\",\n
+								\"num_articulo\": \"\",\n
+								\"desc_articulo\": \"\",\n
+								\"lote\": \"\",\n
+								\"caducidad\": \"\",\n
+								\"rfc_cliente\": \"\",\n
+								\"num_piezas\": \"\",\n
+								\"rango_min\": \"\",\n
+								\"rango_ideal\": \"\",\n
+								\"rango_max\": \"\"\n
+						}\n
+						If any field is missing, fill with “-”.\n\n    
+						Document content:\n\n" . $pdf_text;
+
+					$systemPrompt = "You are a helpful assistant that extracts structured data from text.";
+	
+					$chatResponse = $this->askChatGPT($userPrompt, $systemPrompt);
+
+					return $this->response->setJSON(['answer' => $chatResponse, 'source' => 'api']);
+				}
+
+    }
+
     public function index()
     {
         if ($this->request->getMethod() === 'GET')
         {
-					$data['title'] = 'IA CHAT GIBANIBB';
+					$data['title'] = 'OpenIA Chat';
 
 					return view('openia/index', $data);
         }
@@ -112,7 +161,8 @@ class OpenIA extends BaseController
 		
 						return $decoded['choices'][0]['message']['content'] ?? 'Error al procesar la respuesta de ChatGPT.';
 				} catch (\Exception $e) {
-						return 'Error al comunicarse con ChatGPT: ' . $e->getMessage();
+						return $this->response->setJSON(['error' => $e->getMessage()]);
+						// return 'Error al comunicarse con ChatGPT: ' . $e->getMessage();
 				}
 
     }

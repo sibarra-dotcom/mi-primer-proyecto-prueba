@@ -13,54 +13,15 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
 
-  <script src="<?= base_url('js/Validate.min.js') ?>"></script>
-  <script src="<?= base_url('js/helper.js') ?>"></script>
+  <script src="<?= load_asset('js/Service.js') ?>"></script>
+  <script src="<?= load_asset('js/helper.js') ?>"></script>
 
-  <link rel="stylesheet" href="<?= base_url('css/main.css') ?>">
-  <link rel="stylesheet" href="<?= base_url('css/nc_icons.min.css') ?>">
+	<script src="<?= load_asset('js/Validate.min.js') ?>"></script>
+
+  <link rel="stylesheet" href="<?= load_asset('css/main.css') ?>">
+	<link rel="icon" href="<?= base_url('img/logo.ico') ?>" type="image/x-icon">
   <title><?= esc($title) ?></title>
 
-<style>
-  
-
-  td {
-    max-width: auto;
-    border: 1px solid #ccc;
-    padding: 2px 4px;
-    text-align: left;
-    color: black;
-  }
-
-  tr{
-    background-color: white;
-  }
-
-
-  th {
-    font-weight: 300;
-    font-size: 14px;
-    position: sticky;
-    top: 0;
-    padding: 10px 4px;
-    background-color: #212121;
-    color: #fff;
-    text-align: center;
-    vertical-align: middle;
-    border: 1px solid #e2e3e5;
-  }
-
-
-
-</style>
 </head>
 
-<body class="relative  flex flex-col font-noto">
-
-  <nav class="w-full px-2 md:px-32 py-2 drop-shadow flex items-center justify-between">
-    <a href="<?= base_url('user/dashboard') ?>" > <img src="<?= base_url('img/leaves.png') ?>" alt="Login Image" class="w-16 h-16 rounded-full "> </a>
-
-    <div class="flex items-center space-x-6">
-      <a href="<?= base_url('user/link') ?>" > <i class="fas fa-envelope text-twt text-2xl"></i> </a>
-      <a href="<?= base_url('user/link') ?>" > <img src="<?= base_url('img/user_img.png') ?>" alt="Login Image" class="w-10 h-10 rounded-full border-2 border-cta"> </a>
-    </div>
-  </nav>
+<body class="relative  flex flex-col ">

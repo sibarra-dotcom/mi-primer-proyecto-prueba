@@ -18,8 +18,6 @@
 
     <?php echo view('cotizar/_partials/navbar'); ?>
 
-    <a href="<?= base_url('auth/signout') ?>" class="hidden absolute top-10 right-10 px-8 py-4 text-lg bg-red bg-opacity-60 text-white rounded hover:bg-opacity-80 cursor-pointer">Cerrar Sesión</a>
-
     <div class="text-title w-full md:pt-4 md:pb-8 md:px-16 p-2 flex items-center ">
       <h2 class="text-center font-bold w-full text-3xl "><?= esc($title) ?></h2>
       <a href="<?= base_url('apps') ?>" class="self-end hover:scale-105 transition-transform duration-300 "> <i class="fas fa-arrow-turn-up fa-2x fa-rotate-270"></i></a>
@@ -28,19 +26,20 @@
     <div class="w-full text-sm text-gray ">
       <div class="flex flex-col h-full" >
 
-        <form id="form_search" class="pb-6 px-10 flex w-full items-center justify-center " method="post">
+        <form id="form_search" class="search-row pb-6 px-10 flex w-full items-center justify-center " method="post">
+
           <?= csrf_field() ?>
 
-          <div class="relative flex flex-col pr-4  w-64">
+          <div class="relative flex flex-col pr-4 w-64">
             <h5 class="text-center uppercase">Proveedor</h5>
-            <input type="text" class="to_uppercase" id="proveedor" placeholder="Razón social de proveedor" >
+            <input type="text" class=" to_uppercase" id="proveedor" placeholder="Razón social de proveedor" >
 						<input type="hidden" id="proveedor_name" name="proveedor">
             <ul id="lista_prov" class="absolute z-40 top-12 bg-grayLight border border-super w-full h-32 overflow-y-scroll"></ul>
           </div>
 
           <div class="relative flex flex-col pr-4  w-64">
             <h5 class="text-center uppercase">Articulo</h5>
-            <input type="text" class="to_uppercase" id="articulo" name="articulo" placeholder="Nombre de artículo" >
+            <input type="text" class=" to_uppercase" id="articulo" name="articulo" placeholder="Nombre de artículo" >
             <ul id="lista_articulos" class="absolute z-40 top-12 bg-grayLight border border-super w-full h-32 overflow-y-scroll"></ul>
           </div>
 
@@ -90,10 +89,10 @@
             </select>
           </div>
 
-          <button id="btn_search" type="submit"><span>BUSCAR</span></button>
+          <button class="btn btn-md btn--cta" type="submit"><i class="fas fa-search"></i><span>BUSCAR</span></button>
         </form>
 
-        <div class="pb-4 px-10 flex w-fit items-center space-x-4">
+        <div class="search-cotiz-busqueda pb-4 px-10 flex w-fit items-center space-x-4">
           <span>ORDENAR POR:</span>
           <select id="order_by" name="order_by" class="w-44">
             <option value="" disabled selected>Seleccionar...</option>
@@ -108,7 +107,7 @@
 
         <div class="w-full pl-8 pr-6 ">
 					<div class="relative w-full text-sm h-[55vh] overflow-y-scroll ">
-            <table id="table_results">
+            <table id="table_results" class="tabla-cotiz-busqueda">
               <thead>
                 <tr>
                   <th>Nombre del artículo</th>
@@ -132,7 +131,7 @@
                   <th>
                     <div class="row__origen">
                       <span>Origen</span>
-                      <span>Incoterm</span>
+                      <span>Incot.</span>
                     </div>
                   </th>
                   <th>
@@ -142,7 +141,8 @@
                       <span>Cal</span>
                     </div>
                   </th>
-                  <th>Adj.</th>
+                  <th>Cot.</th>
+                  <th>F.T.</th>
                   <th>Coment.</th>
                   <th>Acciones</th>
                 </tr>
@@ -174,7 +174,7 @@
 
         <div class="relative flex flex-col  w-72">
           <h5 class="text-center uppercase">Nombre Del Articulo</h5>
-          <input type="text" name="nombreDelArticulo" class="to_uppercase" required>
+          <input type="text" name="nombreDelArticulo" class="required_gray to_uppercase" required>
         </div>
 
         <div class="relative flex flex-col  w-72">
@@ -256,6 +256,9 @@
 
       </div>
 
+			<div id="condiciones_container"class="flex flex-col gap-y-2 w-full items-center justify-between text-sm text-gray ">
+			</div>
+
     </div>
 
 
@@ -307,7 +310,7 @@
 
         <div class="relative flex flex-col  w-72">
           <h5 class="text-center uppercase">Nombre Del Articulo</h5>
-          <input type="text" name="nombreDelArticulo" class="to_uppercase" required>
+          <input type="text" name="nombreDelArticulo" class="input_modal to_uppercase" required>
         </div>
 
         <div class="relative flex flex-col  w-72">
@@ -343,7 +346,7 @@
 
         <div class="relative flex flex-col w-28">
           <h5 class="text-center uppercase">Costo Unitario</h5>
-          <input name="costoPorUnidad" type="number" step="0.000001" min="0.000001" oninput="calcularImporte(this)" required >
+          <input name="costoPorUnidad" type="number" step="0.000001" min="0.000001" oninput="calcularImporte(this)" class="input_modal" required >
         </div>
 
         <div class="relative flex flex-col  ">
@@ -381,14 +384,14 @@
 
         <div class="relative flex flex-col ">
           <h5 class="text-center uppercase">Minimo de Compra</h5>
-          <input name="minimo" type="number" step="0.001" min="0.001" required >
+          <input name="minimo" type="number" class="input_modal" step="0.001" min="0.001" required >
         </div>
 
         <div class="relative flex flex-col ">
           <h5 class="text-center uppercase">Tiempo de Entrega</h5>
           <div class="flex space-x-2 items-center">
             <input type="hidden" id="diasDeEnvio" name="diasDeEnvio" >
-            <input id="cantidadPer" name="cantidadPer" type="number" step="1" min="1" required>
+            <input id="cantidadPer" name="cantidadPer" class="input_modal" type="number" step="1" min="1" required>
             <select id="periodo" name="periodo" required>
               <option value="DIA">Dia(s)</option>
               <option value="SEMANA">Semana(s)</option>
@@ -408,8 +411,26 @@
 
     </div>
 
+		<!-- adjuntar archivos -->
+		<div class="modal-toggle-wrapper ">
+			<h3 class="text-title text-center uppercase font-bold pt-2"><i class="fas fa-plus"></i> Adjuntar Archivo</h3>
+			<div class="flex flex-col space-y-2 w-full text-sm">
+				<div class=" modal-drag-drop-wrapper">
+					<div data-id="drop-editar" class="drop-area modal-drag-drop">
+						<span>Arrastre y suelte sus archivos para agregarlos.</span>
+						<input type="file" class="hidden" multiple>
+						<ul></ul>
+					</div>
+					<div class="form-row-submit ">
+						<button class="btn_file_click modal-btn--submit" type="button" >
+						ABRIR CARPETA
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <div id="add_files" class=" mx-auto w-2/3 flex flex-col space-y-4  items-center ">
+    <!-- <div id="add_files" class=" mx-auto w-2/3 flex flex-col space-y-4  items-center ">
       <div id="dragDropContainer" class="drag-drop-container relative flex flex-col items-center justify-start p-4 w-full border-2 border-dashed border-super bg-grayLight h-44 overflow-y-auto text-super ">
         <span class="absolute top-20 left-0 right-0 text-center">Arrastre y suelte sus archivos para agregarlos.</span>
         <input type="file" id="modal_file_input" class="hidden" multiple>
@@ -425,10 +446,10 @@
         </button>
       </div>
 
-    </div>
+    </div> -->
 
     <div class="flex justify-end space-x-12 text-sm ">
-      <p id="files_loaded" class=" text-title text-lg "></p>
+      <!-- <p id="files_loaded" class=" text-title text-lg "></p> -->
 
       <button class=" flex space-x-4 items-center shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="submit" >
         <span>ACTUALIZAR</span>
@@ -436,7 +457,7 @@
 
     </div>
 
-    <input id="file_input" class="hidden" type="file" name="archivo[]" multiple>
+    <!-- <input id="file_input" class="hidden" type="file" name="archivo[]" multiple> -->
     <input type="hidden" id="importe" name="importe">
   </form>
 </div>
@@ -693,7 +714,7 @@
           </div>
           <div class="flex w-fit space-x-2 ">
             <p>Estado: </p>
-            <select id="status_calidad" name="status" class="input_alt w-32" required>
+            <select id="status_calidad" name="status" class="select_filter w-32" required>
               <option value="PENDIENTE">PENDIENTE</option>
               <option value="NO APROBADO">NO APROBADO</option>
               <option value="APROBADO">APROBADO</option>
@@ -719,10 +740,112 @@
   </div>
 </div>
 
+<!-- Modal Ficha -->
+<div id="modal_ficha" class="hidden fixed inset-0 bg-dark bg-opacity-50 flex items-center justify-center font-titil ">
+  <div class=" flex flex-col space-y-8 bg-white border-2 border-icon p-10 w-full md:max-w-4xl  max-h-[85vh]">
+
+    <div class="relative flex flex-col gap-y-2 w-full justify-center text-center  ">
+      <h3 class="text-gray text-xl uppercase">Ficha Tecnica </h3>
+      <h2 class="text-gray uppercase"></h2>
+      <div class="btn_close_modal absolute -top-4 right-0 text-4xl text-gray cursor-pointer">&times;</div>
+    </div>
+    <div class=" flex flex-col space-y-2 w-full text-sm ">
+      <div class="flex w-full text-center">
+        <div class="w-44 bg-icon text-white p-2">Nombre</div>
+        <div class="w-28 bg-icon text-white p-2">Fecha</div>
+        <div class="flex-grow bg-icon text-white p-2">Archivo</div>
+      </div>
+      <div id="ficha_container" class="flex flex-col space-y-2 w-full "></div>
+    </div>
+
+
+		<form id="form_ficha" method="post" class="modal-body" enctype='multipart/form-data'>
+
+			<div class="modal-toggle-wrapper ">
+				<h3 class="text-title text-center uppercase font-bold pt-2"><i class="fas fa-plus"></i> Adjuntar Archivo</h3>
+				<div class="flex flex-col space-y-2 w-full text-sm">
+					<div class=" modal-drag-drop-wrapper">
+						<div data-id="drop-ficha" class="drop-area modal-drag-drop">
+							<span>Arrastre y suelte sus archivos para agregarlos.</span>
+							<input type="file" class="hidden" multiple>
+							<ul></ul>
+						</div>
+						<div class="form-row-submit ">
+							<button class="btn_file_click modal-btn--submit" type="button" >
+							ABRIR CARPETA
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+      <div class="form-row-submit">
+        <button type="submit" class="modal-btn--submit">Actualizar</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
 
 <?php echo view('_partials/_modal_msg'); ?>
+<script src="<?= load_asset('js/dragDrop.js') ?>"></script>
 
 <script>
+  Service.setLoading();
+
+	const form_ficha = document.querySelector('#form_ficha');
+	form_ficha.addEventListener('submit', e => {
+		e.preventDefault();
+		Service.stopSubmit(e.target, true);
+		Service.show('.loading');
+
+		let lista = form_ficha.querySelector(".drop-area  ul");
+		let dragText = form_ficha.querySelector(".drop-area  span");
+
+		const formData = new FormData(e.target);
+		const files = fileStorage.get('drop-ficha'); 
+
+		if (files.length > 0) {
+			files.forEach(file => {
+				formData.append('archivo[]', file);
+			});
+		}
+
+		let artId = form_ficha.dataset.id;
+		let cotizId = form_ficha.dataset.cotiz;
+		if (artId) {
+			formData.append('artId', artId);
+			formData.append('cotizId', cotizId);
+		}
+
+    Service.exec('post', `/busqueda/upload_ficha`, formData_header, formData)
+    .then( r => {
+      if(r.success){
+
+				Service.hide('.loading');
+
+				form_ficha.reset();
+				lista.innerHTML = "";
+				dragText.style.display = 'block';
+
+				Service.stopSubmit(e.target, false);
+
+				initFicha(artId);
+
+				clearFiles('drop-ficha');
+			}
+    });
+	});
+
+
+	const clearFiles = (id) => {
+		let archivo_files = fileStorage.get(id);
+		if (archivo_files) archivo_files.length = 0;
+	}
+	
+
+
 
 const proveedor = document.getElementById('proveedor');
 const proveedorName = document.getElementById('proveedor_name');
@@ -734,7 +857,7 @@ proveedor.addEventListener('keyup', event => {
 	if (query.length >= 3) {
 		Service.exec('get', `/get_proveedor`, { params: { q: query } })
 		.then( r => {
-			console.log(r)
+			// console.log(r)
 
 			// Populate the user list
 			lista_prov.innerHTML = ''; // Clear previous results
@@ -767,17 +890,6 @@ document.addEventListener('click', (e) => {
 });
 
 
-
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const btn_search = document.querySelector("#btn_search");
-    const svgIcon = document.createElement("span");
-    svgIcon.innerHTML = getIcon('search');
-    // console.log(svgIcon)
-    btn_search.prepend(svgIcon);
-  });
-
-  Service.setLoading();
 
   const addComment = document.querySelector('#add_comment');
   const btnAddComment = document.querySelector('#btn_add_comment');
@@ -867,105 +979,21 @@ document.addEventListener('click', (e) => {
   };
 
 
-  const modalFileInput = document.querySelector('#modal_file_input');
-  const fileInput = document.getElementById('file_input');
-  const files_loaded = document.getElementById('files_loaded');
-  const dragDropContainer = document.getElementById('dragDropContainer');
-  const fileList = document.getElementById('fileList');
-
-  dragDropContainer?.addEventListener('dragover', (event) => {
-    event.preventDefault();
-    dragDropContainer.classList.add('dragover');
-  });
-
-  dragDropContainer?.addEventListener('dragleave', () => {
-    dragDropContainer.classList.remove('dragover');
-  });
-
-  dragDropContainer?.addEventListener('drop', (event) => {
-    event.preventDefault();
-    dragDropContainer.classList.remove('dragover');
-    handleFiles(event.dataTransfer.files);
-  });
-
-
-  let archivo_files = [];
-
-  const updateFileList = () => {
-    dragDropContainer.querySelector('span').innerHTML = '';
-    fileList.innerHTML = ''; 
-
-    archivo_files.forEach((file, index) => {
-
-      const fileItem = document.createElement('li');
-      fileItem.innerHTML = `<span>${(file.size / 1024).toFixed(2)} KB<span> <span>${trimFileName(file.name)}</span>`;
-
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'delete-btn';
-      deleteBtn.innerHTML = '&times;';
-
-      deleteBtn.addEventListener('click', () => {
-        archivo_files.splice(index, 1); 
-        console.log(archivo_files)
-        updateFileList();
-      });
-
-      fileItem.appendChild(deleteBtn);
-      fileList.appendChild(fileItem);
-    });
-  }
-
-
-  modalFileInput?.addEventListener('change', e => {
-    if (e.target.files.length > 10) {
-      alert('You can upload a maximum of 10 files.');
-      return;
-    }
-
-    const _files = e.target.files;
-
-    for (let i = 0; i < _files.length; i++) {
-      archivo_files.push(_files[i]);
-    }
-
-    updateFileList();
-  });
-
-
-  const btn_open_files = document.getElementById('btn_open_files');
-  btn_open_files?.addEventListener('click', () => modalFileInput.click());
-
-  const btn_add_files = document.getElementById('btn_add_files');
-  btn_add_files?.addEventListener('click', () => {
-    const totalFiles = fileList.children.length;
-    let files_loaded = document.getElementById('files_loaded');
-    files_loaded.textContent = `Archivos adjuntos: ${totalFiles}`;
-  });
-
-  const trimFileName = (fileName, maxLength = 18) => {
-    if (fileName.length <= maxLength) {
-      return fileName;
-    }
-
-    const extension = fileName.substring(fileName.lastIndexOf('.'));
-    const baseName = fileName.substring(0, maxLength - extension.length);
-    return `${baseName}...`;
-  };
-
-
   const results_container = document.querySelector('#results_container');
 
   const form_search = document.querySelector('#form_search');
   form_search?.addEventListener('submit', e => {
     e.preventDefault();
+		Service.hide('#row__empty');
     Service.stopSubmit(e.target, true);
 
     results_container.innerHTML = Service.loader();
 
     const formData = new FormData(e.target);
 
-    Service.exec('post', `/search`, formData_header, formData)
+    Service.exec('post', `/search_articulos`, formData_header, formData)
     .then(r => {
+
       renderArticles(r);
       Service.stopSubmit(e.target, false);
     });  
@@ -974,32 +1002,34 @@ document.addEventListener('click', (e) => {
 
   const form_edit = document.querySelector('#form_edit');
   form_edit?.addEventListener('submit', e => {
-
     e.preventDefault();
-    let btn = e.target.querySelector('button[type="submit"]');
-    let _overlay = e.target.querySelector('.loading');
+		Service.stopSubmit(e.target, true);
+		Service.show('.loading');
 
-    // btn.disabled = true;
+		let lista = form_edit.querySelector(".drop-area  ul");
+		let dragText = form_edit.querySelector(".drop-area  span");
 
     const formData = new FormData(e.target);
+		const files = fileStorage.get('drop-editar'); 
 
-    archivo_files.forEach((file, index) => {
-      formData.append(`archivo[${index}]`, file);
-    });
-
-    Service.show('.loading');
+		if (files.length > 0) {
+			files.forEach(file => {
+				formData.append('archivo[]', file);
+			});
+		}
 
     Service.exec('post', `/edit_art`, formData_header, formData)
     .then( r => {
-      // console.log(r); return;
 
-      if(r){
-        files_loaded.textContent = '';
-        dragDropContainer.querySelector('span').innerHTML = 'Arrastre y suelte sus archivos para agregarlos.';
-        fileList.innerHTML = '';
-        archivo_files = [];
+      if(r.success){
+				Service.stopSubmit(e.target, false);
+				Service.hide('.loading');
 
         form_edit.reset();
+				lista.innerHTML = "";
+				dragText.style.display = 'block';
+
+				clearFiles('drop-editar');
 
         let modal_active = document.querySelector('.modal_active');
         if (modal_active) {
@@ -1014,13 +1044,55 @@ document.addEventListener('click', (e) => {
         }
 
         loadAllArticles();  // load all articles with filtros de busqueda
-
-        Service.hide('.loading');
-        // return;
       }
+
     });
   });
 
+
+	const initFicha = (artId) => {
+
+		let ficha_container = document.querySelector('#ficha_container');
+		ficha_container.innerHTML = Service.loader();
+
+		let modal_ficha = document.querySelector('#modal_ficha');
+		let subtitle = modal_ficha.querySelector('h2');
+		let form = modal_ficha.querySelector('#form_ficha');
+
+		form.style.display = 'block';
+
+		Service.exec('get', `/get_art_ficha/${artId}`)
+		.then( r => {
+			ficha_container.innerHTML = '';
+			subtitle.innerHTML = form.dataset.articulo;
+
+			if (r.length > 0) {
+
+				form.style.display = 'none';
+
+				r.forEach(adj => {
+					const div = document.createElement('div');
+					div.className = 'row-adjunto';
+					div.innerHTML = `
+						<div class="w-44 p-2">${adj.name} ${adj.last_name}</div>
+						<div class="w-28 p-2 text-gray ">${dateToStringAlt(adj.fecha)}</div>
+						<div class="p-2 flex items-center space-x-2 text-link">
+							<i class="fas fa-paperclip"></i>
+							<a href="${root}/files/download?path=${adj.archivo}" target="_blank" class="underline ">${getEncodedFileName(adj.archivo)}</a>
+						</div>
+					`;
+					ficha_container.appendChild(div);
+				});
+
+			} else {
+				const div = document.createElement('div');
+				div.className = 'row-adjunto';
+				div.innerHTML = Service.empty('No se encontraron archivos.');
+				ficha_container.appendChild(div);
+			}
+		});
+
+	}
 
   const initModalComment = (id, icon) => {
     let comentarios_container = document.querySelector('#comentarios_container');
@@ -1066,7 +1138,7 @@ document.addEventListener('click', (e) => {
     let aprobaciones_container = document.querySelector(`#aprobaciones_container_${aprob_type}`);
     aprobaciones_container.innerHTML = Service.loader();
 
-    Service.exec('get', `/get_aprobacion`, {params: { art_id: id, area: aprob_type }})
+    Service.exec('get', `/get_aprobacion/${id}/${aprob_type}`)
     .then( r => {
 
       let form = document.querySelector(`#form_aprobacion_${aprob_type}`);
@@ -1159,9 +1231,43 @@ document.addEventListener('click', (e) => {
             form_details.querySelector('[name="importe"]').value = r.importe;
           });
 
+					let condiciones_container = form_details.querySelector("#condiciones_container")
+
+					Service.exec('get', `/get_condiciones/${id}`)
+					.then( r => {
+						condiciones_container.innerHTML = "";
+
+						if ( r.length > 0 ) {
+							r.forEach(comm => {
+								const div = document.createElement('div');
+								div.className = 'flex w-full bg-warning text-dark bg-opacity-30 p-1 ';
+								div.innerHTML = `
+									<div class="w-28 p-2 text-center">${dateToString(comm.created_at)}</div>
+									<i class="fas fa-triangle-exclamation text-warning text-2xl pr-2"></i>
+									<div class="p-2">${comm.condicion}</div>
+								`;
+								condiciones_container.appendChild(div);
+							});
+
+						} else {
+							const div = document.createElement('div');
+							div.className = 'row-comentario';
+							div.innerHTML = Service.empty('No hay datos.');
+							condiciones_container.appendChild(div);
+						}
+					});
+
+
+
 				} else if (modal_id == 'modal_edit') {
           let id = e.currentTarget.getAttribute('data-id');
           let cotiz_id = e.currentTarget.getAttribute('data-cotiz');
+
+					let lastCotizId = form_edit.querySelector('[name="cotiz_id"]');
+					lastCotizId?.remove();
+
+					let lastArtId = form_edit.querySelector('[name="art_id"]');
+					lastArtId?.remove();
 
           const cotizId= document.createElement('input');
           cotizId.type = 'hidden'
@@ -1237,6 +1343,15 @@ document.addEventListener('click', (e) => {
             }
           });
 
+        } else if (modal_id == 'modal_ficha') {
+
+					let id = e.currentTarget.getAttribute('data-id');
+					form_ficha.dataset.id = btn.dataset.id;
+					form_ficha.dataset.cotiz = btn.dataset.cotiz;
+					form_ficha.dataset.articulo = btn.dataset.articulo;
+
+					initFicha(id);
+
         } else if (modal_id == 'modal_comment') {
           let id = e.currentTarget.getAttribute('data-id');
           let icon = e.currentTarget.querySelector('i');
@@ -1256,16 +1371,28 @@ document.addEventListener('click', (e) => {
     const allBtnClose = document.querySelectorAll('.btn_close_modal')
     allBtnClose?.forEach( btn => {
       btn.addEventListener('click', (e) => {
+
         let modal_active = document.querySelector('.modal_active');
         if (modal_active) {
           modal_active.classList.add('hidden');
           modal_active.classList.remove('modal_active');
           addComment.classList.add('hidden');
+				
+					let lista = modal_active.querySelector(".drop-area  ul");
+					let dragText = modal_active.querySelector(".drop-area  span");
 
-          files_loaded.textContent = '';
-          dragDropContainer.querySelector('span').innerHTML = 'Arrastre y suelte sus archivos para agregarlos.';
-          fileList.innerHTML = '';
-          archivo_files = [];
+					if(lista && dragText) {
+						clearFiles('drop-ficha');
+						clearFiles('drop-editar');
+						
+						lista.innerHTML = "";
+						dragText.style.display = 'block';
+					}
+
+          // files_loaded.textContent = '';
+          // dragDropContainer.querySelector('span').innerHTML = 'Arrastre y suelte sus archivos para agregarlos.';
+          // fileList.innerHTML = '';
+          // archivo_files = [];
 
           form_add_comment.reset();
           form_edit.reset();
@@ -1346,10 +1473,18 @@ document.addEventListener('click', (e) => {
 				row.setAttribute('data-modal', 'modal_details');
 				row.setAttribute('data-id', art.art_id);
 				row.setAttribute('data-cotiz', art.cotiz_id);
+
+				let warning = "";
+
+				if (art.num_cond > 0) {
+					warning = `<i class="fas fa-triangle-exclamation text-warning text-lg pr-1"></i>`;
+				} 
+
         row.innerHTML =
           `
             <td>
               <div class="row__articulo">
+								${warning}
                 <span>${art.articulo}</span>
               </div>
             </td>
@@ -1413,6 +1548,11 @@ document.addEventListener('click', (e) => {
             <td>
               <div class="row__adjunto ">
                 <button data-modal="modal_files" data-id="${art.cotiz_id}" class="btn_open_modal rounded text-icon w-fit" type="button">${getIcon('clip')}</button>
+              </div>
+            </td>
+						<td>
+              <div class="row__adjunto ">
+                <button data-modal="modal_ficha" data-id="${art.art_id}" data-cotiz="${art.cotiz_id}" data-articulo="${art.articulo}"  class="btn_open_modal rounded text-icon w-fit" type="button"><i class="fas fa-file-alt fa-2x"></i></button>
               </div>
             </td>
             <td>

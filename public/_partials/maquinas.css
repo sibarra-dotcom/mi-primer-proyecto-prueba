@@ -1,0 +1,264 @@
+:root {
+  --btn-base: hsl(151,81.4%,27.8%);
+  --gray-light: hsl(189,5.3%,91.7%);
+  --white: #fff;
+  --text-gray: hsl(189,5.3%,31.7%);
+}
+
+.btn-delete {
+  color: color-mix(in hsl, var(--text-gray), white 42%);
+}
+
+/*  select:focus, input:focus {
+    outline-color: color-mix(in hsl, var(--btn-base), white 12%);
+  }*/
+
+#lista_articulos {
+  display: none;
+}
+
+#lista_articulos > li {
+  padding: 3px 7px;
+}
+
+#lista_articulos > li:hover {
+  background-color: color-mix(in hsl, var(--btn-base), white 50%);
+}
+
+#lista_prov {
+  display: none;
+}
+
+#lista_prov > li {
+  padding: 3px 7px;
+}
+
+#lista_prov > li:hover {
+  background-color: color-mix(in hsl, var(--btn-base), white 50%);
+}
+
+
+.drag-drop-container.dragover {
+  background-color: #e0f7fa;
+  border-color: #00796b; 
+}
+
+
+.file-list > li {
+  position: relative;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+  width: 100px;
+  height: 100px;
+  font-size: 13px;
+  background-color: hsl(150,0.9%,56.1%);
+  color: hsl(0,0%,96.5%);
+}
+
+.delete-btn {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  font-weight: bold;
+}
+
+
+table {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  position: sticky;
+  width: 100%;
+  display: flex;
+  left: 0;
+  top: 0;
+
+}
+
+tbody > tr {
+  width: 100%;
+  display: flex;
+  margin-top: 8px;
+  background-color: var(--gray-light);
+}
+
+tbody > tr > td input, 
+tbody > tr > td input:read-only, 
+tbody > tr > td select {
+  background-color: var(--white);
+}
+
+
+th {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  padding: 8px 4px;
+  color: var(--gray-light);
+
+  vertical-align: middle;
+  text-transform: uppercase;
+	font-weight: 300;
+	background-color: var(--btn-base);
+}
+
+td {
+  display: flex;
+  align-items: center;
+	justify-content: start;
+	font-size: 12.5px;
+  padding: 5px;
+	color: var(--text-gray);
+
+  /* text-align: left; */
+	max-width: auto;
+}
+
+tr {
+  display: flex;
+  width: 100%;
+}
+
+tr:hover {
+  background-color: color-mix(in hsl, var(--text-gray), white 80%);
+}
+
+tr > :nth-child(1) {
+  width: 6%;
+}
+
+tr > :nth-child(2) {
+  width: 6%;
+}
+
+tr > :nth-child(3) {
+  width: 12%; 
+}
+
+tr > :nth-child(4) {
+  width: 20%;
+}
+
+tr > :nth-child(5) {
+  width: 8%;
+}
+
+tr > :nth-child(6) {
+  width: 10%;
+}
+
+tr > :nth-child(7) {
+  width: 6%;
+}
+
+tr > :nth-child(8) {
+  width: 14%;
+}
+
+tr > :nth-child(9) {
+  width: 8%;
+}
+
+tr > :nth-child(10) {
+  width: 10%;
+}
+
+tr > :nth-child(11) {
+  width: 8%;
+}
+
+
+input, select {
+  width: 100%;
+  border: none;
+ background-color: var(--gray-light);
+  /* background-color: #fff; */
+}
+
+.input_alt {
+  border: none;
+  background-color: var(--gray-light);
+}
+
+/*  option[value=""][disabled][selected] {
+    color: hsl(189,5.3%,81.7%);
+  }*/
+
+input:read-only {
+  background-color: var(--gray-light);
+}
+
+
+input[type="date"] {
+  padding: 2px 6px;
+}
+
+input[type="number"] {
+  padding: 3px 6px;
+  margin: auto;
+}
+
+input[type="text"] {
+  padding: 3px 6px;
+  margin: auto;
+}
+
+
+select {
+  padding: 2px 6px;
+}
+
+input:focus, select:focus {
+  outline-color: color-mix(in hsl, var(--btn-base), white 12%);
+}
+
+
+
+
+.row__costo, .row__entrega, .row__minimo, .row__aprobacion, .row__origen {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+
+.row__center {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.row__articulo, .row__proveedor, .row__fecha, .row__adjunto, .row__comentario, .row__actions  {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.row__empty {
+  display: none;
+  width: 100%;
+  padding: 1rem;
+  text-align: center;
+  font-size: 18px;
+  color: var(--text-gray);
+  background-color: color-mix(in hsl, var(--text-gray), white 80%);
+}

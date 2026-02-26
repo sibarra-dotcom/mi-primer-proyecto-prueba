@@ -6,14 +6,6 @@ use CodeIgniter\Filters\FilterInterface;
 
 class AuthGuard implements FilterInterface
 {
-    // public function before(RequestInterface $request, $arguments = null)
-    // {
-    //     if (!session()->get('isLoggedIn'))
-    //     {
-    //         return redirect()->to('/');
-    //     }
-    // }
-
     public function before(RequestInterface $request, $arguments = null)
     {
         if (!session()->get('isLoggedIn'))
@@ -23,11 +15,15 @@ class AuthGuard implements FilterInterface
 
         // Check for specific roles if provided in $arguments
         if ($arguments) {
-            $userRole = session()->get('userRole'); // Assuming role is stored in session
-            
+            $userRole = session()->get('userRole');
+
+            // Admin siempre tiene acceso a todos los módulos
+            if ($userRole === 'admin') {
+                return;
+            }
+
             if (!in_array($userRole, $arguments)) {
-                // Optionally, show an error or redirect
-                return redirect()->to('/inactive'); // Customize this route
+                return redirect()->to(previous_url());
             }
         }
     }

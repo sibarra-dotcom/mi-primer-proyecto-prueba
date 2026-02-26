@@ -52,7 +52,7 @@ class Filters extends BaseFilters
      */
     public array $required = [
         'before' => [
-            'forcehttps', // Force Global Secure Requests
+            // 'forcehttps', // Force Global Secure Requests
             'pagecache',  // Web Page Caching
         ],
         'after' => [
@@ -71,7 +71,46 @@ class Filters extends BaseFilters
     public array $globals = [
         'before' => [
             // 'honeypot',
-            'csrf' => ['except' => ['/openia', '/test/openia', 'search', '/search_ticket', '/maq_search', '/add_comment', '/add_firma_mt', '/add_comment_mt', '/add_aprobacion', 'delete_article/*', '/edit_art', '/edit_mant', '/proveedores', 'auth/loginSubmit']], // Exclude login page from CSRF check 
+            'csrf' => [
+							'except' => [
+								'/informeres/*',
+								'/liberaciones/*',
+								'maquinaria', 
+								'add_firma_insp', 
+								'add_firma_reporte', 
+								'add_firma_reporte_diario', 
+								'/produccion/*', 
+								'/sorteo/*',
+								'/busqueda/upload_ficha', 
+								'/registros/incidencias', 
+								'inspeccion/materiales', 
+								'inspeccion/materias-primasu', 
+								'inspeccion/search_insp_materias/*', 
+								'/upload/inspeccion', 
+								'/add_limpieza_mt', 
+								'/openia', 
+								'/openia/read_pdf', 
+								'/test/openia', 
+								'search_articulos', 
+								'/search_ticket',
+								'/search_proveedor', 
+								'/search_maquina', 
+								'/add_comment', 
+								'/add_firma_mt', 
+								'/add_comment_mt', 
+								'/add_aprobacion', 
+								'delete_article/*', 
+								'delete_proveedor/*', 
+								'/edit_art', 
+								'/edit_mant', 
+								'/proveedores', 
+								'auth/loginSubmit',
+								'auth/signin',
+								'/',
+								'/comedor/*',
+								// 'comedor_online'
+							],
+						],
             // 'csrf',
             // 'invalidchars',
         ],
@@ -106,5 +145,7 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    public array $filters = [
+			// 'roleFilter' => ['before' => ['/mantenimiento/*']],  // Apply this filter to the /mantenimiento route
+		];
 }

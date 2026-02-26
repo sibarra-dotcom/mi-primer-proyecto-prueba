@@ -1,0 +1,186 @@
+
+#tabla_inspeccion_materia {
+  max-height: 200px;
+/*  position: relative;*/
+  display: flex;
+  flex-direction: column;
+ 	overflow: auto;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#tabla_inspeccion_materia thead {
+  position: sticky;
+  width: 100%;
+  display: flex;
+  left: 0;
+  top: 0;
+/*  background: white;*/
+  z-index: 2;
+}
+
+
+#tabla_inspeccion_materia th {
+  padding: 10px 6px;
+  background-color: #f2f2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#tabla_inspeccion_materia td {
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#tabla_inspeccion_materia thead > tr, tbody > tr {
+  display: flex;
+  width: 100%;
+  text-align: center;
+	margin-top: 0;
+}
+
+
+#tabla_inspeccion_materia tbody > tr {
+  background-color: #fff;
+}
+
+#tabla_inspeccion_materia  tbody > tr > td input, tbody > tr > td input:read-only, tbody > tr > td select {
+  background-color: #fff;
+}
+
+
+
+#tabla_inspeccion_materia tbody tr:hover {
+  background-color: hsl(189,5.3%,81.7%);
+}
+
+
+#tabla_inspeccion_materia th, td {
+  border-right: 1px solid #ddd;
+  border-top: 1px solid #ddd;
+}
+
+#tabla_inspeccion_materia th:first-child, td:first-child  {
+  border-left: 1px solid #ddd;
+}
+
+#tabla_inspeccion_materia tbody > tr:last-child {
+  border-bottom: 1px solid #ddd;
+}
+
+
+
+#tabla_inspeccion_materia  tr > :nth-child(1) {
+  width: 15%;
+}
+
+/* #tabla-navigation tr > :nth-child(2) */
+
+
+
+
+
+
+.checkbox-label-si {
+	color: #fff;
+	font-size: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	background-color: #fff;
+	border: 2px solid #ddd;
+	text-align: center;
+	line-height: 30px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background 0.3s;
+}
+
+
+.checkbox-label-no {
+	color: #fff;
+	font-size: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	background-color: #fff;
+	border: 2px solid #ddd;
+	text-align: center;
+	line-height: 30px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background 0.3s;
+}
+
+
+.checkbox_inspec:checked + .checkbox-label-si {
+	color: hsl(151,81.4%,27.8%);
+	border: 2px solid hsl(151,81.4%,27.8%);
+}
+
+.checkbox_inspec:checked + .checkbox-label-no {
+	color: hsl(12, 68%, 50%);
+	border: 2px solid hsl(12, 68%, 50%);
+}
+
+
+.checkbox_inspec_edit:checked + .checkbox-label-si {
+	color: hsl(151,81.4%,27.8%);
+	border: 2px solid hsl(151,81.4%,27.8%);
+}
+
+.checkbox_inspec_edit:checked + .checkbox-label-no {
+	color: hsl(12, 68%, 50%);
+	border: 2px solid hsl(12, 68%, 50%);
+}
+
+
+
+
+.checkbox-label-si--print {
+	color: #fff;
+	font-size: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	background-color: #fff;
+	text-align: center;
+	line-height: 30px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background 0.3s;
+}
+
+.checkbox-label-no--print {
+	color: #fff;
+	font-size: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	background-color: #fff;
+	text-align: center;
+	line-height: 30px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background 0.3s;
+}
+
+
+.checkbox_inspec--print:checked + .checkbox-label-si--print {
+	color: hsl(151,81.4%,27.8%);
+}
+
+.checkbox_inspec--print:checked + .checkbox-label-no--print {
+	color: hsl(12, 68%, 50%);
+}

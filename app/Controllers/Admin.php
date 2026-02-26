@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
 
 use App\Models\UserModel;
+use App\Models\RoleModel;
 
 class Admin extends BaseController
 {
@@ -20,31 +21,24 @@ class Admin extends BaseController
 
     public function dashboard()
     {
-        
         $data['users'] = $this->userModel->getUsersWithRoles();
-        $data['title'] = 'Panel Administrador';
-        $data['message'] = 'e usuario';
-        
+        $data['title'] = 'Portal Gibanibb Administrador';      
         return view('admin/dashboard', $data);
     }
 
 
     public function usuarios()
     {
-
         $data['users'] = $this->userModel->getUsersWithRoles();
         $data['title'] = 'Lista Usuarios';
-        $data['message'] = 'e usuario';
-        
         return view('admin/usuarios', $data);
     }
 
     public function user_create()
     {
-
-
+				$Roles = new RoleModel;
         $data['title'] = "Crear Nuevo Usuario";
-
+        $data['roles'] = $Roles->findAll();
         return view('admin/user_create', $data);
     }
 
@@ -55,6 +49,7 @@ class Admin extends BaseController
             'last_name'  => 'required|min_length[3]',
             'email' => 'required|valid_email|is_unique[users.email]',
             'password' => 'required|min_length[6]',
+            'pin' => 'required|min_length[4]|numeric',
         ]);
 
         if (!$this->validation->withRequest($this->request)->run()) {
@@ -66,6 +61,7 @@ class Admin extends BaseController
             'name'      => $this->request->getPost('name'),
             'last_name' => $this->request->getPost('last_name'),
             'email'     => $this->request->getPost('email'),
+            'pin'     => $this->request->getPost('pin'),
             'password'  => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
         ];
 
@@ -77,6 +73,8 @@ class Admin extends BaseController
 
     public function user_edit($id)
     {
+				$Roles = new RoleModel;
+
         $user = $this->userModel
             ->select('users.*, roles.rol')
             ->join('roles', 'roles.id = users.rol_id')
@@ -90,6 +88,7 @@ class Admin extends BaseController
 
         $data['user'] = $user;
         $data['title'] = "Editar Usuario";
+        $data['roles'] = $Roles->findAll();
 
         // Load the view with the user data for editing
         return view('admin/user_edit', $data);
@@ -130,6 +129,7 @@ class Admin extends BaseController
                 ]
             ],
             'name' => 'required|min_length[3]',
+            'pin' => 'required|min_length[4]|numeric',
             'last_name'  => 'required|min_length[3]',
         ];
 
@@ -146,6 +146,7 @@ class Admin extends BaseController
             'name'      => $this->request->getPost('name'),
             'last_name' => $this->request->getPost('last_name'),
             'email'     => $this->request->getPost('email'),
+            'pin'     => $this->request->getPost('pin'),
         ];
 
         if ($this->userModel->update($id, $data)) {

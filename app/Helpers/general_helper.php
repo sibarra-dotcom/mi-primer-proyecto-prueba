@@ -1,10 +1,111 @@
 <?php
 
+if (!function_exists('fechaEspanol')) {
+	function fechaEspanol($fecha)
+	{
+			$meses = [
+					'01' => 'ENE',
+					'02' => 'FEB',
+					'03' => 'MAR',
+					'04' => 'ABR',
+					'05' => 'MAY',
+					'06' => 'JUN',
+					'07' => 'JUL',
+					'08' => 'AGO',
+					'09' => 'SEP',
+					'10' => 'OCT',
+					'11' => 'NOV',
+					'12' => 'DIC'
+			];
+
+			list($dia, $mes, $anio) = explode('-', $fecha);
+
+			return $dia . '-' . $meses[$mes] . '-' . $anio;
+	}
+}
+
 if (!function_exists('load_asset')) {
   function load_asset($path) {
     return base_url($path) . '?v=' . filemtime(FCPATH . $path);
   }
 }
+
+
+if (!function_exists('formatInspTitle')) {
+	function formatInspTitle($inputString) {
+		$upperCaseString = strtoupper($inputString);
+		$formattedString = str_replace('-', ' ', $upperCaseString);
+		return $formattedString;
+	}
+}
+
+if (!function_exists('extractNumericValue')) {
+	/**
+	 * Convert a string like "1,400,520 PIEZAS" to a numeric value (float) for calculations.
+	 *
+	 * @param string $input The numeric string (can include commas, spaces, and text like "PIEZAS")
+	 * @return float The cleaned numeric value
+	 */
+	function extractNumericValue($input) {
+			// Remove all non-numeric characters except the decimal point
+			$numericString = preg_replace('/[^0-9\.]/', '', $input);
+
+			// Return the numeric value (as float)
+			return (float)$numericString;
+	}
+}
+
+
+if (!function_exists('formatNumberMex')) {
+	/**
+	 * Convert a numeric value (like 1400520.86) to a formatted string with commas and a dot.
+	 *
+	 * @param float $number The numeric value to format
+	 * @param int $decimals The number of decimal places to round to (default is 2)
+	 * @return string The formatted number
+	 */
+	function formatNumberMex($number, $decimals = 2) {
+			// Format the number with commas and the dot as decimal separator
+			return number_format($number, $decimals, '.', ',');
+	}
+
+}
+
+
+if (!function_exists('formatDateToMonthYear')) {
+	function formatDateToMonthYear($dateStr) {
+		setlocale(LC_TIME, 'es_ES');
+		$date = new DateTime($dateStr);
+		$formattedDate = strftime("%B %Y", $date->getTimestamp());
+		return strtoupper($formattedDate);
+	}
+}
+
+if (!function_exists('cleanFileName')) {
+	function cleanFileName($fileName)	{
+    $fileName = removeAccents($fileName);
+    $fileName = preg_replace('/[^a-zA-Z0-9_]/u', '_', $fileName);
+    $fileName = trim($fileName, '_');
+    return $fileName;
+	}
+}
+
+if (!function_exists('removeAccents')) {
+	function removeAccents($str)
+	{
+		$accents = [
+				'á' => 'a', 'à' => 'a', 'ä' => 'a', 'ã' => 'a', 'â' => 'a', 'å' => 'a', 'æ' => 'ae',
+				'é' => 'e', 'è' => 'e', 'ë' => 'e', 'ê' => 'e', 'í' => 'i', 'ì' => 'i', 'ï' => 'i', 'î' => 'i',
+				'ó' => 'o', 'ò' => 'o', 'ö' => 'o', 'õ' => 'o', 'ô' => 'o', 'ú' => 'u', 'ù' => 'u', 'ü' => 'u', 'û' => 'u',
+				'ñ' => 'n', 'Ñ' => 'N', 'ç' => 'c', 'Ç' => 'C', 'ý' => 'y', 'ÿ' => 'y', 'Á' => 'A', 'É' => 'E', 'Í' => 'I',
+				'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N'
+		];
+	
+		return strtr($str, $accents);
+	}	
+}
+
+
 
 
 if (! function_exists('setArticleStatus')) {

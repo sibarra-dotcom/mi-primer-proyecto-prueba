@@ -595,8 +595,20 @@
                 <input id="entrevista-entrevistador" type="text" required placeholder="Nombre del entrevistador">
               </div>
               <div class="col-12">
-                <label for="entrevista-lugar">Lugar/Link *</label>
-                <input id="entrevista-lugar" type="text" required placeholder="Oficina, Sala o enlace de videollamada">
+                <label for="entrevista-lugar">Lugar *</label>
+                <select id="entrevista-lugar" required onchange="onEntrevistaLugarChange()">
+                  <option value="">Seleccionar ubicación...</option>
+                  <option value="planta1">Planta 1 Tonalá</option>
+                  <option value="planta2">Planta 2 Artes</option>
+                  <option value="corporativo">Corporativo Vallarta</option>
+                  <option value="cedis">CEDIS Tonalá</option>
+                  <option value="online">Reunión en línea</option>
+                </select>
+                <small id="entrevista-lugar-direccion" style="display:none;color:var(--muted);margin-top:4px;"></small>
+              </div>
+              <div class="col-12" id="entrevista-link-wrapper" style="display:none;">
+                <label for="entrevista-link">Enlace de reunión *</label>
+                <input id="entrevista-link" type="url" placeholder="https://teams.microsoft.com/...">
               </div>
               <div class="col-12">
                 <label for="entrevista-notas">Notas</label>

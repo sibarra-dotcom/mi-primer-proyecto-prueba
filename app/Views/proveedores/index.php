@@ -19,8 +19,6 @@
 
     <?php echo view('cotizar/_partials/navbar'); ?>
 
-    <a href="<?= base_url('auth/signout') ?>" class="hidden absolute top-10 right-10 px-8 py-4 text-lg bg-red bg-opacity-60 text-white rounded hover:bg-opacity-80 cursor-pointer">Cerrar Sesión</a>
-
     <div class="text-title w-full md:pt-4 md:pb-8 md:px-16 p-2 flex items-center ">
       <h2 class="text-center font-bold w-full text-2xl lg:text-3xl "><?= esc($title) ?></h2>
       <a href="<?= base_url('apps') ?>" class="hidden md:flex self-end hover:scale-105 transition-transform duration-300 "> <i class="fas fa-arrow-turn-up fa-2x fa-rotate-270"></i></a>
@@ -29,7 +27,7 @@
     <div class="w-full text-sm text-gray  ">
       <div class="flex flex-col h-full" >
 
-        <form id="form_search" class="pb-8 px-4 lg:px-10 flex w-full  items-center " method="post">
+        <form id="form_search" class="search-row pb-8 px-4 lg:px-10 flex w-full  items-center " method="post">
 
 					<div class="flex items-center lg:w-3/4 gap-x-8 ">
 						<div class="relative flex flex-col w-64">
@@ -65,7 +63,7 @@
 
 
         <div class="w-full pl-10 pr-8 ">
-					<div class="relative w-full text-sm h-[55vh] overflow-y-scroll ">
+					<div class="relative w-full text-sm h-[65vh] overflow-y-scroll ">
             <table id="tabla-proveedores">
               <thead>
                 <tr>
@@ -89,9 +87,13 @@
     </div>
   </div>
 
+
 <!-- Modal Add Contacto -->
+
 <div id="modal_contacto" class="hidden fixed inset-0 bg-dark bg-opacity-50 flex items-center justify-center font-titil ">
-  <form id="form_create_contacto" method="post" class=" flex flex-col space-y-4 bg-white border-2 border-icon p-10 w-full md:max-w-4xl ">
+  <form id="form_create_contacto" data-type="form" method="post" class=" flex flex-col space-y-4 bg-white border-2 border-icon p-10 w-full md:max-w-4xl ">
+
+		<input type="hidden" name="create_contacto">
 
     <div class="relative flex w-full justify-center text-center ">
       <h3 class="text-gray text-xl uppercase">Añadir nuevo contacto</h3>
@@ -115,10 +117,10 @@
 					</thead>
 					<tbody id="contactos_add_container">
 						<tr>
-							<td><input name="nombre[]" type="text" class="input_alt to_uppercase" required placeholder="Nombre"></td>
-							<td><input name="correo[]" type="text" class="input_alt" required placeholder="Correo"></td>               
-							<td><input name="telefono[]" type="text" class="input_alt to_uppercase" required placeholder="Telefono"></td>
-							<td><input name="puesto[]" type="text" class="input_alt to_uppercase" required placeholder="Puesto"></td>
+							<td><input name="nombre[]" type="text" class="w-full to_uppercase" required placeholder="Nombre"></td>
+							<td><input name="correo[]" type="text" class="w-full" required placeholder="Correo"></td>               
+							<td><input name="telefono[]" type="text" class="w-full to_uppercase" required placeholder="Telefono"></td>
+							<td><input name="puesto[]" type="text" class="w-full to_uppercase" required placeholder="Puesto"></td>
 							<td>
 									<button class="btn-delete text-gray hover:text-red px-2 mx-auto" type="button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="size-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -138,7 +140,7 @@
 			<button class="btn_close_modal flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="button" >
 				CANCELAR
 			</button>
-			<button name="create_contacto" class="flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="submit">
+			<button class="flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="submit">
 				GUARDAR
 			</button>
 		</div>
@@ -149,8 +151,9 @@
 
 <!-- modal add proveedor -->
 <div id="modal_add" class="hidden fixed inset-0 bg-dark bg-opacity-50 flex items-center justify-center font-titil ">
-	<form id="form_create_prov" method="post" class=" flex flex-col space-y-8 bg-white border-2 border-icon p-10 w-full md:w-[70%]">
-
+	<form id="form_create_prov" data-type="form" method="post" class=" flex flex-col space-y-8 bg-white border-2 border-icon p-10 w-full md:w-[70%]">
+		
+		<input type="hidden" name="create_prov">
 		<div class="relative flex w-full justify-center text-center  ">
 			<h3 class="text-gray text-xl uppercase"> Agregar Nuevo Proveedor</h3>
 			<div class="btn_close_modal absolute -top-4 right-0 text-4xl text-gray cursor-pointer">&times;</div>
@@ -159,17 +162,17 @@
 		<div class="flex items-center justify-between w-full">
 			<div class="relative flex flex-col w-72">
 				<h5 class="text-center uppercase">Proveedor</h5>
-				<input type="text" id="razon_social" name="razon_social" placeholder="Razon social " >
+				<input type="text" id="razon_social" name="razon_social" class="input_modal" placeholder="Razon social " >
 			</div>
 
 			<div class="relative flex flex-col w-72">
 				<h5 class="text-center uppercase">Direccion</h5>
-				<input type="text" id="direccion" name="direccion" placeholder="" >
+				<input type="text" id="direccion" name="direccion" class="input_modal" placeholder="" >
 			</div>
 
 			<div class="relative flex flex-col ">
 				<h5 class="text-center uppercase">Pais</h5>
-				<input type="text" id="pais" name="pais" placeholder="" >
+				<input type="text" id="pais" name="pais" class="input_modal" placeholder="" >
 			</div>
 
 		</div>
@@ -181,7 +184,7 @@
 
 		<div class="w-full  ">
 			<div class="relative w-full text-sm h-44 overflow-y-scroll ">
-				<table id="tabla-contactos" >
+				<table id="tabla-contactos">
 					<thead>
 						<tr>
 							<th>Nombre</th>
@@ -192,10 +195,10 @@
 					</thead>
 					<tbody id="contactos_container">
 						<tr>
-							<td><input name="nombre[]" type="text" class="input_alt to_uppercase" required placeholder="Nombre"></td>
-							<td><input name="correo[]" type="text" class="input_alt" required placeholder="Correo"></td>               
-							<td><input name="telefono[]" type="text" class="input_alt to_uppercase" required placeholder="Telefono"></td>
-							<td><input name="puesto[]" type="text" class="input_alt to_uppercase" required placeholder="Puesto"></td>
+							<td><input name="nombre[]" type="text" class="w-full to_uppercase" required placeholder="Nombre"></td>
+							<td><input name="correo[]" type="text" class="w-full " required placeholder="Correo"></td>               
+							<td><input name="telefono[]" type="text" class="w-full to_uppercase" required placeholder="Telefono"></td>
+							<td><input name="puesto[]" type="text" class="w-full to_uppercase" required placeholder="Puesto"></td>
 							<td>
 								<button class="btn-delete text-gray hover:text-red px-2 mx-auto" type="button"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="size-6">
 								<path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -215,7 +218,7 @@
 			<button class="btn_close_modal flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="button" >
 				CANCELAR
 			</button>
-			<button name="create_prov" class="flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="submit">
+			<button class="flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="submit">
 				GUARDAR
 			</button>
 		</div>
@@ -225,8 +228,10 @@
 
 
 <!-- Modal Add Contacto -->
-<div id="modal_contacto" class="hidden fixed inset-0 bg-dark bg-opacity-50 flex items-center justify-center font-titil ">
-  <form id="form_create_contacto" method="post" class=" flex flex-col space-y-4 bg-white border-2 border-icon p-10 w-full md:max-w-4xl ">
+<div id="modal_contacto11" class="hidden fixed inset-0 bg-dark bg-opacity-50 flex items-center justify-center font-titil ">
+  <form id="form_create_contacto1" data-type="form" method="post" class=" flex flex-col space-y-4 bg-white border-2 border-icon p-10 w-full md:max-w-4xl ">
+		
+		<input type="hidden" name="create_contacto">
 
     <div class="relative flex w-full justify-center text-center ">
       <h3 class="text-gray text-xl uppercase">Añadir nuevo contacto</h3>
@@ -273,7 +278,7 @@
 			<button class="btn_close_modal flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="button" >
 				CANCELAR
 			</button>
-			<button name="create_contacto" class="flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="submit">
+			<button class="flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="submit">
 				GUARDAR
 			</button>
 		</div>
@@ -296,18 +301,18 @@
 		<div class="flex items-center justify-between w-full">
 			<div class="relative flex flex-col w-72">
 				<h5 class="text-center uppercase">Proveedor</h5>
-				<input type="text" id="razon_social" name="razon_social" placeholder="Razon social " >
+				<input type="text" id="razon_social" name="razon_social" class="input_modal" placeholder="Razon social " >
 			</div>
 
 
 			<div class="relative flex flex-col w-72">
 				<h5 class="text-center uppercase">Direccion</h5>
-				<input type="text" id="direccion" name="direccion" placeholder="" >
+				<input type="text" id="direccion" name="direccion" class="input_modal" placeholder="" >
 			</div>
 
 			<div class="relative flex flex-col ">
 				<h5 class="text-center uppercase">Pais</h5>
-				<input type="text" id="pais" name="pais" placeholder="" >
+				<input type="text" id="pais" name="pais" class="input_modal" placeholder="" >
 			</div>
 
 		</div>
@@ -362,18 +367,18 @@
 		<div class="flex items-center justify-between w-full">
 			<div class="relative flex flex-col w-72">
 				<h5 class="text-center uppercase">Proveedor</h5>
-				<input type="text" id="razon_social" name="razon_social" placeholder="Razon social " >
+				<input type="text" id="razon_social" name="razon_social" readonly placeholder="Razon social " >
 			</div>
 
 
 			<div class="relative flex flex-col w-72">
 				<h5 class="text-center uppercase">Direccion</h5>
-				<input type="text" id="direccion" name="direccion" placeholder="" >
+				<input type="text" id="direccion" name="direccion" readonly placeholder="" >
 			</div>
 
 			<div class="relative flex flex-col ">
 				<h5 class="text-center uppercase">Pais</h5>
-				<input type="text" id="pais" name="pais" placeholder="" >
+				<input type="text" id="pais" name="pais" readonly placeholder="" >
 			</div>
 
 		</div>
@@ -402,9 +407,32 @@
 	</form>
 </div>
 
+<!-- Modal Delete -->
+<div id="modal_delete" class="hidden fixed inset-0 z-50 bg-dark bg-opacity-50 flex items-center justify-center font-titil ">
+  <div class=" flex flex-col items-center justify-between space-y-8 bg-white border-2 border-icon p-10 w-full md:w-[700px] h-96 ">
+    
+    <div class=" relative flex w-full justify-center text-center  ">
+      <div class="btn_close_modal absolute -top-4 right-0 text-4xl text-gray cursor-pointer">&times;</div>
+    </div>
+
+    <h3 class="text-title text-4xl ">¿Eliminar Permanentemente?</h3>
+
+    <div class="flex justify-center space-x-12 text-sm ">
+      <button class="btn_close_modal flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="button">
+        CANCELAR
+      </button>
+      <button id="btn_delete" class=" flex space-x-4 shadow-bottom-right text-error border-2 border-error hover:bg-error hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="button">
+        ELIMINAR
+      </button>
+    </div>
+
+  </div>
+</div>
 
 
-<?php echo view('_partials/_modal_msg'); ?>
+
+
+<?php echo view('_partials/_modal_msg_js'); ?>
 
 <script>
   Service.setLoading();
@@ -414,6 +442,27 @@
     const svgIcon = document.createElement("span");
     svgIcon.innerHTML = getIcon('search');
     btn_search.prepend(svgIcon);
+  });
+
+  const btn_delete = document.querySelector('#btn_delete');
+  btn_delete?.addEventListener('click', (e) => {
+		Service.stopSubmit(e.target, true);
+
+    let provId = e.target.getAttribute('data-id');
+
+    Service.exec('delete', `/delete_proveedor/${provId}`)
+    .then( r => {
+
+      let button = document.querySelector(`button[data-modal="modal_delete"][data-id="${r.provId}"]`);
+      let row = button.parentElement.parentElement.closest('tr');
+      row.remove();
+
+			Service.stopSubmit(e.target, false);
+
+      let modal = e.target.closest("#modal_delete");
+      modal.classList.add('hidden');
+      modal.classList.remove('modal_active');
+    });
   });
 
 
@@ -603,10 +652,10 @@ const initRowBtn = () => {
     const nuevaFila = 
     `
     <tr>
-			<td><input name="nombre[]" type="text" class="input_alt to_uppercase" required placeholder="Nombre"></td>
-			<td><input name="correo[]" type="text" class="input_alt" required placeholder="Correo"></td>               
-			<td><input name="telefono[]" type="text" class="input_alt to_uppercase" required placeholder="Telefono"></td>
-			<td><input name="puesto[]" type="text" class="input_alt to_uppercase" required placeholder="Puesto"></td>
+			<td><input name="nombre[]" type="text" class="w-full to_uppercase" required placeholder="Nombre"></td>
+			<td><input name="correo[]" type="text" class="w-full" required placeholder="Correo"></td>               
+			<td><input name="telefono[]" type="text" class="w-full to_uppercase" required placeholder="Telefono"></td>
+			<td><input name="puesto[]" type="text" class="w-full to_uppercase" required placeholder="Puesto"></td>
       <td>
         <button class="btn-delete text-gray hover:text-red px-2 mx-auto" type="button">${getIcon('delete')}</button>
       </td>
@@ -622,10 +671,10 @@ const initRowBtn = () => {
     const nuevaFila = 
     `
     <tr>
-			<td><input name="nombre[]" type="text" class="input_alt to_uppercase" required placeholder="Nombre"></td>
-			<td><input name="correo[]" type="text" class="input_alt" required placeholder="Correo"></td>               
-			<td><input name="telefono[]" type="text" class="input_alt to_uppercase" required placeholder="Telefono"></td>
-			<td><input name="puesto[]" type="text" class="input_alt to_uppercase" required placeholder="Puesto"></td>
+			<td><input name="nombre[]" type="text" class="w-full to_uppercase" required placeholder="Nombre"></td>
+			<td><input name="correo[]" type="text" class="w-full" required placeholder="Correo"></td>               
+			<td><input name="telefono[]" type="text" class="w-full to_uppercase" required placeholder="Telefono"></td>
+			<td><input name="puesto[]" type="text" class="w-full to_uppercase" required placeholder="Puesto"></td>
       <td>
         <button class="btn-delete text-gray hover:text-red px-2 mx-auto" type="button">${getIcon('delete')}</button>
       </td>
@@ -659,6 +708,53 @@ form_search?.addEventListener('submit', e => {
 		Service.stopSubmit(e.target, false);
 	});  
 });
+
+
+
+const allForms = document.querySelectorAll('form[data-type="form"]');
+console.log(allForms)
+allForms.forEach( form => {
+	form.addEventListener('submit', e => {
+		e.preventDefault();
+		Service.show('.loading');
+		Service.stopSubmit(e.target, true);
+
+		const formData = new FormData(e.target);
+
+		// const formDataObj = {};
+		// formData.forEach((value, key) => {
+		// 	formDataObj[key] = value;
+		// });
+
+		// console.log(formDataObj);
+		// return;
+
+
+		Service.exec('post', `${root}/proveedores`, formData_header, formData)
+		.then(r => {
+			if(r){
+
+					Service.hide('.loading');
+
+					let msg = document.querySelector(`#msg_${r.status}`);
+					console.log(msg)
+					msg.classList.add('modal_active');
+					msg.classList.remove('hidden');
+
+					let btnClose = e.target.querySelectorAll('.btn_close_modal')[0];
+					btnClose.click();
+
+					e.target.reset();
+					Service.stopSubmit(e.target, false);
+
+					loadAllProveedores();
+			}
+
+		});  
+
+	});
+});
+
 
 
 const renderProv = (data) => {  
@@ -695,6 +791,7 @@ const renderProv = (data) => {
 								<button data-modal="modal_details" data-id="${prov.id}" class="btn_open_modal hover:text-icon pr-2" type="button"><i class="fas fa-eye text-lg"></i>
 								</button>
                 <button data-modal="modal_edit" data-id="${prov.id}" class="btn_open_modal hover:text-blue pr-2" type="button">${getIcon('edit')}</button>
+								<button data-modal="modal_delete" data-id="${prov.id}" class="btn_open_modal hover:text-red " type="button">${getIcon('delete')}</button>
 
               </div>
             </td>

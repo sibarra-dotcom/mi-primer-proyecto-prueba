@@ -52,7 +52,7 @@
             <div class="relative flex flex-col pr-4  w-72">
               <h5 class="text-center uppercase">Proveedor</h5>
               <input type="hidden" id="proveedorId" name="proveedorId">
-              <input type="text" id="proveedor" name="proveedor" class="to_uppercase" placeholder="Razón social de proveedor" required>
+              <input type="text" id="proveedor" name="proveedor" class=" to_uppercase" placeholder="Razón social de proveedor" required>
               <ul id="lista_prov" class="absolute z-40 top-12 bg-grayLight border border-super w-full h-32 overflow-y-scroll"></ul>
             </div>
 
@@ -72,7 +72,7 @@
 
             <div class="flex flex-col pr-4  ">
               <h5 class="text-center uppercase">Fecha Cotización</h5>
-              <input id="vigencia" type="date" name="fecha" required>
+              <input id="vigencia" type="date" class="required_gray" name="fecha" required>
             </div>
 
             <div class="flex flex-col pr-4  w-28">
@@ -121,7 +121,7 @@
 
         <div class="w-full px-10 flex items-start min-h-80 ">
           <div class="relative w-full overflow-y-scroll h-80">
-            <table class="relative top-0 w-full">
+            <table id="tabla-create-cotiz" class="relative top-0 w-full">
               <thead>
                 <tr>
                   <th>Nombre del artículo</th>
@@ -133,7 +133,8 @@
                   <th>Importe</th>
                   <th>Tiempo de entrega</th>
                   <th>Coment</th>
-                  <th>Eliminar</th>
+                  <th>C.E.</th>
+                  <th>Elim</th>
                 </tr>
               </thead>
               <tbody id="items_container">
@@ -199,6 +200,15 @@
                     </div>
                   </td>
 
+									<td>
+                    <div class="flex items-center justify-center mx-auto ">
+											<button data-modal="modal_cond" class="btn_open_modal rounded text-warning border-2 border-warning hover:bg-warning hover:text-white w-fit" type="button">
+												<i class="fa fa-plus px-1"></i>
+											</button>
+											<input type="hidden" name="condicion[]" class="condInput">
+                    </div>
+                  </td>
+
                   <td>
                     <button class="btn-delete hover:text-red px-2 mx-auto " type="button">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="size-6">
@@ -252,6 +262,26 @@
 
       <div class="flex justify-end space-x-12 text-sm ">
         <button id="btn_save" class=" flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="button" >
+          GUARDAR
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+	<!-- Modal Condicion -->
+	<div id="modal_cond" class="hidden fixed inset-0 bg-dark bg-opacity-50 flex items-center justify-center font-titil ">
+    <div class=" flex flex-col space-y-8 bg-white border-2 border-icon p-10 w-full md:w-[700px]">
+
+      <div class="relative flex w-full justify-center text-center ">
+        <h3 class="text-gray text-xl uppercase"> Agregar Condicion</h3>
+        <div class="btn_close_modal absolute -top-4 right-0 text-4xl text-gray cursor-pointer">&times;</div>
+      </div>
+
+      <textarea id="modal_textarea_cond" class="p-4 w-full border border-grayMid outline-none resize-none bg-grayLight text-gray drop-shadow " rows="8" placeholder="Escribe tu comentario..."></textarea>
+
+      <div class="flex justify-end space-x-12 text-sm ">
+        <button id="btn_save_cond" class=" flex space-x-4 shadow-bottom-right text-gray border-2 border-icon hover:bg-icon hover:border-grayLight hover:text-white py-2 px-8 w-fit " type="button" >
           GUARDAR
         </button>
       </div>
@@ -425,6 +455,7 @@
 
       // Create delete button
       const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
       deleteBtn.className = 'delete-btn';
       deleteBtn.innerHTML = '&times;';
 
@@ -442,7 +473,7 @@
 
 
 const contactoId = document.getElementById('contactoId');
-console.log(contactoId)
+// console.log(contactoId)
 contactoId?.addEventListener('change', e => {
   let selectedOption =  e.target.options[contactoId.selectedIndex];
   telefonoContacto.value = selectedOption.getAttribute('data-telefono');
@@ -559,6 +590,25 @@ contactoId?.addEventListener('change', e => {
     modal_comment.classList.remove('modal_active');
   });
 
+  const modal_textarea_cond = document.getElementById('modal_textarea_cond');
+  const btn_save_cond = document.getElementById('btn_save_cond');
+  let currentCondInput = null; 
+
+  btn_save_cond.addEventListener('click', (e) => {
+    if (currentCondInput) {
+      currentCondInput.value = modal_textarea_cond.value;
+      let button = document.querySelector(`.btn_open_modal[data-index="${e.currentTarget.id}"]`);
+      if (currentCondInput.value !== '') {
+        button.innerHTML = `<i class="fa px-2">1</i>`;
+      } else {
+        button.innerHTML = `<i class="fa fa-plus px-1"></i>`;
+      }
+      
+    }
+    modal_cond.classList.add('hidden');
+    modal_cond.classList.remove('modal_active');
+  });
+
 
   window.addEventListener('click', (event) => {
     let modal_active = document.querySelector('.modal_active');
@@ -617,6 +667,19 @@ contactoId?.addEventListener('change', e => {
 
           modal_textarea.value = currentCommentInput.value || '';
         }
+				if (modal_id == 'modal_cond') {
+          btn.setAttribute('data-index', index); 
+
+          modal_textarea_cond.value = '';
+          btn_save_cond.id = index; 
+          // console.log(modal)
+
+          const row = e.target.closest('tr');
+          currentCondInput = row.querySelector('.condInput');
+
+          modal_textarea_cond.value = currentCondInput.value || '';
+        }
+
       });
     });
 
@@ -708,7 +771,15 @@ contactoId?.addEventListener('change', e => {
           <input type="hidden" name="comentario[]" class="commentInput">
         </div>
       </td>
-
+			<td>
+				<div class="flex items-center justify-center mx-auto ">
+					<button data-modal="modal_cond" class="btn_open_modal rounded text-warning border-2 border-warning hover:bg-warning hover:text-white w-fit" type="button">
+						<i class="fa fa-plus px-1"></i>
+					</button>
+					<input type="hidden" name="condicion[]" class="condInput">
+				</div>
+			</td>
+			
       <td>
         <button class="btn-delete text-gray hover:text-red px-2 mx-auto" type="button">${getIcon('delete')}</button>
       </td>

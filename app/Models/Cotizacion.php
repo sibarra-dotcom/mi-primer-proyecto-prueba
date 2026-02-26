@@ -65,6 +65,12 @@ class Cotizacion extends Model
             cotizacion.fecha, 
             cotizacion.vigencia, 
             COALESCE(cotizacion.incoterm, "-") as incoterm,
+						COUNT(DISTINCT CASE 
+                WHEN articulo_condicion.articuloId IS NOT NULL 
+                AND articulo_condicion.condicion IS NOT NULL 
+                AND articulo_condicion.condicion != "empty" 
+                THEN articulo_condicion.id
+            END) AS num_cond,
             COUNT(DISTINCT CASE 
                 WHEN articulo_comment.articuloId IS NOT NULL 
                 AND articulo_comment.comentario IS NOT NULL 
@@ -94,6 +100,7 @@ class Cotizacion extends Model
             ->join('proveedor', 'proveedor.id = cotizacion.proveedorId')
             ->join('cotizacion_detalle', 'cotizacion_detalle.cotizacionId = cotizacion.id')
             ->join('articulo_comment', 'articulo_comment.articuloId = cotizacion_detalle.id', 'left')
+            ->join('articulo_condicion', 'articulo_condicion.articuloId = cotizacion_detalle.id', 'left')
             ->join('aprobaciones', 'aprobaciones.articuloId = cotizacion_detalle.id', 'left')
             ->groupBy('cotizacion_detalle.id')
             ->orderBy('cotizacion_detalle.id', 'DESC');
@@ -194,6 +201,12 @@ class Cotizacion extends Model
             cotizacion.fecha, 
             cotizacion.vigencia, 
             COALESCE(cotizacion.incoterm, "-") as incoterm,
+						COUNT(DISTINCT CASE 
+                WHEN articulo_condicion.articuloId IS NOT NULL 
+                AND articulo_condicion.condicion IS NOT NULL 
+                AND articulo_condicion.condicion != "empty" 
+                THEN articulo_condicion.id
+            END) AS num_cond,
             COUNT(DISTINCT CASE 
                 WHEN articulo_comment.articuloId IS NOT NULL 
                 AND articulo_comment.comentario IS NOT NULL 
@@ -224,6 +237,7 @@ class Cotizacion extends Model
             ->join('proveedor', 'proveedor.id = cotizacion.proveedorId')
             ->join('cotizacion_detalle', 'cotizacion_detalle.cotizacionId = cotizacion.id')
             ->join('articulo_comment', 'articulo_comment.articuloId = cotizacion_detalle.id', 'left')
+            ->join('articulo_condicion', 'articulo_condicion.articuloId = cotizacion_detalle.id', 'left')
             ->join('aprobaciones', 'aprobaciones.articuloId = cotizacion_detalle.id', 'left')
             ->groupBy('cotizacion_detalle.id')
             ->orderBy('cotizacion_detalle.id', 'DESC');

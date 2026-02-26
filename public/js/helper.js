@@ -40,7 +40,8 @@ const fixedTimeMoment = (dateTimeString, format) => {
 		return "";
 	}
 	const time = dateTimeString.split(' ')[1];
-	return moment(time, 'HH:mm:ss').format(format) + " hrs.";
+	// return moment(time, 'HH:mm:ss').format(format) + " hrs.";
+	return moment(time, 'HH:mm:ss').format(format);
 }
 
 const calculateDaysBetween = (startDay, endDay) => {
@@ -104,11 +105,11 @@ const ellipsis = (string, maxLength) => {
  * @returns {string} - The URL-encoded file name.
  */
 const getEncodedFileName = (filePath) => {
-  const parts = filePath.split("\\"); // Split the file path
+  const parts = filePath.split("\/"); // Split the file path
   const fileName = parts[parts.length - 1]; // Get the last part (file name)
-  return encodeURIComponent(fileName); // Encode and return
+	const fileNameFix = fileName.replace(/ /g, "_"); 
+  return encodeURIComponent(fileNameFix); // Encode and return
 };
-
 
 const getTimeDiff = (start, end) => {
 	if(!start || !end) {
@@ -124,6 +125,44 @@ const getTimeDiff = (start, end) => {
 
 	return `${hours} h. ${minutes} min.`;
 };
+ 
+const formatToMonthYear = (dateStr) => {
+  return moment(dateStr).format('MMM-YYYY').toUpperCase();
+};
+
+
+
+const getTimeDiffArray = (start, end) => {
+	if (!start) {
+			return "";
+	}
+
+	let totalMinutes = 0;
+
+	// Helper to process one pair
+	const calculateDuration = (s, e) => {
+			if (!s || !e) return 0;
+			const startTime = moment(s, "YYYY-MM-DD HH:mm:ss");
+			const endTime = moment(e, "YYYY-MM-DD HH:mm:ss");
+			return moment.duration(endTime.diff(startTime)).asMinutes();
+	};
+
+	// Check if input is an array of arrays
+	if (Array.isArray(start) && Array.isArray(start[0])) {
+			for (let [s, e] of start) {
+					totalMinutes += calculateDuration(s, e);
+			}
+	} else {
+			// Assume it's a single pair
+			totalMinutes = calculateDuration(start, end);
+	}
+
+	const hours = Math.floor(totalMinutes / 60);
+	const minutes = Math.round(totalMinutes % 60);
+
+	return `${hours} h. ${minutes} min.`;
+};
+
 
 const disableOptions = (estado_ticket) => {
 	const select = document.getElementById("estado_ticket1");
@@ -163,6 +202,13 @@ const setSelectedOption = (selectId, value, type = null) => {
     }
   });
 }
+
+const setDateToInput = (inputId, datetimeString) => {
+  const input = document.querySelector(inputId);
+  const date = datetimeString.split(' ')[0];
+  input.value = date;
+};
+
 
 const setTicketStatus = (status) => {
   switch(status) {
@@ -243,3 +289,62 @@ const setRowValidation = (costos, desarrollo, calidad) => {
 	} 
 }	
 
+const capitalize = (str) => {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+const resetSelect = (selectId) => {
+	const select = document.getElementById(selectId);
+	select.innerHTML = '<option value="" disabled selected>Seleccionar...</option>';
+};
+
+const formatNumberMex = (number, decimals = 2) => 
+    number.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+
+const dateToFormatUS = (dateTimeString) => {
+	const datePart = dateTimeString.split(' ')[0];
+	const [year, month, day] = datePart.split('-');
+	return `${month}-${day}-${year}`;
+};
+
+const dateToFormatEU = (dateTimeString) => {
+	const datePart = dateTimeString.split(' ')[0];
+	const [year, month, day] = datePart.split('-');
+	return `${day}-${month}-${year}`;
+};
+
+const timeToFormat = (timeString, format = "HH:mm") => {
+	if (!timeString) return "";
+
+	const [hh, mm, ss = "00"] = timeString.split(":");
+
+	if (format === "HH:mm:ss") {
+		return `${hh}:${mm}:${ss}`;
+	}
+
+	return `${hh}:${mm}`;
+};
+
+const debugFormData = (formData) => {
+    const formDataObj = {};
+
+    formData.forEach((value, key) => {
+        if (!formDataObj[key]) {
+            formDataObj[key] = [];
+        }
+        formDataObj[key].push(value);
+    });
+
+    console.log(formDataObj);
+};
+
+const refreshCsrfTokens = (token) => {
+  const forms = document.querySelectorAll('form');
+  
+  forms.forEach(form => {
+    const csrfInput = form.querySelector(`input[name="${token.name}"]`);
+    if (csrfInput) {
+      csrfInput.value = token.hash;
+    }
+  });
+};

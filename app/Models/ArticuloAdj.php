@@ -43,4 +43,26 @@ class ArticuloAdj extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+
+    public function getFicha($artId)
+    {
+        $builder = $this->select('
+            cotizacion_detalle.nombreDelArticulo AS articulo,
+						articulo_adjunto.created_at AS fecha, 
+            articulo_adjunto.archivo,
+            users.name,
+            users.last_name
+            ')
+            ->join('cotizacion_detalle', 'cotizacion_detalle.id = articulo_adjunto.articuloId')
+            ->join('users', 'users.id = articulo_adjunto.userId')
+            ->where('cotizacion_detalle.id', $artId);
+
+
+        // return as object PHP
+        // return $builder->limit(5, 0)->get()->getResult();
+        // return as array PHP
+        return $builder->get()->getResultArray();
+    }
+
 }

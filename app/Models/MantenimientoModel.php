@@ -12,7 +12,7 @@ class MantenimientoModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['userId', 'maqId', 'responsableId', 'produccionId', 'limpiezaId', 'calidadId', 'solicitante', 'prioridad', 'asunto', 'descripcion', 'estado_maq', 'estado_ticket', 'diagnostico', 'reparacion_detalle', 'fecha_reparacion', 'fecha_arranque', 'fecha_cierre', 'compra_pieza', 'cambio_pieza', 'nota_inventario', 'firma_encargado', 'firma_responsable', 'firma_calidad', 'firma_produccion', 'firma_limpieza', 'requiere_limpieza'];
+    protected $allowedFields    = ['userId', 'maqId', 'responsableId', 'produccionId', 'limpiezaId', 'calidadId', 'solicitante', 'prioridad', 'asunto', 'descripcion', 'estado_maq', 'estado_ticket', 'diagnostico', 'reparacion_detalle', 'fecha_reparacion', 'fecha_arranque', 'fecha_cierre', 'compra_pieza', 'cambio_pieza', 'nota_inventario', 'firma_encargado', 'firma_responsable', 'firma_calidad', 'firma_produccion', 'firma_limpieza', 'requiere_limpieza', 'imputable', 'fecha_inicio_limpieza', 'fecha_cierre_limpieza', 'fecha_inicio_liberacion', 'fecha_cierre_liberacion', 'fecha_cierre_calidad', 'fecha_cierre_produccion'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -415,7 +415,12 @@ class MantenimientoModel extends Model
 					mantenimiento.requiere_limpieza,
 					mantenimiento.nota_inventario,
 					mantenimiento.created_at, 
-					mantenimiento.updated_at,
+					mantenimiento.updated_at,	
+					mantenimiento.imputable,
+					mantenimiento.fecha_inicio_limpieza,
+					mantenimiento.fecha_cierre_limpieza,
+					mantenimiento.fecha_inicio_liberacion,
+					mantenimiento.fecha_cierre_liberacion,
 					maquinaria.nombre, 
 					maquinaria.marca, 
 					maquinaria.modelo, 
@@ -465,7 +470,64 @@ class MantenimientoModel extends Model
 			return $builder->get()->getRowArray();
 		}
 
-    public function getAll($limit = 20)
+		public function getMticketsByDateRange(string $startDate, string $endDate): array
+		{
+				$builder = $this->db->table('mantenimiento m');
+
+				$builder->select([
+						'maquinaria.nombre AS maquina',
+						'maquinaria.planta AS planta',
+						'CONCAT(users.name, " ", users.last_name) AS responsable',
+						'm.solicitante',
+						'm.prioridad',
+						'm.asunto',
+						'm.descripcion',
+						'm.estado_maq',
+						'm.diagnostico',
+						'm.reparacion_detalle',
+
+						'DATE_FORMAT(m.created_at, "%d/%m/%Y %H:%i:%s") AS fecha_creacion',
+						'DATE_FORMAT(m.fecha_reparacion, "%d/%m/%Y %H:%i:%s") AS fecha_inicio_reparacion',
+						'DATE_FORMAT(m.fecha_cierre, "%d/%m/%Y %H:%i:%s") AS fecha_cierre',
+
+						'm.cambio_pieza',
+						'm.compra_pieza',
+						'm.nota_inventario',
+
+						// ---- TIEMPO MUERTO ----
+						'
+						CONCAT(
+								FLOOR((
+										IFNULL(TIMESTAMPDIFF(MINUTE, m.created_at, m.fecha_reparacion), 0)
+									+ IFNULL(TIMESTAMPDIFF(MINUTE, m.fecha_reparacion, m.fecha_arranque), 0)
+									+ IFNULL(TIMESTAMPDIFF(MINUTE, m.fecha_inicio_limpieza, m.fecha_cierre_limpieza), 0)
+									+ IFNULL(TIMESTAMPDIFF(MINUTE, m.fecha_arranque, m.fecha_cierre_liberacion), 0)
+								) / 60),
+								" h. ",
+								MOD((
+										IFNULL(TIMESTAMPDIFF(MINUTE, m.created_at, m.fecha_reparacion), 0)
+									+ IFNULL(TIMESTAMPDIFF(MINUTE, m.fecha_reparacion, m.fecha_arranque), 0)
+									+ IFNULL(TIMESTAMPDIFF(MINUTE, m.fecha_inicio_limpieza, m.fecha_cierre_limpieza), 0)
+									+ IFNULL(TIMESTAMPDIFF(MINUTE, m.fecha_arranque, m.fecha_cierre_liberacion), 0)
+								), 60),
+								" min."
+						) AS tiempo_muerto
+						'
+				]);
+
+				$builder->join('maquinaria', 'maquinaria.id = m.maqId');
+				$builder->join('users', 'users.id = m.responsableId', 'left');
+
+				$builder->where('DATE(m.created_at) >=', $startDate);
+				$builder->where('DATE(m.created_at) <=', $endDate);
+
+				$builder->orderBy('m.created_at', 'ASC');
+
+				return $builder->get()->getResultArray();
+		}
+
+
+    public function getAll($limit = 100)
     {
 			$builder = $this->select('
 					COALESCE(mant_adjunto.archivo, "-") AS archivo, 

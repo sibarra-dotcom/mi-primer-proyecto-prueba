@@ -14,8 +14,8 @@
   <div id="loadingOverlay"><div id="loadingSpinner"></div></div>  
 
 
-  <img src="<?= base_url('img/nuevo_desarrollo.svg') ?>" class="hidden lg:flex absolute bottom-0 left-0 ">
-  <img src="<?= base_url('img/nuevo_desarrollo.svg') ?>" class="flex lg:hidden absolute bottom-0 left-0 ">
+  <img src="<?= base_url('img/mantenimientoweb.svg') ?>" class="hidden lg:flex absolute bottom-0 left-0 ">
+  <img src="<?= base_url('img/mantenimientomovil.svg') ?>" class="flex lg:hidden absolute bottom-0 left-0 ">
 
   <div class=" relative h-full flex flex-col items-center justify-center font-titil ">
 
@@ -32,16 +32,13 @@
     <div class="w-full text-sm text-gray  ">
       <div class="flex flex-col h-full" >
 
-        <form id="form_openia" class="pb-8 px-10 flex flex-col gap-y-8   items-center " method="post">
+        <form id="form_openia" class="pb-8 px-10 flex flex-col gap-y-8 w-full xl:w-1/2  mx-auto  items-center " method="post">
 
-					
-					<div id="respuesta" class="whitespace-pre-line h-72 overflow-y-scroll p-4 w-full focus:border focus:border-grayMid outline-none bg-grayLight text-gray " style="width: 100%;" ></div>
+					<textarea name="question" class="p-4 w-full border border-grayMid outline-none  bg-grayLight text-gray drop-shadow " rows="4" placeholder="Escribe tu consulta"></textarea>
 
-					
-					<textarea name="question" class="p-4  border border-grayMid outline-none  bg-grayLight text-gray drop-shadow " rows="4" placeholder="Escribe tu consulta" style="width: 600px;"></textarea>
-	
-<button id="btn_search" type="submit"><span>Consultar</span></button>
+					<div id="respuesta" class="whitespace-pre-line h-72 overflow-y-scroll p-4 w-full focus:border focus:border-grayMid outline-none bg-grayLight text-gray " ></div>
 
+					<button id="btn_search" type="submit"><span>Consultar</span></button>
 
 				</form>
 
