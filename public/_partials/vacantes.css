@@ -445,8 +445,9 @@
   font-weight:600;
   color:#dc2626;
   background:#fef2f2;
-  border:1px solid #fecaca;
-  border-radius:3px;
+  border:none;
+  border-left:1px solid var(--border);
+  border-radius:0;
   cursor:pointer;
   white-space:nowrap;
   transition:background .15s;
