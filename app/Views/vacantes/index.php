@@ -101,6 +101,10 @@
               </div>
               <div style="flex:1;"></div>
               <button class="btn btn-primary" type="button" onclick="filtrarDashboard()" style="padding:8px 16px;font-size:13px;">FILTRAR</button>
+              <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosDashboard()" style="padding:8px 12px;font-size:13px;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Limpiar
+              </button>
             </div>
           </div>
         </div>
@@ -247,8 +251,12 @@
         </div>
 
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
             <h2>Buscar y Filtrar</h2>
+            <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosVacantes()">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Limpiar
+            </button>
           </div>
           <div class="grid">
             <div class="col-3">
@@ -323,8 +331,12 @@
 
 
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
             <h2>Buscar y Filtrar Candidatos</h2>
+            <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosCandidatos()">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Limpiar
+            </button>
           </div>
           <div class="grid">
             <div class="col-3">

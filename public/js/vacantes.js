@@ -2846,6 +2846,32 @@ function limpiarFiltrosDashboard() {
   filtrarDashboard();
 }
 
+function limpiarFiltrosVacantes() {
+  var codigo = document.getElementById('vac-search-codigo');
+  var busq = document.getElementById('vac-search');
+  var depto = document.getElementById('vac-filter-departamento');
+  var estado = document.getElementById('vac-filter-estado');
+  var reclu = document.getElementById('vac-filter-reclutadora');
+  if (codigo) codigo.value = '';
+  if (busq) busq.value = '';
+  if (depto) depto.value = '';
+  if (estado) estado.value = '';
+  if (reclu) reclu.value = '';
+  filtrarVacantes();
+}
+
+function limpiarFiltrosCandidatos() {
+  var busq = document.getElementById('cand-search');
+  var depto = document.getElementById('cand-filter-departamento');
+  var vacante = document.getElementById('cand-filter-vacante');
+  var etapa = document.getElementById('cand-filter-etapa');
+  if (busq) busq.value = '';
+  if (depto) depto.value = '';
+  if (vacante) vacante.value = '';
+  if (etapa) etapa.value = '';
+  filtrarCandidatos();
+}
+
 function poblarFiltroVacantes() {
   var select = document.getElementById('dash-vacante');
   if (!select) return;
