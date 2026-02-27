@@ -375,6 +375,14 @@
 }
 .vacantes-module .btn-danger:hover{ background: #dc2626 !important; color: #ffffff !important; border-color: #dc2626 !important; }
 
+.vacantes-module .btn-retroceder{
+  border-color: #d97706;
+  color: #d97706;
+  box-shadow: none;
+  gap: 6px;
+}
+.vacantes-module .btn-retroceder:hover{ background: #d97706 !important; color: #ffffff !important; border-color: #d97706 !important; }
+
 .vacantes-module .btn-small{
   padding: 6px 10px;
   font-size: 11px;
@@ -676,6 +684,18 @@
 .vacantes-module .step.completed .step-number{
   background: #10b981;
   color: #ffffff;
+}
+
+.vacantes-module .step.in-progress .step-number{
+  background: #ffffff;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  box-shadow: 0 4px 12px rgba(0,121,64,.15);
+}
+
+.vacantes-module .step.in-progress .step-label{
+  color: var(--primary);
+  font-weight: 700;
 }
 
 .vacantes-module .step-label{

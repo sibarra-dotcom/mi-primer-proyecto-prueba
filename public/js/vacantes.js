@@ -1526,14 +1526,23 @@ function verDetalleCandidato(candidatoId) {
         ${etapaActual === 2 ? (entrevistas.find(e => e.candidatoId === candidato.id && e.tipo === 'rh')
           ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'entrevista-jefe')">Aprobar Entrevista RH</button>`
           : `<button class="btn btn-primary" onclick="agendarEntrevistaRH(${candidato.id})">Agendar Entrevista RH</button>`) : ''}
-        ${etapaActual === 3 ? (entrevistas.find(e => e.candidatoId === candidato.id && e.tipo === 'jefe')
-          ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'revision-medica')">Pasar a Revisi\u00f3n M\u00e9dica</button>`
-          : `<button class="btn btn-primary" onclick="agendarEntrevistaJefe(${candidato.id})">Agendar Entrevista con Jefe</button>`) : ''}
+        ${etapaActual >= 3 && vacante && vacante.jefeDirecto ? `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;display:inline-flex;align-items:center;gap:8px;">
+          <i class="fas fa-user-tie" style="color:var(--primary);font-size:16px;"></i>
+          <span style="font-size:13px;color:var(--muted);">Jefe Directo:</span>
+          <strong style="font-size:14px;color:var(--text);">${escapeHtml(vacante.jefeDirecto)}</strong>
+        </div>` : ''}
+        ${etapaActual === 3 ? (function() {
+          var entJefe = entrevistas.find(function(e) { return e.candidatoId === candidato.id && e.tipo === 'jefe'; });
+          if (!entJefe) return '<button class="btn btn-primary" onclick="agendarEntrevistaJefe(' + candidato.id + ')">Agendar Entrevista con Jefe</button>';
+          if (!entJefe.aprobadaJefe) return '<button class="btn btn-primary" onclick="aprobarEntrevistaJefe(' + candidato.id + ')">Aprobar Entrevista con Jefe</button>';
+          return '';
+        })() : ''}
         ${etapaActual === 4 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'psicometrico')">Pasar a Pruebas Psicom\u00e9tricas</button>` : ''}
         ${etapaActual === 5 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'referencias')">Verificar Referencias</button>` : ''}
         ${etapaActual === 6 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'documentos')">Solicitar Documentos</button>` : ''}
         ${etapaActual === 7 && candidato.etapa === 'documentos' ? `<button class="btn btn-primary" onclick="iniciarAltaEmpleado(${candidato.id})">Contratar</button>` : ''}
         ${etapaActual > 0 && candidato.etapa !== 'contratado' && candidato.etapa !== 'rechazado' ? `<button class="btn btn-danger" onclick="rechazarCandidato(${candidato.id})">Rechazar</button>` : ''}
+        ${etapaActual > 1 || candidato.etapa === 'rechazado' || candidato.etapa === 'contratado' ? `<button class="btn btn-ghost btn-retroceder" onclick="retrocederEtapa(${candidato.id})"><i class="fas fa-arrow-left"></i> Regresar etapa</button>` : ''}
       </div>
     </div>
 
@@ -1759,17 +1768,37 @@ function renderProcesoSteps(etapaActual, candidato) {
   const etapaRechazo = esRechazado ? (candidato.etapaRechazo || 1) : null;
 
   const tieneEntrevistaRH = candidato && entrevistas.find(e => e.candidatoId === candidato.id && e.tipo === 'rh');
+  const entrevistaJefe = candidato && entrevistas.find(e => e.candidatoId === candidato.id && e.tipo === 'jefe');
 
   return steps.map((step, index) => {
     const isRejected = esRechazado && step.num === etapaRechazo;
     const isCompleted = esRechazado ? step.num < etapaRechazo : step.num < etapaActual;
     const isActive = !esRechazado && step.num === etapaActual;
     const showConnector = index < steps.length - 1;
-    const esEntrevistaRH = step.num === 2 && tieneEntrevistaRH && (isCompleted || isActive);
-    const clickAttr = esEntrevistaRH ? `onclick="toggleDetalleEntrevista(${candidato.id})" style="cursor:pointer" title="Click para ver detalles de entrevista"` : '';
+
+    // Detectar estado intermedio: entrevista agendada pero no aprobada
+    let isInProgress = false;
+    if (!esRechazado && isActive) {
+      if (step.num === 2 && tieneEntrevistaRH && candidato.etapa === 'entrevista-rh') {
+        // Entrevista RH agendada, esperando aprobación
+        isInProgress = true;
+      }
+      if (step.num === 3 && entrevistaJefe && !entrevistaJefe.aprobadaJefe && candidato.etapa === 'entrevista-jefe') {
+        // Entrevista Jefe agendada, esperando aprobación
+        isInProgress = true;
+      }
+    }
+
+    const esEntrevistaClickable = (step.num === 2 && tieneEntrevistaRH && (isCompleted || isActive))
+      || (step.num === 3 && entrevistaJefe && (isCompleted || isActive));
+    const clickAttr = esEntrevistaClickable
+      ? `onclick="toggleDetalleEntrevista(${candidato.id}, '${step.num === 2 ? 'rh' : 'jefe'}')" style="cursor:pointer" title="Click para ver detalles de entrevista"`
+      : '';
+
+    const stepClass = isRejected ? 'rejected' : (isInProgress ? 'in-progress' : (isActive ? 'active' : (isCompleted ? 'completed' : '')));
 
     return `
-      <div class="step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isRejected ? 'rejected' : ''}" ${clickAttr}>
+      <div class="step ${stepClass}" ${clickAttr}>
         <div class="step-number">${isRejected ? '\u2717' : step.num}</div>
         <div class="step-label">${step.label}</div>
       </div>
@@ -1789,14 +1818,88 @@ function avanzarEtapa(candidatoId, nuevaEtapa) {
   }
 }
 
-function toggleDetalleEntrevista(candidatoId) {
+function retrocederEtapa(candidatoId) {
+  const candidato = candidatos.find(c => c.id === candidatoId);
+  if (!candidato) return;
+
+  const etapaActualNombre = candidato.etapa;
+
+  // Caso especial: rechazado → volver a la etapa donde fue rechazado
+  if (etapaActualNombre === 'rechazado') {
+    const etapaPrevia = candidato.etapaRechazo ? getEtapaNombre(candidato.etapaRechazo) : 'aplicado';
+    const labelPrevia = getEtapaLabel(etapaPrevia);
+    if (!confirm('¿Regresar a ' + labelPrevia + '? Se deshará el rechazo del candidato.')) return;
+    candidato.etapa = etapaPrevia;
+    delete candidato.motivoRechazo;
+    delete candidato.etapaRechazo;
+    saveData();
+    showToast('Etapa revertida', 'El candidato regresó a: ' + labelPrevia);
+    closeModal('detalle-candidato');
+    renderCandidatosTable();
+    return;
+  }
+
+  // Caso especial: contratado → volver a documentos
+  if (etapaActualNombre === 'contratado') {
+    if (!confirm('¿Regresar a Documentos? Se eliminarán los datos laborales del candidato.')) return;
+    candidato.etapa = 'documentos';
+    delete candidato.datosLaborales;
+    saveData();
+    showToast('Etapa revertida', 'El candidato regresó a: Documentos');
+    closeModal('detalle-candidato');
+    renderCandidatosTable();
+    return;
+  }
+
+  const etapaNum = getEtapaNumero(etapaActualNombre);
+  if (etapaNum <= 1) return; // No se puede retroceder desde aplicado
+
+  const etapaAnterior = getEtapaNombre(etapaNum - 1);
+  const labelAnterior = getEtapaLabel(etapaAnterior);
+
+  if (!confirm('¿Regresar a ' + labelAnterior + '? Se desharán los cambios de la etapa actual.')) return;
+
+  // Deshacer datos según la transición
+  switch (etapaActualNombre) {
+    case 'entrevista-rh':
+      // Eliminar entrevista tipo 'rh'
+      var idxRH = entrevistas.findIndex(function(e) { return e.candidatoId === candidatoId && e.tipo === 'rh'; });
+      if (idxRH !== -1) entrevistas.splice(idxRH, 1);
+      break;
+
+    case 'entrevista-jefe':
+      // Eliminar entrevista tipo 'jefe' y resetear aprobadaJefe
+      var idxJefe = entrevistas.findIndex(function(e) { return e.candidatoId === candidatoId && e.tipo === 'jefe'; });
+      if (idxJefe !== -1) entrevistas.splice(idxJefe, 1);
+      break;
+
+    case 'revision-medica':
+      // Resetear aprobadaJefe en entrevista jefe
+      var entJefe = entrevistas.find(function(e) { return e.candidatoId === candidatoId && e.tipo === 'jefe'; });
+      if (entJefe) entJefe.aprobadaJefe = false;
+      break;
+
+    // psicometrico, referencias, documentos: solo cambiar etapa
+    default:
+      break;
+  }
+
+  candidato.etapa = etapaAnterior;
+  saveData();
+  showToast('Etapa revertida', 'El candidato regresó a: ' + labelAnterior);
+  closeModal('detalle-candidato');
+  renderCandidatosTable();
+}
+
+function toggleDetalleEntrevista(candidatoId, tipo) {
+  tipo = tipo || 'rh';
   var existing = document.getElementById('entrevista-detalle-popup');
   if (existing) {
     existing.remove();
     return;
   }
 
-  var ent = entrevistas.find(function(e) { return e.candidatoId === candidatoId && e.tipo === 'rh'; });
+  var ent = entrevistas.find(function(e) { return e.candidatoId === candidatoId && e.tipo === tipo; });
   if (!ent) return;
 
   var fechaStr = formatFecha(ent.fecha);
@@ -1930,10 +2033,28 @@ function agendarEntrevistaJefe(candidatoId) {
   entInput.readOnly = false;
   entInput.style.background = '';
   entInput.style.cursor = '';
-  entInput.value = '';
+  // Pre-llenar con el jefe directo de la vacante
+  var candidato = candidatos.find(function(c) { return c.id === candidatoId; });
+  var vacante = candidato ? vacantes.find(function(v) { return v.id === candidato.vacanteId; }) : null;
+  entInput.value = (vacante && vacante.jefeDirecto) || '';
   document.getElementById('entrevista-disponibilidad-wrapper').style.display = 'none';
   closeModal('detalle-candidato');
   openModal('agendar-entrevista');
+}
+
+function aprobarEntrevistaJefe(candidatoId) {
+  var entrevista = entrevistas.find(function(e) { return e.candidatoId === candidatoId && e.tipo === 'jefe'; });
+  if (!entrevista) return;
+  entrevista.aprobadaJefe = true;
+  var candidato = candidatos.find(function(c) { return c.id === candidatoId; });
+  if (candidato) {
+    candidato.etapa = 'revision-medica';
+  }
+  saveData();
+  showToast('Entrevista aprobada', 'El candidato avanza a Revisión Médica');
+  closeModal('detalle-candidato');
+  renderCandidatosTable();
+  if (typeof renderVacantesDeptoJefe === 'function') renderVacantesDeptoJefe();
 }
 
 function cancelarAgendarEntrevista() {
@@ -3345,6 +3466,7 @@ function renderSolicitudesJefe() {
         <p>Crea una nueva solicitud de vacante para iniciar el proceso de aprobaci\u00f3n</p>
       </div>
     `;
+    renderVacantesDeptoJefe();
     return;
   }
 
@@ -3388,6 +3510,54 @@ function renderSolicitudesJefe() {
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;">
           <button class="btn btn-ghost btn-small" onclick="event.stopPropagation();verDetalleSolicitud(${sol.id})">Ver Detalle</button>
         </div>
+      </div>
+    `;
+  }).join('');
+
+  // Render vacantes del departamento del jefe
+  renderVacantesDeptoJefe();
+}
+
+function renderVacantesDeptoJefe() {
+  const grid = document.getElementById('vacantesDeptoJefeGrid');
+  if (!grid) return;
+
+  const depto = getDepartamentoJefe();
+  if (!depto) { grid.innerHTML = ''; return; }
+
+  // Vacantes abiertas del departamento (excluyendo las que ya vinieron de solicitudes propias)
+  const misSolicitudIds = new Set(solicitudes.filter(s => s.solicitante === rolActual && s.vacanteId).map(s => s.vacanteId));
+  const vacantesDepto = vacantes.filter(v => v.departamento === depto && v.estado === 'abierta' && !misSolicitudIds.has(v.id));
+
+  if (vacantesDepto.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <h3>Sin vacantes adicionales</h3>
+        <p>No hay vacantes abiertas en tu departamento fuera de tus solicitudes</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = vacantesDepto.map(function(vac) {
+    var numCandidatos = candidatos.filter(function(c) { return c.vacanteId === vac.id; }).length;
+    var enProceso = candidatos.filter(function(c) { return c.vacanteId === vac.id && !['contratado','rechazado','aplicado'].includes(c.etapa); }).length;
+    var contratados = candidatos.filter(function(c) { return c.vacanteId === vac.id && c.etapa === 'contratado'; }).length;
+    return `
+      <div class="vacante-card" onclick="verDetalleVacante(${vac.id})" style="cursor:pointer">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+          <h3 class="vacante-title">${escapeHtml(vac.titulo)}</h3>
+          <span class="vacante-status status-abierta">Abierta</span>
+        </div>
+        ${vac.codigo ? `<div style="font-size:12px;color:var(--primary);font-weight:700;margin-bottom:6px;">${escapeHtml(vac.codigo)}</div>` : ''}
+        <div class="vacante-info">
+          <div class="vacante-info-item"><strong>Departamento:</strong> ${escapeHtml(vac.departamento)}</div>
+          <div class="vacante-info-item"><strong>Publicada:</strong> ${formatFecha(vac.fechaCreacion)}</div>
+          <div class="vacante-info-item"><strong>Candidatos:</strong> ${numCandidatos}</div>
+          <div class="vacante-info-item"><strong>En proceso:</strong> ${enProceso}</div>
+          ${contratados > 0 ? `<div class="vacante-info-item"><strong>Contratados:</strong> ${contratados}</div>` : ''}
+        </div>
+        ${vac.descripcion ? `<p class="vacante-desc">${escapeHtml(vac.descripcion).substring(0, 120)}...</p>` : ''}
       </div>
     `;
   }).join('');
@@ -4083,6 +4253,7 @@ function setupFormsSolicitud() {
         cantidadVacantes: parseInt(document.getElementById('sol-cantidad').value) || 1,
         puestoReferencia: document.getElementById('sol-puesto-existente').value,
         solicitante: rolActual,
+        solicitanteNombre: (sesionUsuario && sesionUsuario.userName) || '',
         fechaSolicitud: new Date().toISOString().split('T')[0],
         estado: 'pendiente',
         aprobacionFinanzas: { estado: 'pendiente', comentario: '', fecha: '' },
@@ -4128,6 +4299,7 @@ function setupFormsSolicitud() {
         cantidadVacantes: 1,
         puestoReferencia: null,
         solicitante: rolActual,
+        solicitanteNombre: (sesionUsuario && sesionUsuario.userName) || '',
         fechaSolicitud: new Date().toISOString().split('T')[0],
         estado: 'pendiente',
         aprobacionFinanzas: { estado: 'pendiente', comentario: '', fecha: '' },
@@ -4190,7 +4362,8 @@ function setupFormCompletarVacante() {
       ubicacionClave: sol.ubicacion || '',
       direccion: sol.direccion || '',
       solicitarCV: !!document.getElementById('completar-solicitar-cv').checked,
-      mostrarSalario: !!document.getElementById('completar-mostrar-salario').checked
+      mostrarSalario: !!document.getElementById('completar-mostrar-salario').checked,
+      jefeDirecto: sol.solicitanteNombre || ''
     };
 
     vacantes.push(vacante);
@@ -4321,6 +4494,7 @@ function setupFormListeners() {
         descripcion: document.getElementById('vac-descripcion').value,
         requisitos: document.getElementById('vac-requisitos').value,
         reclutadoraId: reclutadoraId || null,
+        jefeDirecto: document.getElementById('vac-jefe-directo').value,
         estado: 'abierta',
         fechaCreacion: new Date().toISOString().split('T')[0]
       };
@@ -4563,7 +4737,8 @@ function setupFormEntrevista() {
         lugarClave: lugarClave,
         direccion: lugarClave !== 'online' ? (DIRECCIONES[lugarClave] || '') : '',
         linkReunion: lugarClave === 'online' ? linkReunion : '',
-        notas: document.getElementById('entrevista-notas').value
+        notas: document.getElementById('entrevista-notas').value,
+        aprobadaJefe: false
       };
 
       entrevistas.push(entrevista);

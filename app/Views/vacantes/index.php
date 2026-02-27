@@ -402,6 +402,14 @@
           </div>
         </div>
         <div id="solicitudesJefeGrid" class="vacantes-grid"></div>
+
+        <div class="card" style="margin-top:24px;">
+          <div class="card-header">
+            <h2>Vacantes de mi Departamento</h2>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Vacantes abiertas en tu departamento, incluyendo las creadas por Recursos Humanos.</p>
+        </div>
+        <div id="vacantesDeptoJefeGrid" class="vacantes-grid"></div>
       </div>
 
       <!-- Vista: Calendario de Reclutadoras -->
@@ -519,6 +527,10 @@
               <div class="col-12">
                 <label for="vac-requisitos">Requisitos</label>
                 <textarea id="vac-requisitos" placeholder="Experiencia requerida, habilidades, certificaciones..."></textarea>
+              </div>
+              <div class="col-6">
+                <label for="vac-jefe-directo">Jefe Directo *</label>
+                <input id="vac-jefe-directo" type="text" required placeholder="Nombre completo del jefe directo">
               </div>
               <div class="col-6">
                 <label for="vac-reclutadora">Reclutadora Asignada</label>
