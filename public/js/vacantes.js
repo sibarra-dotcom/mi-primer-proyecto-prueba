@@ -1412,7 +1412,7 @@ function getEtapaLabel(etapa) {
 function getEtapaNumero(etapa) {
   const numeros = {
     'aplicado': 1, 'entrevista-rh': 2,
-    'entrevista-jefe': 3, 'revision-medica': 4, 'psicometrico': 5,
+    'revision-medica': 3, 'entrevista-jefe': 4, 'psicometrico': 5,
     'referencias': 6, 'documentos': 7, 'contratado': 7, 'rechazado': 0
   };
   return numeros[etapa] || 1;
@@ -1421,7 +1421,7 @@ function getEtapaNumero(etapa) {
 function getEtapaNombre(num) {
   const nombres = {
     1: 'aplicado', 2: 'entrevista-rh',
-    3: 'entrevista-jefe', 4: 'revision-medica', 5: 'psicometrico',
+    3: 'revision-medica', 4: 'entrevista-jefe', 5: 'psicometrico',
     6: 'referencias', 7: 'documentos'
   };
   return nombres[num] || 'aplicado';
@@ -1501,20 +1501,20 @@ function verDetalleCandidato(candidatoId) {
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;">
         ${etapaActual === 1 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'entrevista-rh')">Aprobar Primer Filtro</button>` : ''}
         ${etapaActual === 2 ? (entrevistas.find(e => e.candidatoId === candidato.id && e.tipo === 'rh')
-          ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'entrevista-jefe')">Aprobar Entrevista RH</button>`
+          ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'revision-medica')">Aprobar Entrevista RH</button>`
           : `<button class="btn btn-primary" onclick="agendarEntrevistaRH(${candidato.id})">Agendar Entrevista RH</button>`) : ''}
-        ${etapaActual >= 3 && vacante && vacante.jefeDirecto ? `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;display:inline-flex;align-items:center;gap:8px;">
+        ${etapaActual === 3 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'entrevista-jefe')">Pasar a Entrevista con Jefe</button>` : ''}
+        ${etapaActual >= 4 && vacante && vacante.jefeDirecto ? `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:12px;display:inline-flex;align-items:center;gap:8px;">
           <i class="fas fa-user-tie" style="color:var(--primary);font-size:16px;"></i>
           <span style="font-size:13px;color:var(--muted);">Jefe Directo:</span>
           <strong style="font-size:14px;color:var(--text);">${escapeHtml(vacante.jefeDirecto)}</strong>
         </div>` : ''}
-        ${etapaActual === 3 ? (function() {
+        ${etapaActual === 4 ? (function() {
           var entJefe = entrevistas.find(function(e) { return e.candidatoId === candidato.id && e.tipo === 'jefe'; });
           if (!entJefe) return '<button class="btn btn-primary" onclick="agendarEntrevistaJefe(' + candidato.id + ')">Agendar Entrevista con Jefe</button>';
           if (!entJefe.aprobadaJefe) return '<button class="btn btn-primary" onclick="aprobarEntrevistaJefe(' + candidato.id + ')">Aprobar Entrevista con Jefe</button>';
           return '';
         })() : ''}
-        ${etapaActual === 4 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'psicometrico')">Pasar a Pruebas Psicom\u00e9tricas</button>` : ''}
         ${etapaActual === 5 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'referencias')">Verificar Referencias</button>` : ''}
         ${etapaActual === 6 ? `<button class="btn btn-primary" onclick="avanzarEtapa(${candidato.id}, 'documentos')">Solicitar Documentos</button>` : ''}
         ${etapaActual === 7 && candidato.etapa === 'documentos' ? `<button class="btn btn-primary" onclick="iniciarAltaEmpleado(${candidato.id})">Contratar</button>` : ''}
@@ -1748,8 +1748,8 @@ function renderProcesoSteps(etapaActual, candidato) {
   const steps = [
     { num: 1, label: 'Postulaci\u00f3n' },
     { num: 2, label: 'Entrevista RH' },
-    { num: 3, label: 'Entrevista Jefe' },
-    { num: 4, label: 'Revisi\u00f3n M\u00e9dica' },
+    { num: 3, label: 'Revisi\u00f3n M\u00e9dica' },
+    { num: 4, label: 'Entrevista Jefe' },
     { num: 5, label: 'Psicom\u00e9trico' },
     { num: 6, label: 'Referencias' },
     { num: 7, label: 'Documentos' }
@@ -1774,14 +1774,14 @@ function renderProcesoSteps(etapaActual, candidato) {
         // Entrevista RH agendada, esperando aprobación
         isInProgress = true;
       }
-      if (step.num === 3 && entrevistaJefe && !entrevistaJefe.aprobadaJefe && candidato.etapa === 'entrevista-jefe') {
+      if (step.num === 4 && entrevistaJefe && !entrevistaJefe.aprobadaJefe && candidato.etapa === 'entrevista-jefe') {
         // Entrevista Jefe agendada, esperando aprobación
         isInProgress = true;
       }
     }
 
     const esEntrevistaClickable = (step.num === 2 && tieneEntrevistaRH && (isCompleted || isActive))
-      || (step.num === 3 && entrevistaJefe && (isCompleted || isActive));
+      || (step.num === 4 && entrevistaJefe && (isCompleted || isActive));
     const clickAttr = esEntrevistaClickable
       ? `onclick="toggleDetalleEntrevista(${candidato.id}, '${step.num === 2 ? 'rh' : 'jefe'}')" style="cursor:pointer" title="Click para ver detalles de entrevista"`
       : '';
@@ -1882,6 +1882,8 @@ function confirmarRetroceso() {
         if (idxJefe !== -1) entrevistas.splice(idxJefe, 1);
         break;
       case 'revision-medica':
+        break;
+      case 'psicometrico':
         var entJefe = entrevistas.find(function(e) { return e.candidatoId === candidatoId && e.tipo === 'jefe'; });
         if (entJefe) entJefe.aprobadaJefe = false;
         break;
@@ -1925,6 +1927,9 @@ function toggleDetalleEntrevista(candidatoId, tipo) {
   var ent = entrevistas.find(function(e) { return e.candidatoId === candidatoId && e.tipo === tipo; });
   if (!ent) return;
 
+  var esPortalPublico = !!document.getElementById('seguimiento-resultado') && document.getElementById('seguimiento-resultado').style.display !== 'none';
+  if (esPortalPublico) return;
+
   var fechaStr = formatFecha(ent.fecha);
   var horaInicio = ent.hora || '';
   var duracion = parseInt(ent.duracion) || 60;
@@ -1944,7 +1949,6 @@ function toggleDetalleEntrevista(candidatoId, tipo) {
   var entrevistador = ent.entrevistador || '';
   var esOnline = ent.lugarClave === 'online' || ent.lugar === 'Reunión en línea';
   var lugarHTML = '';
-
   if (esOnline) {
     var link = escapeHtml(ent.linkReunion || '');
     lugarHTML = '<p style="margin:0 0 6px;font-size:13px;"><strong>Lugar:</strong> Reunión en línea</p>';
@@ -2072,10 +2076,10 @@ function aprobarEntrevistaJefe(candidatoId) {
   entrevista.aprobadaJefe = true;
   var candidato = candidatos.find(function(c) { return c.id === candidatoId; });
   if (candidato) {
-    candidato.etapa = 'revision-medica';
+    candidato.etapa = 'psicometrico';
   }
   saveData();
-  showToast('Entrevista aprobada', 'El candidato avanza a Revisión Médica');
+  showToast('Entrevista aprobada', 'El candidato avanza a Pruebas Psicom\u00e9tricas');
   renderCandidatosTable();
   if (typeof renderVacantesDeptoJefe === 'function') renderVacantesDeptoJefe();
   verDetalleCandidato(candidatoId);
@@ -4917,6 +4921,125 @@ function consultarPostulacion() {
   renderSeguimientoPublico(candidato);
 }
 
+function buildDetalleEntrevistaPublico(candidato) {
+  var ent = entrevistas.find(function(e) { return e.candidatoId === candidato.id && e.tipo === 'rh'; });
+  if (!ent) return '';
+
+  var fechaStr = formatFecha(ent.fecha);
+  var horaInicio = ent.hora || '';
+  var duracion = parseInt(ent.duracion) || 60;
+  var horaFin = '';
+  if (horaInicio) {
+    var parts = horaInicio.split(':');
+    var totalMin = parseInt(parts[0]) * 60 + parseInt(parts[1]) + duracion;
+    horaFin = minutosAHora(totalMin);
+  }
+
+  var entrevistador = ent.entrevistador || '';
+  var esOnline = ent.lugarClave === 'online' || ent.lugar === 'Reunión en línea';
+  var lugarHTML = '';
+
+  if (esOnline) {
+    lugarHTML = '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;margin-top:10px;">' +
+      '<p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#1e40af;"><i class="fas fa-video" style="margin-right:6px;"></i>Entrevista en l\u00ednea</p>' +
+      '<p style="margin:0;font-size:13px;color:#1e3a5f;">Tu entrevista ser\u00e1 por videollamada. ';
+    if (ent.linkReunion) {
+      lugarHTML += 'Haz clic en el siguiente enlace para ingresar a tu sesi\u00f3n el d\u00eda y hora indicados:</p>' +
+        '<a href="' + escapeHtml(ent.linkReunion) + '" target="_blank" style="display:inline-block;margin-top:8px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;"><i class="fas fa-external-link-alt" style="margin-right:6px;"></i>Ingresar a la reuni\u00f3n</a>';
+    } else {
+      lugarHTML += 'Recibir\u00e1s el enlace de acceso antes de la entrevista.</p>';
+    }
+    lugarHTML += '</div>';
+  } else {
+    var nombreUbicacion = UBICACION_NOMBRES[ent.lugarClave] || ent.lugar || '';
+    var direccion = DIRECCIONES[ent.lugarClave] || ent.direccion || '';
+    lugarHTML = '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 14px;margin-top:10px;">' +
+      '<p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#166534;"><i class="fas fa-map-marker-alt" style="margin-right:6px;"></i>Entrevista presencial</p>' +
+      '<p style="margin:0;font-size:13px;color:#14532d;">Lugar: <strong>' + escapeHtml(nombreUbicacion) + '</strong></p>';
+    if (direccion) {
+      var mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(direccion);
+      lugarHTML += '<p style="margin:6px 0 0;font-size:13px;color:#14532d;">Direcci\u00f3n: ' + escapeHtml(direccion) + '</p>' +
+        '<a href="' + escapeHtml(mapsUrl) + '" target="_blank" style="display:inline-block;margin-top:8px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;"><i class="fas fa-map-marked-alt" style="margin-right:6px;"></i>Ver ubicaci\u00f3n en el mapa</a>';
+    }
+    lugarHTML += '</div>';
+  }
+
+  var notasHTML = ent.notas ? '<p style="margin:10px 0 0;font-size:13px;color:var(--muted);"><i class="fas fa-info-circle" style="margin-right:4px;"></i>' + escapeHtml(ent.notas) + '</p>' : '';
+
+  return '<div class="card" style="margin-top:20px;border-left:4px solid var(--primary);">' +
+    '<div class="card-header"><h2><i class="fas fa-calendar-check" style="margin-right:8px;"></i>Detalles de tu Entrevista</h2></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;">' +
+      '<p style="margin:0;font-size:14px;"><i class="fas fa-calendar-day" style="color:var(--primary);width:18px;margin-right:4px;"></i><strong>Fecha:</strong> ' + escapeHtml(fechaStr) + '</p>' +
+      '<p style="margin:0;font-size:14px;"><i class="fas fa-clock" style="color:var(--primary);width:18px;margin-right:4px;"></i><strong>Horario:</strong> ' + escapeHtml(horaInicio) + ' - ' + escapeHtml(horaFin) + '</p>' +
+      '<p style="margin:0;font-size:14px;"><i class="fas fa-hourglass-half" style="color:var(--primary);width:18px;margin-right:4px;"></i><strong>Duraci\u00f3n:</strong> ' + duracion + ' min</p>' +
+      (entrevistador ? '<p style="margin:0;font-size:14px;"><i class="fas fa-user" style="color:var(--primary);width:18px;margin-right:4px;"></i><strong>Entrevistador:</strong> ' + escapeHtml(entrevistador) + '</p>' : '') +
+    '</div>' +
+    lugarHTML +
+    notasHTML +
+  '</div>';
+}
+
+function buildNotificacionesPublico(candidato) {
+  // Determinar la etapa numérica de referencia
+  var etapaRef;
+  if (candidato.etapa === 'rechazado') {
+    etapaRef = getEtapaNumero(candidato.etapaRechazo || 'aplicado');
+  } else if (candidato.etapa === 'contratado') {
+    etapaRef = 7;
+  } else {
+    etapaRef = getEtapaNumero(candidato.etapa);
+  }
+
+  // Si aún está en 'aplicado' (etapa 1), no hay notificaciones
+  if (etapaRef < 2) return '';
+
+  var entrevistaRH = entrevistas.find(function(e) { return e.candidatoId === candidato.id && e.tipo === 'rh'; });
+
+  // Mapa de notificaciones: [umbral, mensaje, icono]
+  var mapa = [
+    [2, 'Felicidades, pasaste el primer filtro. En espera de agenda disponible para entrevista con el área de Recursos Humanos.', 'fa-check-circle', '#059669'],
+    [3, 'Has aprobado tu entrevista con Recursos Humanos. Tu siguiente paso es la Revisión Médica.', 'fa-heartbeat', '#0891b2'],
+    [4, 'Tu revisión médica ha sido completada. En espera de agendar entrevista con el Jefe Directo del área.', 'fa-user-tie', '#7c3aed'],
+    [5, 'Has aprobado la entrevista con el Jefe Directo. Tu siguiente paso son las Pruebas Psicométricas.', 'fa-brain', '#c026d3'],
+    [6, 'Pruebas psicométricas completadas. Se procederá a la verificación de tus referencias.', 'fa-clipboard-check', '#ea580c'],
+    [7, 'Verificación de referencias completada. Se te solicitará la documentación necesaria para tu contratación.', 'fa-folder-open', '#16a34a']
+  ];
+
+  var items = [];
+
+  // Agregar notificaciones según etapa alcanzada (en orden inverso: más recientes arriba)
+  for (var i = mapa.length - 1; i >= 0; i--) {
+    if (etapaRef >= mapa[i][0]) {
+      items.push('<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:8px;background:rgba(0,121,64,.04);border:1px solid var(--border);margin-bottom:8px;">' +
+        '<div style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:' + mapa[i][3] + '15;display:flex;align-items:center;justify-content:center;">' +
+          '<i class="fas ' + mapa[i][2] + '" style="font-size:14px;color:' + mapa[i][3] + ';"></i>' +
+        '</div>' +
+        '<p style="margin:0;font-size:14px;line-height:1.5;color:var(--text);">' + mapa[i][1] + '</p>' +
+      '</div>');
+    }
+  }
+
+  // Notificación especial: entrevista RH agendada (insertar después de la del primer filtro)
+  if (entrevistaRH) {
+    var fechaEnt = entrevistaRH.fecha ? ' para el <strong>' + escapeHtml(formatFecha(entrevistaRH.fecha)) + '</strong>' : '';
+    var itemAgendada = '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:8px;background:rgba(37,99,235,.05);border:1px solid #bfdbfe;margin-bottom:8px;">' +
+      '<div style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:#2563eb15;display:flex;align-items:center;justify-content:center;">' +
+        '<i class="fas fa-calendar-check" style="font-size:14px;color:#2563eb;"></i>' +
+      '</div>' +
+      '<p style="margin:0;font-size:14px;line-height:1.5;color:var(--text);">Tu entrevista con Recursos Humanos ha sido agendada' + fechaEnt + '. Consulta los detalles en la sección de abajo.</p>' +
+    '</div>';
+    // Insertar justo antes del último elemento (el de primer filtro, que queda al final)
+    items.splice(items.length - 1, 0, itemAgendada);
+  }
+
+  return '<div class="card" style="margin-top:20px;border-left:4px solid var(--primary);">' +
+    '<div class="card-header">' +
+      '<h2><i class="fas fa-bell" style="margin-right:8px;color:var(--primary);"></i>Notificaciones</h2>' +
+    '</div>' +
+    items.join('') +
+  '</div>';
+}
+
 function renderSeguimientoPublico(candidato) {
   const vacante = vacantes.find(v => v.id === candidato.vacanteId);
   const etapaActual = getEtapaNumero(candidato.etapa);
@@ -4943,8 +5066,8 @@ function renderSeguimientoPublico(candidato) {
   const comentarios = (candidato.comentariosPublicos || []).slice().reverse();
   const comentariosHtml = comentarios.length === 0
     ? `<div style="text-align:center;padding:24px 0;color:var(--muted);">
-        <p style="font-size:14px;margin:0;">Aún no hay actualizaciones.</p>
-        <p style="font-size:12px;margin:4px 0 0;">Te notificaremos cuando haya novedades en tu proceso.</p>
+        <p style="font-size:14px;margin:0;">Aún no hay mensajes.</p>
+        <p style="font-size:12px;margin:4px 0 0;">Aquí aparecerán los comentarios que Recursos Humanos te envíe durante tu proceso.</p>
       </div>`
     : comentarios.map(c => `
         <div style="border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;">
@@ -4978,9 +5101,13 @@ function renderSeguimientoPublico(candidato) {
       </div>
     </div>
 
+    ${buildNotificacionesPublico(candidato)}
+
+    ${buildDetalleEntrevistaPublico(candidato)}
+
     <div class="card">
       <div class="card-header">
-        <h2>Actualizaciones del Proceso</h2>
+        <h2>Mensajes de Recursos Humanos</h2>
       </div>
       ${comentariosHtml}
     </div>

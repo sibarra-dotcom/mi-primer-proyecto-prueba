@@ -68,8 +68,8 @@
                   <option value="">Todas</option>
                   <option value="aplicado">Postulado</option>
                   <option value="entrevista-rh">Entrevista RH</option>
-                  <option value="entrevista-jefe">Entrevista Jefe</option>
                   <option value="revision-medica">Revisión Médica</option>
+                  <option value="entrevista-jefe">Entrevista Jefe</option>
                   <option value="psicometrico">Psicométrico</option>
                   <option value="referencias">Referencias</option>
                   <option value="documentos">Documentos</option>
@@ -369,8 +369,8 @@
                   <option value="en-proceso">En Proceso (sin contratados/rechazados)</option>
                   <option value="aplicado">Postulado</option>
                   <option value="entrevista-rh">Entrevista RH</option>
-                  <option value="entrevista-jefe">Entrevista Jefe</option>
                   <option value="revision-medica">Revisión Médica</option>
+                  <option value="entrevista-jefe">Entrevista Jefe</option>
                   <option value="psicometrico">Psicométrico</option>
                   <option value="referencias">Referencias</option>
                   <option value="documentos">Documentos</option>
