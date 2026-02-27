@@ -286,15 +286,15 @@
             </div>
             <div class="col-3">
               <label for="vac-filter-reclutadora">Reclutadora</label>
-              <select id="vac-filter-reclutadora" onchange="filtrarVacantes()">
-                <option value="">Todas</option>
-              </select>
-            </div>
-            <div class="col-3" style="display:flex;flex-direction:column;justify-content:flex-end;">
-              <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosVacantes()" style="padding:9px 10px;">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                Limpiar
-              </button>
+              <div style="display:flex;gap:6px;">
+                <select id="vac-filter-reclutadora" onchange="filtrarVacantes()" style="flex:1;">
+                  <option value="">Todas</option>
+                </select>
+                <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosVacantes()" style="align-self:stretch;padding:0 12px;">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  Limpiar
+                </button>
+              </div>
             </div>
           </div>
         </div>
