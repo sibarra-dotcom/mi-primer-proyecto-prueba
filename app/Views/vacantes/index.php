@@ -291,7 +291,7 @@
               </select>
             </div>
             <div class="col-3" style="display:flex;flex-direction:column;justify-content:flex-end;">
-              <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosVacantes()" style="width:100%;box-sizing:border-box;">
+              <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosVacantes()" style="padding:9px 10px;">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 Limpiar
               </button>
