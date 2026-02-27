@@ -561,6 +561,32 @@
       </div>
     </div>
 
+    <!-- Modal: Retroceder Etapa -->
+    <div id="modal-retroceder-etapa" class="modal">
+      <div class="modal-content" style="max-width:500px;">
+        <div class="modal-header">
+          <h3 class="modal-title">Regresar Etapa</h3>
+          <button class="close-modal" onclick="closeModal('retroceder-etapa')">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="retroceso-candidato-id">
+          <div id="retroceso-info-box" style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:14px 16px;margin-bottom:16px;">
+            <p style="margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:#92400e;font-weight:700;">Regresando de etapa</p>
+            <p id="retroceso-etapa-actual" style="margin:4px 0 0;font-size:18px;font-weight:900;color:#d97706;"></p>
+            <p style="margin:6px 0 0;font-size:12px;color:#92400e;"><i class="fas fa-arrow-left"></i> Regresará a: <strong id="retroceso-etapa-destino"></strong></p>
+          </div>
+          <label for="retroceso-motivo">Motivo del retroceso *</label>
+          <textarea id="retroceso-motivo" required placeholder="Explica por qué se regresa al candidato a la etapa anterior..." style="min-height:120px;"></textarea>
+          <div class="actions" style="margin-top:16px;">
+            <button class="btn btn-ghost" onclick="closeModal('retroceder-etapa')">Cancelar</button>
+            <button class="btn btn-retroceder" onclick="confirmarRetroceso()"><i class="fas fa-arrow-left"></i> Confirmar Retroceso</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal: Rechazar Candidato -->
     <div id="modal-rechazar-candidato" class="modal">
       <div class="modal-content" style="max-width:500px;">

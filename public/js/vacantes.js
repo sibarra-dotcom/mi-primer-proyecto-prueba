@@ -1576,15 +1576,22 @@ function verDetalleCandidato(candidatoId) {
       <div>
         ${(candidato.comentariosInternos || []).length === 0
           ? '<p style="text-align:center;color:var(--muted);font-size:13px;padding:12px 0;">Sin comentarios del jefe de área</p>'
-          : (candidato.comentariosInternos || []).slice().reverse().map(c => `
-            <div style="border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;">
+          : (candidato.comentariosInternos || []).slice().reverse().map(c => {
+            const esRetroceso = c.tipo === 'retroceso';
+            const borderColor = esRetroceso ? '#fde68a' : 'var(--border)';
+            const bgColor = esRetroceso ? '#fffbeb' : 'transparent';
+            const autorColor = esRetroceso ? '#d97706' : 'var(--primary)';
+            const autorLabel = esRetroceso ? escapeHtml(c.autor || '') : ('Jefe de ' + escapeHtml(c.autor || ''));
+            const fechaHora = formatFecha(c.fecha) + (c.hora ? ' ' + escapeHtml(c.hora) : '');
+            return `
+            <div style="border:1px solid ${borderColor};background:${bgColor};border-radius:8px;padding:12px 14px;margin-bottom:8px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                <span style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--primary);font-weight:700;">Jefe de ${escapeHtml(c.autor || '')}</span>
-                <span style="font-size:11px;color:var(--muted);">${formatFecha(c.fecha)}</span>
+                <span style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:${autorColor};font-weight:700;">${esRetroceso ? '<i class="fas fa-arrow-left"></i> ' : ''}${autorLabel}</span>
+                <span style="font-size:11px;color:var(--muted);">${fechaHora}</span>
               </div>
-              <p style="margin:0;font-size:14px;">${escapeHtml(c.texto)}</p>
-            </div>
-          `).join('')
+              <p style="margin:0;font-size:14px;white-space:pre-line;">${escapeHtml(c.texto)}</p>
+            </div>`;
+          }).join('')
         }
       </div>
     </div>
@@ -1711,15 +1718,22 @@ function verDetalleCandidatoJefe(candidatoId) {
       <div id="lista-comentarios-internos">
         ${comentarios.length === 0
           ? '<p style="text-align:center;color:var(--muted);font-size:13px;padding:12px 0;">Sin comentarios internos aún</p>'
-          : comentarios.slice().reverse().map(c => `
-            <div style="border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;">
+          : comentarios.slice().reverse().map(c => {
+            const esRetroceso = c.tipo === 'retroceso';
+            const borderColor = esRetroceso ? '#fde68a' : 'var(--border)';
+            const bgColor = esRetroceso ? '#fffbeb' : 'transparent';
+            const autorColor = esRetroceso ? '#d97706' : 'var(--primary)';
+            const autorLabel = esRetroceso ? escapeHtml(c.autor || '') : ('Jefe de ' + escapeHtml(c.autor || ''));
+            const fechaHora = formatFecha(c.fecha) + (c.hora ? ' ' + escapeHtml(c.hora) : '');
+            return `
+            <div style="border:1px solid ${borderColor};background:${bgColor};border-radius:8px;padding:12px 14px;margin-bottom:8px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                <span style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--primary);font-weight:700;">Jefe de ${escapeHtml(c.autor)}</span>
-                <span style="font-size:11px;color:var(--muted);">${formatFecha(c.fecha)}</span>
+                <span style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:${autorColor};font-weight:700;">${esRetroceso ? '<i class="fas fa-arrow-left"></i> ' : ''}${autorLabel}</span>
+                <span style="font-size:11px;color:var(--muted);">${fechaHora}</span>
               </div>
-              <p style="margin:0;font-size:14px;">${escapeHtml(c.texto)}</p>
-            </div>
-          `).join('')
+              <p style="margin:0;font-size:14px;white-space:pre-line;">${escapeHtml(c.texto)}</p>
+            </div>`;
+          }).join('')
         }
       </div>
     </div>
@@ -1823,70 +1837,102 @@ function retrocederEtapa(candidatoId) {
   if (!candidato) return;
 
   const etapaActualNombre = candidato.etapa;
+  var labelActual, labelDestino;
 
-  // Caso especial: rechazado → volver a la etapa donde fue rechazado
   if (etapaActualNombre === 'rechazado') {
     const etapaPrevia = candidato.etapaRechazo ? getEtapaNombre(candidato.etapaRechazo) : 'aplicado';
-    const labelPrevia = getEtapaLabel(etapaPrevia);
-    if (!confirm('¿Regresar a ' + labelPrevia + '? Se deshará el rechazo del candidato.')) return;
+    labelActual = 'Rechazado';
+    labelDestino = getEtapaLabel(etapaPrevia);
+  } else if (etapaActualNombre === 'contratado') {
+    labelActual = 'Contratado';
+    labelDestino = 'Documentos';
+  } else {
+    const etapaNum = getEtapaNumero(etapaActualNombre);
+    if (etapaNum <= 1) return;
+    labelActual = getEtapaLabel(etapaActualNombre);
+    labelDestino = getEtapaLabel(getEtapaNombre(etapaNum - 1));
+  }
+
+  document.getElementById('retroceso-candidato-id').value = candidatoId;
+  document.getElementById('retroceso-etapa-actual').textContent = labelActual;
+  document.getElementById('retroceso-etapa-destino').textContent = labelDestino;
+  document.getElementById('retroceso-motivo').value = '';
+
+  closeModal('detalle-candidato');
+  openModal('retroceder-etapa');
+}
+
+function confirmarRetroceso() {
+  const candidatoId = parseInt(document.getElementById('retroceso-candidato-id').value);
+  const motivo = document.getElementById('retroceso-motivo').value.trim();
+
+  if (!motivo) {
+    showToast('Campo obligatorio', 'Debes ingresar el motivo del retroceso');
+    document.getElementById('retroceso-motivo').focus();
+    return;
+  }
+
+  const candidato = candidatos.find(c => c.id === candidatoId);
+  if (!candidato) return;
+
+  const etapaActualNombre = candidato.etapa;
+  const labelOrigen = getEtapaLabel(etapaActualNombre);
+  var labelDestino;
+
+  // Ejecutar el rollback según el caso
+  if (etapaActualNombre === 'rechazado') {
+    const etapaPrevia = candidato.etapaRechazo ? getEtapaNombre(candidato.etapaRechazo) : 'aplicado';
+    labelDestino = getEtapaLabel(etapaPrevia);
     candidato.etapa = etapaPrevia;
     delete candidato.motivoRechazo;
     delete candidato.etapaRechazo;
-    saveData();
-    showToast('Etapa revertida', 'El candidato regresó a: ' + labelPrevia);
-    renderCandidatosTable();
-    verDetalleCandidato(candidatoId);
-    return;
-  }
-
-  // Caso especial: contratado → volver a documentos
-  if (etapaActualNombre === 'contratado') {
-    if (!confirm('¿Regresar a Documentos? Se eliminarán los datos laborales del candidato.')) return;
+  } else if (etapaActualNombre === 'contratado') {
+    labelDestino = 'Documentos';
     candidato.etapa = 'documentos';
     delete candidato.datosLaborales;
-    saveData();
-    showToast('Etapa revertida', 'El candidato regresó a: Documentos');
-    renderCandidatosTable();
-    verDetalleCandidato(candidatoId);
-    return;
+  } else {
+    const etapaNum = getEtapaNumero(etapaActualNombre);
+    const etapaAnterior = getEtapaNombre(etapaNum - 1);
+    labelDestino = getEtapaLabel(etapaAnterior);
+
+    switch (etapaActualNombre) {
+      case 'entrevista-rh':
+        var idxRH = entrevistas.findIndex(function(e) { return e.candidatoId === candidatoId && e.tipo === 'rh'; });
+        if (idxRH !== -1) entrevistas.splice(idxRH, 1);
+        break;
+      case 'entrevista-jefe':
+        var idxJefe = entrevistas.findIndex(function(e) { return e.candidatoId === candidatoId && e.tipo === 'jefe'; });
+        if (idxJefe !== -1) entrevistas.splice(idxJefe, 1);
+        break;
+      case 'revision-medica':
+        var entJefe = entrevistas.find(function(e) { return e.candidatoId === candidatoId && e.tipo === 'jefe'; });
+        if (entJefe) entJefe.aprobadaJefe = false;
+        break;
+      default:
+        break;
+    }
+
+    candidato.etapa = etapaAnterior;
   }
 
-  const etapaNum = getEtapaNumero(etapaActualNombre);
-  if (etapaNum <= 1) return; // No se puede retroceder desde aplicado
+  // Registrar comentario interno con nombre, fecha, hora y motivo
+  var ahora = new Date();
+  var fecha = ahora.toISOString().split('T')[0];
+  var hora = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  var autor = (sesionUsuario && sesionUsuario.userName) || 'Sistema';
 
-  const etapaAnterior = getEtapaNombre(etapaNum - 1);
-  const labelAnterior = getEtapaLabel(etapaAnterior);
+  if (!candidato.comentariosInternos) candidato.comentariosInternos = [];
+  candidato.comentariosInternos.push({
+    fecha: fecha,
+    texto: '[Retroceso de etapa] ' + labelOrigen + ' → ' + labelDestino + '\nMotivo: ' + motivo,
+    autor: autor,
+    hora: hora,
+    tipo: 'retroceso'
+  });
 
-  if (!confirm('¿Regresar a ' + labelAnterior + '? Se desharán los cambios de la etapa actual.')) return;
-
-  // Deshacer datos según la transición
-  switch (etapaActualNombre) {
-    case 'entrevista-rh':
-      // Eliminar entrevista tipo 'rh'
-      var idxRH = entrevistas.findIndex(function(e) { return e.candidatoId === candidatoId && e.tipo === 'rh'; });
-      if (idxRH !== -1) entrevistas.splice(idxRH, 1);
-      break;
-
-    case 'entrevista-jefe':
-      // Eliminar entrevista tipo 'jefe' y resetear aprobadaJefe
-      var idxJefe = entrevistas.findIndex(function(e) { return e.candidatoId === candidatoId && e.tipo === 'jefe'; });
-      if (idxJefe !== -1) entrevistas.splice(idxJefe, 1);
-      break;
-
-    case 'revision-medica':
-      // Resetear aprobadaJefe en entrevista jefe
-      var entJefe = entrevistas.find(function(e) { return e.candidatoId === candidatoId && e.tipo === 'jefe'; });
-      if (entJefe) entJefe.aprobadaJefe = false;
-      break;
-
-    // psicometrico, referencias, documentos: solo cambiar etapa
-    default:
-      break;
-  }
-
-  candidato.etapa = etapaAnterior;
   saveData();
-  showToast('Etapa revertida', 'El candidato regresó a: ' + labelAnterior);
+  showToast('Etapa revertida', 'El candidato regresó a: ' + labelDestino);
+  closeModal('retroceder-etapa');
   renderCandidatosTable();
   verDetalleCandidato(candidatoId);
 }
