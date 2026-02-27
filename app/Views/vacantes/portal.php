@@ -33,6 +33,7 @@
           <input type="text" id="portal-busqueda" placeholder="Buscar...">
         </div>
         <select id="portal-filtro-depto"><option value="">Departamento</option></select>
+        <select id="portal-filtro-ubicacion"><option value="">Ubicación</option></select>
         <select id="portal-filtro-jornada"><option value="">Jornada</option></select>
         <div class="portal-filtros-sep"></div>
         <select id="portal-ordenar">
