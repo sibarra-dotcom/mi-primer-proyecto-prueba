@@ -829,27 +829,19 @@ function poblarFiltrosPortal() {
   var abiertas = vacantes.filter(function(v) { return v.estado === 'abierta'; });
 
   var deptos = [];
-  var ubics = [];
   var jornadas = [];
   abiertas.forEach(function(v) {
     if (v.departamento && deptos.indexOf(v.departamento) === -1) deptos.push(v.departamento);
-    var ubNombre = v.ubicacionClave ? (UBICACION_NOMBRES[v.ubicacionClave] || v.ubicacion) : v.ubicacion;
-    if (ubNombre && ubics.indexOf(ubNombre) === -1) ubics.push(ubNombre);
     var jorn = v.jornada || v.tipo;
     if (jorn && jornadas.indexOf(jorn) === -1) jornadas.push(jorn);
   });
   deptos.sort();
-  ubics.sort();
   jornadas.sort();
 
   var selDepto = document.getElementById('portal-filtro-depto');
-  var selUbic = document.getElementById('portal-filtro-ubicacion');
   var selJorn = document.getElementById('portal-filtro-jornada');
   if (selDepto) {
     selDepto.innerHTML = '<option value="">Departamento</option>' + deptos.map(function(d) { return '<option>' + escapeHtml(d) + '</option>'; }).join('');
-  }
-  if (selUbic) {
-    selUbic.innerHTML = '<option value="">Ubicación</option>' + ubics.map(function(u) { return '<option>' + escapeHtml(u) + '</option>'; }).join('');
   }
   if (selJorn) {
     selJorn.innerHTML = '<option value="">Jornada</option>' + jornadas.map(function(j) { return '<option>' + escapeHtml(j) + '</option>'; }).join('');
@@ -857,7 +849,7 @@ function poblarFiltrosPortal() {
 }
 
 function setupFiltrosPortal() {
-  var ids = ['portal-busqueda', 'portal-filtro-depto', 'portal-filtro-ubicacion', 'portal-filtro-jornada', 'portal-ordenar'];
+  var ids = ['portal-busqueda', 'portal-filtro-depto', 'portal-filtro-jornada', 'portal-ordenar'];
   ids.forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.addEventListener(id === 'portal-busqueda' ? 'input' : 'change', renderVacantesPortal);
@@ -867,23 +859,15 @@ function setupFiltrosPortal() {
 function limpiarFiltrosPortal() {
   var busq = document.getElementById('portal-busqueda');
   var depto = document.getElementById('portal-filtro-depto');
-  var ubic = document.getElementById('portal-filtro-ubicacion');
   var jorn = document.getElementById('portal-filtro-jornada');
   if (busq) busq.value = '';
   if (depto) depto.value = '';
-  if (ubic) ubic.value = '';
   if (jorn) jorn.value = '';
   renderVacantesPortal();
 }
 
 function actualizarBotonLimpiar() {
-  var busqueda = (document.getElementById('portal-busqueda') || {}).value || '';
-  var filtroDepto = (document.getElementById('portal-filtro-depto') || {}).value || '';
-  var filtroUbic = (document.getElementById('portal-filtro-ubicacion') || {}).value || '';
-  var filtroJorn = (document.getElementById('portal-filtro-jornada') || {}).value || '';
-  var hayFiltros = !!(busqueda || filtroDepto || filtroUbic || filtroJorn);
-  var btn = document.getElementById('portal-limpiar');
-  if (btn) btn.style.display = hayFiltros ? '' : 'none';
+  // El botón limpiar siempre está visible
 }
 
 function renderVacantesPortal() {
@@ -894,7 +878,6 @@ function renderVacantesPortal() {
   // Filtros
   var busqueda = (document.getElementById('portal-busqueda') || {}).value || '';
   var filtroDepto = (document.getElementById('portal-filtro-depto') || {}).value || '';
-  var filtroUbic = (document.getElementById('portal-filtro-ubicacion') || {}).value || '';
   var filtroJorn = (document.getElementById('portal-filtro-jornada') || {}).value || '';
   var orden = (document.getElementById('portal-ordenar') || {}).value || 'reciente';
 
@@ -911,12 +894,6 @@ function renderVacantesPortal() {
   }
   if (filtroDepto) {
     vacantesAbiertas = vacantesAbiertas.filter(function(v) { return v.departamento === filtroDepto; });
-  }
-  if (filtroUbic) {
-    vacantesAbiertas = vacantesAbiertas.filter(function(v) {
-      var ubNombre = v.ubicacionClave ? (UBICACION_NOMBRES[v.ubicacionClave] || v.ubicacion) : v.ubicacion;
-      return ubNombre === filtroUbic;
-    });
   }
   if (filtroJorn) {
     vacantesAbiertas = vacantesAbiertas.filter(function(v) { return (v.jornada || v.tipo) === filtroJorn; });
@@ -935,7 +912,7 @@ function renderVacantesPortal() {
   actualizarBotonLimpiar();
   var resumen = document.getElementById('portalFiltrosResumen');
   if (resumen) {
-    if (busqueda || filtroDepto || filtroUbic || filtroJorn) {
+    if (busqueda || filtroDepto || filtroJorn) {
       resumen.textContent = vacantesAbiertas.length + ' de ' + totalAbiertas + ' vacantes';
     } else {
       resumen.textContent = totalAbiertas + ' vacantes disponibles';

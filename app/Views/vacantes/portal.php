@@ -33,7 +33,6 @@
           <input type="text" id="portal-busqueda" placeholder="Buscar...">
         </div>
         <select id="portal-filtro-depto"><option value="">Departamento</option></select>
-        <select id="portal-filtro-ubicacion"><option value="">Ubicación</option></select>
         <select id="portal-filtro-jornada"><option value="">Jornada</option></select>
         <div class="portal-filtros-sep"></div>
         <select id="portal-ordenar">
@@ -42,7 +41,7 @@
           <option value="az">A - Z</option>
           <option value="za">Z - A</option>
         </select>
-        <button type="button" id="portal-limpiar" class="portal-limpiar-btn" onclick="limpiarFiltrosPortal()" title="Limpiar filtros" style="display:none;">
+        <button type="button" id="portal-limpiar" class="portal-limpiar-btn" onclick="limpiarFiltrosPortal()" title="Limpiar filtros">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           Limpiar
         </button>
