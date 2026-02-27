@@ -100,11 +100,13 @@
                 </div>
               </div>
               <div style="flex:1;"></div>
-              <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosDashboard()" style="padding:8px 16px;font-size:13px;align-self:center;">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                Limpiar
-              </button>
-              <button class="btn btn-primary" type="button" onclick="filtrarDashboard()" style="padding:8px 16px;font-size:13px;">FILTRAR</button>
+              <div style="display:flex;gap:6px;align-items:stretch;align-self:flex-end;">
+                <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosDashboard()" style="padding:8px 16px;font-size:13px;">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  Limpiar
+                </button>
+                <button class="btn btn-primary" type="button" onclick="filtrarDashboard()" style="padding:8px 16px;font-size:13px;">FILTRAR</button>
+              </div>
             </div>
           </div>
         </div>
