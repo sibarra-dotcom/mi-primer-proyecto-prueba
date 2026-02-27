@@ -1813,8 +1813,8 @@ function avanzarEtapa(candidatoId, nuevaEtapa) {
     candidato.etapa = nuevaEtapa;
     saveData();
     showToast('Etapa actualizada', `El candidato ha avanzado a: ${getEtapaLabel(nuevaEtapa)}`);
-    closeModal('detalle-candidato');
     renderCandidatosTable();
+    verDetalleCandidato(candidatoId);
   }
 }
 
@@ -1834,8 +1834,8 @@ function retrocederEtapa(candidatoId) {
     delete candidato.etapaRechazo;
     saveData();
     showToast('Etapa revertida', 'El candidato regresó a: ' + labelPrevia);
-    closeModal('detalle-candidato');
     renderCandidatosTable();
+    verDetalleCandidato(candidatoId);
     return;
   }
 
@@ -1846,8 +1846,8 @@ function retrocederEtapa(candidatoId) {
     delete candidato.datosLaborales;
     saveData();
     showToast('Etapa revertida', 'El candidato regresó a: Documentos');
-    closeModal('detalle-candidato');
     renderCandidatosTable();
+    verDetalleCandidato(candidatoId);
     return;
   }
 
@@ -1887,8 +1887,8 @@ function retrocederEtapa(candidatoId) {
   candidato.etapa = etapaAnterior;
   saveData();
   showToast('Etapa revertida', 'El candidato regresó a: ' + labelAnterior);
-  closeModal('detalle-candidato');
   renderCandidatosTable();
+  verDetalleCandidato(candidatoId);
 }
 
 function toggleDetalleEntrevista(candidatoId, tipo) {
@@ -2003,6 +2003,7 @@ function confirmarRechazo() {
     showToast('Candidato rechazado', 'El candidato ha sido marcado como rechazado');
     closeModal('rechazar-candidato');
     renderCandidatosTable();
+    verDetalleCandidato(candidatoId);
   }
 }
 
@@ -2052,9 +2053,9 @@ function aprobarEntrevistaJefe(candidatoId) {
   }
   saveData();
   showToast('Entrevista aprobada', 'El candidato avanza a Revisión Médica');
-  closeModal('detalle-candidato');
   renderCandidatosTable();
   if (typeof renderVacantesDeptoJefe === 'function') renderVacantesDeptoJefe();
+  verDetalleCandidato(candidatoId);
 }
 
 function cancelarAgendarEntrevista() {
@@ -4761,6 +4762,7 @@ function setupFormEntrevista() {
       document.getElementById('entrevista-lugar-direccion').style.display = 'none';
       e.target.reset();
       renderCandidatosTable();
+      verDetalleCandidato(candidatoId);
     });
   }
 
@@ -4814,6 +4816,7 @@ function setupFormAltaEmpleado() {
           closeModal('alta-empleado');
           e.target.reset();
           renderCandidatosTable();
+          verDetalleCandidato(candidatoId);
         }, 2800);
       }
     });
