@@ -462,7 +462,7 @@
   border-radius:4px;
   overflow:hidden;
   flex-shrink:0;
-  margin-left:12px;
+  margin-left:auto;
 }
 .vacantes-module .portal-vista-btn{
   background:#fff;
