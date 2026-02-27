@@ -251,12 +251,8 @@
         </div>
 
         <div class="card">
-          <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="card-header">
             <h2>Buscar y Filtrar</h2>
-            <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosVacantes()">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              Limpiar
-            </button>
           </div>
           <div class="grid">
             <div class="col-3">
@@ -293,6 +289,12 @@
               <select id="vac-filter-reclutadora" onchange="filtrarVacantes()">
                 <option value="">Todas</option>
               </select>
+            </div>
+            <div class="col-3" style="display:flex;align-items:flex-end;">
+              <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosVacantes()">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Limpiar
+              </button>
             </div>
           </div>
         </div>
@@ -331,17 +333,19 @@
 
 
         <div class="card">
-          <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="card-header">
             <h2>Buscar y Filtrar Candidatos</h2>
-            <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosCandidatos()">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              Limpiar
-            </button>
           </div>
           <div class="grid">
             <div class="col-3">
               <label for="cand-search">Buscar por nombre</label>
-              <input id="cand-search" type="text" placeholder="Nombre del candidato..." oninput="filtrarCandidatos()">
+              <div style="display:flex;gap:6px;">
+                <input id="cand-search" type="text" placeholder="Nombre del candidato..." oninput="filtrarCandidatos()" style="flex:1;">
+                <button class="btn portal-limpiar-btn" type="button" onclick="limpiarFiltrosCandidatos()" style="align-self:center;">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  Limpiar
+                </button>
+              </div>
             </div>
             <div class="col-3">
               <label for="cand-filter-departamento">Departamento</label>
