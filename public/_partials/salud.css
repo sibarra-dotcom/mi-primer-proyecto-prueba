@@ -1,0 +1,881 @@
+/* ==========================================================================
+   SALUD MODULE - Scoped CSS
+   All selectors prefixed with .salud-module to avoid Tailwind conflicts.
+   ========================================================================== */
+
+/* Variables & Base */
+.salud-module {
+  --primary:#007940;
+  --bg:#eef2f6;
+  --card:#ffffff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --border:#e5e7eb;
+  --shadow: 0 8px 22px rgba(2, 6, 23, .06);
+  --radius:14px;
+  --apto:#16a34a;
+  --no-apto:#dc2626;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+/* =====================================================================
+   Tailwind Preflight Overrides
+   ===================================================================== */
+.salud-module a{ color: var(--primary); text-decoration: none; }
+.salud-module a:hover{ text-decoration: underline; }
+.salud-module a.btn,
+.salud-module a.btn:hover{ text-decoration: none; }
+.salud-module h2{ font-size: 16px; font-weight: 800; margin: 0; }
+.salud-module h3{ font-size: 16px; font-weight: 800; margin: 0; }
+.salud-module h4{ font-size: 14px; font-weight: 700; margin: 0; }
+.salud-module p{ margin: 0 0 8px 0; }
+.salud-module p:last-child{ margin-bottom: 0; }
+.salud-module ul, .salud-module ol{ list-style: revert; margin: revert; padding: revert; }
+.salud-module svg{ display: inline; vertical-align: middle; }
+.salud-module button{ font-family: inherit; }
+.salud-module *, .salud-module *::before, .salud-module *::after{ box-sizing: border-box; }
+
+/* Tables */
+.salud-module table{ display: table !important; border-collapse: collapse !important; flex-direction: initial !important; }
+.salud-module thead{ display: table-header-group !important; background: #f9fafb !important; border-bottom: 1px solid var(--border) !important; }
+.salud-module tbody{ display: table-row-group !important; }
+.salud-module tr{ display: table-row !important; width: auto !important; margin-top: 0 !important; background-color: transparent !important; }
+.salud-module th{
+  display: table-cell !important;
+  position: static !important;
+  background-color: transparent !important;
+  color: rgba(15,23,42,.60) !important;
+  font-weight: 800 !important;
+  font-size: 11px !important;
+  text-align: left !important;
+  padding: 12px 16px !important;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+}
+.salud-module td{
+  display: table-cell !important;
+  color: var(--text) !important;
+  font-size: 14px !important;
+  text-align: left !important;
+  padding: 12px 16px !important;
+  max-width: none !important;
+  border-bottom: 1px solid var(--border);
+}
+.salud-module tbody > tr{ background-color: transparent !important; margin-top: 0 !important; }
+.salud-module tbody tr:hover{ background: #f9fafb !important; }
+.salud-module tr:last-child td{ border-bottom: none; }
+
+/* Layout */
+.salud-module main{
+  max-width:1200px;
+  margin: 22px auto 60px;
+  padding: 0 18px;
+}
+
+/* View switcher */
+.salud-module .view{ display: none; }
+.salud-module .view.active{ display: block; }
+
+/* Sticky header */
+.salud-module .salud-sticky-header{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #ffffff;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-bottom: 20px;
+}
+
+/* Cards */
+.salud-module .card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.salud-module .card-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* =====================================================================
+   Formulario - Secciones colapsables
+   ===================================================================== */
+.salud-module .form-section{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.salud-module .form-section-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  cursor: pointer;
+  background: #f9fafb;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+  transition: background 0.15s;
+}
+.salud-module .form-section-header:hover{ background: #f3f4f6; }
+.salud-module .form-section-header h3{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+}
+.salud-module .section-number{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.salud-module .section-number-result{
+  background: var(--apto);
+}
+.salud-module .section-chevron{
+  transition: transform 0.2s;
+  color: var(--muted);
+}
+.salud-module .section-chevron.rotated{ transform: rotate(180deg); }
+.salud-module .form-section-body{
+  padding: 20px 24px;
+}
+.salud-module .form-section-body.collapsed{ display: none; }
+
+/* =====================================================================
+   Form grid & groups
+   ===================================================================== */
+.salud-module .form-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.salud-module .form-group{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.salud-module .form-group label{
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.salud-module .form-group input,
+.salud-module .form-group select,
+.salud-module .form-group textarea{
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: #fff;
+}
+.salud-module .form-group input:focus,
+.salud-module .form-group select:focus,
+.salud-module .form-group textarea:focus{
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0,121,64,0.1);
+}
+.salud-module .col-span-2{ grid-column: span 2; }
+.salud-module .col-span-3{ grid-column: span 3; }
+
+/* Sub-section headers inside form */
+.salud-module .form-subsection{
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--primary);
+  margin: 20px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid rgba(0,121,64,0.15);
+}
+.salud-module .form-subsection:first-child{ margin-top: 0; }
+
+/* =====================================================================
+   Mini tables inside form (agentes, heredo-familiares, etc.)
+   ===================================================================== */
+.salud-module .tabla-form th{
+  font-size: 10px !important;
+  padding: 8px 6px !important;
+  white-space: nowrap;
+}
+.salud-module .tabla-form td{
+  font-size: 13px !important;
+  padding: 6px !important;
+}
+.salud-module .tabla-form input,
+.salud-module .tabla-form select{
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  width: 100%;
+  min-width: 50px;
+}
+.salud-module .tabla-form input:focus,
+.salud-module .tabla-form select:focus{
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* =====================================================================
+   Progress indicator (horizontal bar)
+   ===================================================================== */
+.salud-module .form-progress{
+  display: flex;
+  gap: 4px;
+  padding: 8px 0 0;
+  overflow-x: auto;
+}
+.salud-module .progress-step{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.salud-module .progress-step:hover{ background: #f3f4f6; }
+.salud-module .progress-number{
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* =====================================================================
+   Badges
+   ===================================================================== */
+.salud-module .badge{
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.salud-module .badge-apto{
+  background: #dcfce7;
+  color: #166534;
+}
+.salud-module .badge-no-apto{
+  background: #fef2f2;
+  color: #991b1b;
+}
+.salud-module .badge-pendiente{
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+/* =====================================================================
+   Buttons
+   ===================================================================== */
+.salud-module .btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.salud-module .btn-primary{ background: var(--primary); color: white; }
+.salud-module .btn-primary:hover{ background: #005f33; }
+.salud-module .btn-danger{ background: var(--no-apto); color: white; }
+.salud-module .btn-danger:hover{ background: #b91c1c; }
+.salud-module .btn-ghost{
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.salud-module .btn-ghost:hover{ background: #f3f4f6; }
+.salud-module .btn-small{ padding: 6px 12px; font-size: 12px; }
+
+/* Resultado final - big buttons */
+.salud-module .resultado-final{
+  border: 2px solid var(--primary);
+}
+.salud-module .resultado-botones{
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+  justify-content: center;
+}
+.salud-module .btn-apto{
+  background: var(--apto);
+  color: white;
+  padding: 14px 40px;
+  font-size: 18px;
+  font-weight: 900;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 1px;
+  font-family: inherit;
+  transition: background 0.15s, transform 0.1s;
+}
+.salud-module .btn-apto:hover{ background: #15803d; transform: translateY(-1px); }
+.salud-module .btn-no-apto{
+  background: var(--no-apto);
+  color: white;
+  padding: 14px 40px;
+  font-size: 18px;
+  font-weight: 900;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 1px;
+  font-family: inherit;
+  transition: background 0.15s, transform 0.1s;
+}
+.salud-module .btn-no-apto:hover{ background: #b91c1c; transform: translateY(-1px); }
+
+/* =====================================================================
+   Exploration Fisica - Sub-tabs
+   ===================================================================== */
+.salud-module .ef-tabs{
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.salud-module .ef-tab{
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.salud-module .ef-tab:hover{ background: #f3f4f6; }
+.salud-module .ef-tab.active{
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+.salud-module .ef-panel{ display: none; }
+.salud-module .ef-panel.active{ display: block; }
+
+/* =====================================================================
+   Navbar links
+   ===================================================================== */
+.salud-module .nav-link-salud{
+  padding: 4px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.salud-module .nav-link-salud:hover,
+.salud-module .nav-link-salud.nav-active{
+  color: var(--primary);
+  background: #f0fdf4;
+  text-decoration: none;
+}
+
+/* =====================================================================
+   Toast
+   ===================================================================== */
+.salud-module .toast{
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #0f172a;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  z-index: 9999;
+  transform: translateY(120%);
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.salud-module .toast.show{ transform: translateY(0); opacity: 1; }
+.salud-module .toast strong{ font-weight: 800; }
+.salud-module .toast small{ font-size: 12px; opacity: 0.8; }
+
+/* =====================================================================
+   Detail view (read-only)
+   ===================================================================== */
+.salud-module .detail-section{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.salud-module .detail-section h4{
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid rgba(0,121,64,0.15);
+}
+.salud-module .detail-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+.salud-module .detail-field label{
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.salud-module .detail-field .value{
+  font-size: 14px;
+  color: var(--text);
+  margin-top: 2px;
+}
+
+/* =====================================================================
+   Responsive
+   ===================================================================== */
+@media (max-width: 768px) {
+  .salud-module main{ padding: 0 10px; }
+  .salud-module .form-grid{ grid-template-columns: 1fr; }
+  .salud-module .col-span-2,
+  .salud-module .col-span-3{ grid-column: span 1; }
+  .salud-module .resultado-botones{ flex-direction: column; align-items: stretch; }
+  .salud-module .btn-apto,
+  .salud-module .btn-no-apto{ text-align: center; }
+  .salud-module .form-section-body{ padding: 14px 16px; }
+  .salud-module .card{ padding: 14px 16px; }
+  .salud-module .salud-sticky-header{ padding: 10px 12px; }
+}
+
+/* =====================================================================
+   Formato PDF — SOC-REG-05 (vista de detalle tipo documento impreso)
+   ===================================================================== */
+
+/* Contenedor principal */
+.salud-module .pdf-container--print {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.45rem;
+  padding: 1.55rem;
+  width: 100%;
+}
+
+/* Cada página */
+.salud-module .pdf-container--print .page__container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+}
+
+/* Cabecera institucional */
+.salud-module .pdf-container--print .formato__section {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid hsl(189,5.3%,81.7%);
+  color: hsl(189,5.3%,31.7%);
+}
+
+.salud-module .pdf-container--print .formato__col-1 {
+  display: flex;
+  width: 18%;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem;
+}
+.salud-module .pdf-container--print .formato__col-1 > img {
+  height: 1.9rem;
+  width: 9rem;
+}
+
+.salud-module .pdf-container--print .formato__col-2 {
+  display: flex;
+  flex-direction: column;
+  width: 57%;
+  font-size: 9px;
+}
+.salud-module .pdf-container--print .formato__col-2 div {
+  display: flex;
+  align-items: center;
+  height: 1.25rem;
+  padding: 4px;
+}
+.salud-module .pdf-container--print .formato__col-2 > :nth-child(1),
+.salud-module .pdf-container--print .formato__col-2 > :nth-child(2) {
+  border-left: 1px solid hsl(189,5.3%,81.7%);
+  border-bottom: 1px solid hsl(189,5.3%,81.7%);
+}
+.salud-module .pdf-container--print .formato__col-2 > :nth-child(3) {
+  border-left: 1px solid hsl(189,5.3%,81.7%);
+}
+.salud-module .pdf-container--print .formato__col-2 p {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+}
+.salud-module .pdf-container--print .formato__col-2 span {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.salud-module .pdf-container--print .formato__col-3 {
+  display: flex;
+  flex-direction: column;
+  width: 25%;
+  font-size: 9px;
+}
+.salud-module .pdf-container--print .formato__col-3 div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 1.25rem;
+  padding: 4px;
+}
+.salud-module .pdf-container--print .formato__col-3 > :nth-child(1),
+.salud-module .pdf-container--print .formato__col-3 > :nth-child(2) {
+  border-left: 1px solid hsl(189,5.3%,81.7%);
+  border-bottom: 1px solid hsl(189,5.3%,81.7%);
+}
+.salud-module .pdf-container--print .formato__col-3 > :nth-child(3) {
+  border-left: 1px solid hsl(189,5.3%,81.7%);
+}
+.salud-module .pdf-container--print .formato__col-3 p {
+  margin: 0;
+}
+.salud-module .pdf-container--print .formato__col-3 span {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Título de sección */
+.salud-module .pdf-container--print .doc-section-title {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 1px solid hsl(189,5.3%,52.7%);
+  background: hsl(189,5.3%,93.7%);
+  color: hsl(189,5.3%,31.7%);
+  padding: 3px 0;
+  margin-top: 0.3rem;
+}
+
+/* Filas de datos */
+.salud-module .pdf-container--print .doc-row {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  text-align: center;
+  border-right: 1px solid hsl(189,5.3%,52.7%);
+  font-size: 10px;
+  color: hsl(189,5.3%,31.7%);
+}
+.salud-module .pdf-container--print .doc-row > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.5rem;
+  padding: 2px 4px;
+  border-left: 1px solid hsl(189,5.3%,52.7%);
+  border-bottom: 1px solid hsl(189,5.3%,52.7%);
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+/* Filas de cabecera de tabla interna */
+.salud-module .pdf-container--print .doc-row-header {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  text-align: center;
+  border-right: 1px solid hsl(189,5.3%,52.7%);
+  border-top: 1px solid hsl(189,5.3%,52.7%);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: hsl(189,5.3%,31.7%);
+  background: hsl(189,5.3%,93.7%);
+}
+.salud-module .pdf-container--print .doc-row-header > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.4rem;
+  padding: 2px 4px;
+  border-left: 1px solid hsl(189,5.3%,52.7%);
+  border-bottom: 1px solid hsl(189,5.3%,52.7%);
+}
+
+/* Etiqueta bold dentro de celdas */
+.salud-module .pdf-container--print .doc-label {
+  font-weight: 600;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+/* Valor centrado */
+.salud-module .pdf-container--print .doc-value {
+  font-size: 10px;
+  flex: 1;
+  text-align: center;
+}
+
+/* Resultado APTO/NO APTO badge grande */
+.salud-module .pdf-container--print .doc-resultado-badge {
+  display: inline-block;
+  padding: 6px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.salud-module .pdf-container--print .doc-resultado-badge.apto {
+  background: #dcfce7;
+  color: #166534;
+  border: 2px solid #16a34a;
+}
+.salud-module .pdf-container--print .doc-resultado-badge.no-apto {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 2px solid #dc2626;
+}
+
+/* Línea de firma */
+.salud-module .pdf-container--print .doc-firma-line {
+  border-top: 1px solid hsl(189,5.3%,31.7%);
+  width: 60%;
+  margin: 2rem auto 0.25rem;
+  text-align: center;
+  padding-top: 4px;
+  font-size: 10px;
+  color: hsl(189,5.3%,31.7%);
+}
+
+/* Page break */
+.salud-module .page-break {
+  page-break-after: always;
+}
+
+/* =====================================================================
+   Formato PDF — Responsive
+   ===================================================================== */
+@media (min-width: 1024px) {
+  .salud-module .pdf-container--print { padding: 2rem 6rem; }
+}
+@media (min-width: 1440px) {
+  .salud-module .pdf-container--print { padding: 2rem 20rem; }
+}
+
+/* =====================================================================
+   Formato PDF — Inputs editables dentro del documento
+   ===================================================================== */
+
+/* Base: input transparente, sin borde, compacto */
+.salud-module .pdf-container--print .doc-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 10px;
+  font-family: inherit;
+  color: hsl(189, 5.3%, 31.7%);
+  text-align: center;
+  padding: 1px 3px;
+  margin: 0;
+  box-sizing: border-box;
+  line-height: 1.2;
+  min-height: 1.2em;
+}
+
+/* Focus: highlight sutil verde */
+.salud-module .pdf-container--print .doc-input:focus {
+  outline: none;
+  background: rgba(0, 121, 64, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(0, 121, 64, 0.25);
+  border-radius: 2px;
+}
+
+/* Hover: indicacion sutil de editabilidad */
+.salud-module .pdf-container--print .doc-input:hover:not(:focus) {
+  background: rgba(0, 121, 64, 0.03);
+}
+
+/* Readonly (fecha aplicacion, IMC auto-calculado) */
+.salud-module .pdf-container--print .doc-input--readonly {
+  color: hsl(189, 5.3%, 52.7%);
+  cursor: default;
+  background: hsl(189, 5.3%, 96%);
+}
+.salud-module .pdf-container--print .doc-input--readonly:hover {
+  background: hsl(189, 5.3%, 96%);
+}
+
+/* Select: apariencia minimal con flecha SVG */
+.salud-module .pdf-container--print .doc-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  padding-right: 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%2364748b'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 3px center;
+  background-size: 6px;
+}
+.salud-module .pdf-container--print .doc-select:focus {
+  background-color: rgba(0, 121, 64, 0.06);
+}
+
+/* Textarea (analisis, comentario concluyente) */
+.salud-module .pdf-container--print .doc-textarea {
+  text-align: left;
+  resize: vertical;
+  min-height: 2.5rem;
+  width: 100%;
+  padding: 4px 6px;
+}
+
+/* Ocultar spinners de inputs numericos */
+.salud-module .pdf-container--print input[type="number"].doc-input::-webkit-inner-spin-button,
+.salud-module .pdf-container--print input[type="number"].doc-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.salud-module .pdf-container--print input[type="number"].doc-input {
+  -moz-appearance: textfield;
+}
+
+/* Date inputs compactos */
+.salud-module .pdf-container--print input[type="date"].doc-input {
+  font-size: 9px;
+}
+
+/* Placeholder */
+.salud-module .pdf-container--print .doc-input::placeholder {
+  color: hsl(189, 5.3%, 75%);
+  font-style: italic;
+  font-size: 9px;
+}
+
+/* IMC auto-calculado en negrita */
+.salud-module .pdf-container--print #sm-imc {
+  font-weight: 800;
+}
+
+/* Botones APTO/NO APTO dentro del documento */
+.salud-module .pdf-container--print .resultado-botones {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  padding: 0.75rem 0;
+}
+
+/* =====================================================================
+   Formato PDF — Impresion
+   ===================================================================== */
+@media print {
+  /* Asegurar que la cadena de contenedores sea visible */
+  body, body > div { display: block !important; margin: 0 !important; padding: 0 !important; }
+  /* Ocultar navbar (fuera de .salud-module) y elementos de UI */
+  body nav,
+  .font-titil > nav,
+  .salud-module .salud-sticky-header,
+  .salud-module .toast,
+  .salud-module #view-expedientes { display: none !important; }
+  /* Mostrar solo la vista activa */
+  .salud-module .view.active { display: block !important; }
+  /* Formato de pagina */
+  .salud-module { padding: 0 !important; }
+  .salud-module .pdf-container--print { padding: 0 !important; gap: 0 !important; }
+  .salud-module .pdf-container--print .page__container { box-shadow: none; padding: 4mm 8mm; }
+  .salud-module .page-break { page-break-after: always; }
+  .salud-module .pdf-container--print .page__container:last-child { page-break-after: auto; }
+  .salud-module .pdf-container--print .doc-resultado-badge { border-width: 1px; }
+  /* Ocultar botones de accion en impresion */
+  .salud-module .resultado-botones { display: none !important; }
+  /* Inputs se ven como texto plano en impresion */
+  .salud-module .pdf-container--print .doc-input {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  /* Compactar todo para que quepa en las hojas */
+  .salud-module .pdf-container--print .formato__col-1 > img { height: 1.5rem; width: 7rem; }
+  .salud-module .pdf-container--print .formato__col-2 div,
+  .salud-module .pdf-container--print .formato__col-3 div { height: 1rem; padding: 2px; }
+  .salud-module .pdf-container--print .formato__col-2,
+  .salud-module .pdf-container--print .formato__col-3 { font-size: 8px; }
+  .salud-module .pdf-container--print .doc-section-title { font-size: 9px; padding: 1px 0; margin-top: 0.15rem; }
+  .salud-module .pdf-container--print .doc-row { font-size: 8px; }
+  .salud-module .pdf-container--print .doc-row > div { min-height: 1rem; padding: 1px 3px; }
+  .salud-module .pdf-container--print .doc-row-header { font-size: 8px; }
+  .salud-module .pdf-container--print .doc-row-header > div { min-height: 1rem; padding: 1px 3px; }
+  .salud-module .pdf-container--print .doc-label { font-size: 7.5px; }
+  .salud-module .pdf-container--print .doc-input { font-size: 8px; }
+  .salud-module .pdf-container--print .doc-firma-line { margin-top: 0.8rem; font-size: 8px; }
+}

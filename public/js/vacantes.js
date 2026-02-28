@@ -1548,6 +1548,22 @@ function verDetalleCandidato(candidatoId) {
       </div>
     </div>
 
+    ${candidato.comentarioSalud ? `
+    <div class="card" style="border-left:4px solid ${candidato.comentarioSalud.resultado === 'apto' ? '#16a34a' : '#dc2626'};">
+      <div class="card-header"><h2><i class="fas fa-stethoscope" style="color:${candidato.comentarioSalud.resultado === 'apto' ? '#16a34a' : '#dc2626'};margin-right:8px;"></i>Dictamen de Salud Ocupacional</h2></div>
+      <div style="background:${candidato.comentarioSalud.resultado === 'apto' ? '#f0fdf4' : '#fef2f2'};border:1px solid ${candidato.comentarioSalud.resultado === 'apto' ? '#bbf7d0' : '#fecaca'};border-radius:8px;padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span class="badge badge-${candidato.comentarioSalud.resultado === 'apto' ? 'contratado' : 'rechazado'}" style="font-size:13px;font-weight:900;">
+            ${candidato.comentarioSalud.resultado === 'apto' ? 'APTO' : 'NO APTO'}
+          </span>
+          <span style="font-size:12px;color:var(--muted);">${formatFecha(candidato.comentarioSalud.fecha)}</span>
+        </div>
+        <p style="margin:0 0 4px;font-size:14px;"><strong>Comentario:</strong> ${escapeHtml(candidato.comentarioSalud.comentario)}</p>
+        <p style="margin:0;font-size:12px;color:var(--muted);">Realizado por: ${escapeHtml(candidato.comentarioSalud.realizadoPor)}</p>
+      </div>
+    </div>
+    ` : ''}
+
     <div class="card">
       <div class="card-header"><h2>Comentarios del Jefe de Área</h2></div>
       <div>

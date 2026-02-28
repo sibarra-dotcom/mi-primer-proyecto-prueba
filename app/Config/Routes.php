@@ -328,6 +328,9 @@ $routes->group('test', function($routes) {
 // Upload Controller
 $routes->POST('upload/inspeccion', 'Upload::inspeccion', ['filter' => 'authGuard']);
 
+// Salud Ocupacional - Expediente Médico
+$routes->GET('/salud', 'Salud::index', ['filter' => 'authGuard:salud_ocupacional,rrhh']);
+
 // Vacantes controller - autenticado
 $routes->GET('/vacantes', 'Vacantes::index', ['filter' => 'authGuard']);
 // Vacantes - portal público (sin auth)
